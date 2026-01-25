@@ -2,8 +2,10 @@
 
 ![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
 ![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
+![Type](https://img.shields.io/badge/Type-UserScript-blueviolet)
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
+![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
 ![Version](https://img.shields.io/badge/Version-v1.18-brightgreen)
 
 [中文](README.md) | [English](README-EN.md)
