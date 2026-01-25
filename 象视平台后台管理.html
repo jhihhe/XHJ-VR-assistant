@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<!-- saved from url=(0035)https://vr.xhj.com/houseadmin/index -->
+<html id="q𝙴f𝚏f𝙺" fr-init-once="" data-redeviation-bs-uid="rrfo9gisla"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>象视平台后台管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="./象视平台后台管理_files/layui.css" media="all">
+    <link rel="stylesheet" href="./象视平台后台管理_files/global.css" media="all">
+    <link rel="stylesheet" href="./象视平台后台管理_files/font.css" media="all">
+<style id="xhj-custom-skin-style">
+            :root {
+                --xhj-bg: #0d1117;
+--xhj-fg: #c9d1d9;
+--xhj-header-bg: #161b22;
+--xhj-side-bg: #010409;
+--xhj-active-bg: #1f6feb;
+--xhj-active-fg: #ffffff;
+--xhj-border: #30363d;
+--xhj-hover-bg: #21262d;
+--xhj-input-bg: #0d1117;
+--xhj-table-head: #161b22;
+                --xhj-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                --xhj-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.3);
+                --xhj-radius: 8px;
+                --xhj-btn-gradient: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(0,0,0,0));
+                --xhj-sidebar-bg: rgba(33, 34, 44, 0.95);
+                --xhj-glow: 0 0 10px rgba(189, 147, 249, 0.4);
+                --xhj-glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-3px); }
+                100% { transform: translateY(0px); }
+            }
+
+            /* --- 核心修复：强制应用背景色 --- */
+            html, body {
+                background-color: var(--xhj-bg) !important;
+                color: var(--xhj-fg) !important;
+                -webkit-font-smoothing: antialiased;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            }
+            
+            /* 修复 iframe 内可能存在的白色背景类 */
+            .layui-bg-white, .admin-main, .layui-fluid {
+                background-color: transparent !important;
+            }
+
+            /* --- 全局组件优化 --- */
+            
+            /* 过渡动画 */
+            .layui-btn, .layui-input, .layui-nav-item a, .layui-table-cell, .layui-tab-title li {
+                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            }
+
+            /* 侧边栏 macOS 风格 */
+            .layui-side, .layui-side-scroll, .layui-bg-black {
+                background-color: var(--xhj-side-bg) !important;
+                border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+                box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+                backdrop-filter: blur(10px);
+            }
+            .layui-nav-tree .layui-nav-item a {
+                color: var(--xhj-fg) !important;
+                margin: 4px 8px !important;
+                border-radius: 6px !important;
+                width: auto !important;
+            }
+            .layui-nav-tree .layui-nav-item a:hover {
+                background-color: rgba(255, 255, 255, 0.1) !important;
+                transform: translateX(4px);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .layui-nav-tree .layui-this {
+                background-color: transparent !important;
+            }
+            .layui-nav-tree .layui-this > a {
+                background-color: var(--xhj-active-bg) !important;
+                background-image: linear-gradient(135deg, var(--xhj-active-bg), rgba(189, 147, 249, 0.8)) !important;
+                color: white !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+                border-radius: 10px !important;
+                margin: 0 10px !important;
+                width: auto !important;
+                transform: translateY(-1px) scale(1.02) !important;
+                text-shadow: none !important;
+                border: 1px solid rgba(255,255,255,0.2) !important;
+            }
+            .layui-nav-tree .layui-this > a::after { display: none !important; }
+
+            /* 顶部 Header & Tabs */
+            .layui-layout-admin .layui-header {
+                background-color: var(--xhj-header-bg) !important;
+                border-bottom: 1px solid var(--xhj-border);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+                z-index: 1000;
+            }
+            .layui-tab { background-color: transparent !important; }
+            .layui-tab-title {
+                border-bottom-color: var(--xhj-border) !important;
+                background-color: transparent !important;
+            }
+            .layui-tab-title li {
+                color: var(--xhj-fg) !important;
+                background-color: rgba(255, 255, 255, 0.05) !important;
+                border-color: transparent !important;
+                margin-right: 2px;
+                border-radius: 4px 4px 0 0;
+            }
+            .layui-tab-title .layui-this {
+                color: var(--xhj-active-bg) !important;
+                background-color: var(--xhj-header-bg) !important;
+                border-color: var(--xhj-border) !important;
+                border-bottom-color: var(--xhj-header-bg) !important;
+            }
+            .layui-tab-title .layui-this:after { border: none !important; }
+
+            /* 分页栏 */
+            .layui-table-page {
+                background-color: transparent !important;
+                border-top: 1px solid var(--xhj-border) !important;
+            }
+            .layui-laypage a, .layui-laypage span {
+                color: var(--xhj-fg) !important;
+                background-color: transparent !important;
+                border-color: var(--xhj-border) !important;
+            }
+            .layui-laypage a:hover {
+                color: var(--xhj-active-bg) !important;
+                border-color: var(--xhj-active-bg) !important;
+            }
+            .layui-laypage .layui-laypage-curr .layui-laypage-em {
+                background-color: var(--xhj-active-bg) !important;
+            }
+            .layui-laypage input, .layui-laypage button, .layui-laypage select {
+                background-color: var(--xhj-input-bg) !important;
+                color: var(--xhj-fg) !important;
+                border: 1px solid var(--xhj-border) !important;
+            }
+
+            /* 表单元素 */
+            .layui-form-label {
+                background-color: transparent !important;
+                color: var(--xhj-fg) !important;
+                border: none !important;
+            }
+            .layui-input-block, .layui-form-item { background-color: transparent !important; }
+            .layui-form-pane .layui-form-label {
+                background-color: rgba(255,255,255,0.05) !important;
+                color: var(--xhj-fg) !important;
+                border-color: var(--xhj-border) !important;
+            }
+
+            /* 卡片与容器 */
+            .layui-card {
+                background-color: rgba(68, 71, 90, 0.95) !important;
+                color: var(--xhj-fg) !important;
+                border: var(--xhj-glass-border) !important;
+                border-radius: 12px !important;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+                backdrop-filter: blur(8px);
+            }
+            .layui-card-header {
+                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+                color: var(--xhj-fg) !important;
+            }
+
+            /* 按钮 */
+            .layui-btn {
+                background-color: var(--xhj-active-bg) !important;
+                color: var(--xhj-active-fg) !important;
+                border-radius: 6px !important;
+                border: none !important;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
+                background-image: var(--xhj-btn-gradient) !important;
+            }
+            .layui-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 0 15px var(--xhj-active-bg), 0 0 5px var(--xhj-active-bg) !important;
+                opacity: 1;
+            }
+            .layui-btn-primary {
+                background-color: transparent !important;
+                border: 1px solid var(--xhj-border) !important;
+                color: var(--xhj-fg) !important;
+                box-shadow: none !important;
+            }
+            .layui-btn-primary:hover {
+                border-color: var(--xhj-active-bg) !important;
+                color: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 8px var(--xhj-active-bg) !important;
+            }
+
+            /* 输入框 */
+            .layui-input, .layui-select, .layui-textarea, input[type="text"] {
+                background-color: var(--xhj-input-bg) !important;
+                color: var(--xhj-fg) !important;
+                border: 1px solid var(--xhj-border) !important;
+                border-radius: 6px !important;
+                box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
+            }
+            .layui-input:focus, .layui-select:focus, .layui-textarea:focus {
+                border-color: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 0 3px rgba(189, 147, 249, 0.2) !important;
+            }
+
+            /* 表格 */
+            .layui-table, .layui-table-view {
+                background-color: var(--xhj-bg) !important;
+                color: var(--xhj-fg) !important;
+                border-radius: 8px;
+                border: none !important;
+            }
+            .layui-table-hover, .layui-table-click, .layui-table tbody tr:hover, 
+            .layui-table-hover > td, .layui-table-click > td, .layui-table tbody tr:hover > td {
+                background-color: rgba(98, 114, 164, 0.2) !important;
+                backdrop-filter: blur(4px);
+            }
+            .layui-table thead tr, .layui-table-header {
+                background-color: var(--xhj-table-head) !important;
+                color: var(--xhj-fg) !important;
+            }
+            .layui-table td {
+                padding: 0 !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+            }
+            .layui-table-cell {
+                font-family: 'SF Mono', 'Consolas', 'Monaco', monospace !important;
+                background-color: var(--xhj-input-bg) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                border-radius: 4px !important;
+                margin: 3px 2px !important;
+                padding: 6px 8px !important;
+                height: auto !important;
+                white-space: nowrap !important;
+                min-width: 160px !important;
+                text-align: center !important;
+                line-height: 24px !important;
+                display: block !important;
+            }
+
+            /* 列表表头对齐修正 */
+            .layui-table th .layui-table-cell {
+                background-color: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 8px 11px !important;
+                min-width: 160px !important;
+            }
+
+            /* 列宽适配 (默认) */
+            .layui-table tr td:nth-child(1) .layui-table-cell, .layui-table th:nth-child(1) .layui-table-cell { min-width: 90px !important; }
+            .layui-table tr td:nth-child(3) .layui-table-cell, .layui-table th:nth-child(3) .layui-table-cell { min-width: 220px !important; }
+            .layui-table tr td:nth-child(5) .layui-table-cell, .layui-table th:nth-child(5) .layui-table-cell { min-width: 260px !important; }
+            .layui-table tr td:nth-child(6) .layui-table-cell, .layui-table th:nth-child(6) .layui-table-cell,
+            .layui-table tr td:nth-child(7) .layui-table-cell, .layui-table th:nth-child(7) .layui-table-cell { min-width: 200px !important; }
+            .layui-table tr td:nth-child(8) .layui-table-cell, .layui-table th:nth-child(8) .layui-table-cell { min-width: 70px !important; }
+            
+            /* 售房全景专用列宽 */
+            body.xhj-table-sales .layui-table tr td:nth-child(2) .layui-table-cell, body.xhj-table-sales .layui-table th:nth-child(2) .layui-table-cell { min-width: 220px !important; }
+            body.xhj-table-sales .layui-table tr td:nth-child(3) .layui-table-cell, body.xhj-table-sales .layui-table th:nth-child(3) .layui-table-cell { min-width: 160px !important; }
+            body.xhj-table-sales .layui-table tr td:nth-child(7) .layui-table-cell, body.xhj-table-sales .layui-table th:nth-child(7) .layui-table-cell { min-width: 100px !important; }
+            body.xhj-table-sales .layui-table tr td:nth-child(8) .layui-table-cell, body.xhj-table-sales .layui-table th:nth-child(8) .layui-table-cell { min-width: 80px !important; }
+            
+            /* 修复双重文字框 (售房全景) */
+            body.xhj-table-sales .layui-table tr td:nth-child(7) .layui-table-cell,
+            body.xhj-table-sales .layui-table tr td:nth-child(8) .layui-table-cell {
+                background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important;
+            }
+
+            /* 列颜色 (Dracula) */
+            .layui-table tr td:nth-child(1) .layui-table-cell { color: #ff79c6 !important; box-shadow: inset 3px 0 0 #ff79c6, 0 1px 2px rgba(0,0,0,0.1) !important; border-left: 1px solid rgba(255,255,255,0.1) !important; }
+            .layui-table tr td:nth-child(2) .layui-table-cell { color: #8be9fd !important; box-shadow: inset 3px 0 0 #8be9fd, 0 1px 2px rgba(0,0,0,0.1) !important; border-left: 1px solid rgba(255,255,255,0.1) !important; }
+            .layui-table tr td:nth-child(3) .layui-table-cell { color: #50fa7b !important; box-shadow: inset 3px 0 0 #50fa7b, 0 1px 2px rgba(0,0,0,0.1) !important; border-left: 1px solid rgba(255,255,255,0.1) !important; }
+            .layui-table tr td:nth-child(4) .layui-table-cell { color: #bd93f9 !important; box-shadow: inset 3px 0 0 #bd93f9, 0 1px 2px rgba(0,0,0,0.1) !important; border-left: 1px solid rgba(255,255,255,0.1) !important; }
+            .layui-table tr td:nth-child(5) .layui-table-cell { color: #ffb86c !important; box-shadow: inset 3px 0 0 #ffb86c, 0 1px 2px rgba(0,0,0,0.1) !important; border-left: 1px solid rgba(255,255,255,0.1) !important; }
+            .layui-table tr td:nth-child(6) .layui-table-cell { color: #f1fa8c !important; box-shadow: inset 3px 0 0 #f1fa8c, 0 1px 2px rgba(0,0,0,0.1) !important; border-left: 1px solid rgba(255,255,255,0.1) !important; }
+            
+            /* --- 弹窗与上传适配 (重点修复) --- */
+            
+            /* 弹窗层 */
+            .layui-layer, .layui-layer-page, .layui-layer-iframe {
+                background-color: var(--xhj-bg) !important;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.6) !important;
+            }
+            .layui-layer-title {
+                background-color: var(--xhj-header-bg) !important;
+                color: var(--xhj-fg) !important;
+                border-bottom: 1px solid var(--xhj-border) !important;
+            }
+            .layui-layer-content {
+                background-color: var(--xhj-bg) !important;
+                color: var(--xhj-fg) !important;
+            }
+            .layui-layer-btn {
+                background-color: var(--xhj-header-bg) !important;
+                border-top: 1px solid var(--xhj-border) !important;
+            }
+            .layui-layer-btn a {
+                background-color: transparent !important;
+                border: 1px solid var(--xhj-border) !important;
+                color: var(--xhj-fg) !important;
+            }
+            .layui-layer-btn .layui-layer-btn0 {
+                background-color: var(--xhj-active-bg) !important;
+                color: var(--xhj-active-fg) !important;
+                border-color: var(--xhj-active-bg) !important;
+            }
+
+            /* 上传组件 (Upload Drag / Box) */
+            .layui-upload-drag, .pic-add, .upload-box {
+                background-color: rgba(255, 255, 255, 0.05) !important;
+                border: 2px dashed var(--xhj-border) !important;
+                border-radius: 8px !important;
+            }
+            .layui-upload-drag:hover, .pic-add:hover, .upload-box:hover {
+                border-color: var(--xhj-active-bg) !important;
+                background-color: rgba(255, 255, 255, 0.08) !important;
+            }
+            .layui-upload-drag .layui-icon, .pic-add:after {
+                color: var(--xhj-active-bg) !important;
+            }
+            .layui-upload-drag p {
+                color: var(--xhj-fg) !important;
+            }
+            
+            /* 下拉框与选项 */
+            .layui-form-select dl {
+                background-color: var(--xhj-header-bg) !important;
+                border-color: var(--xhj-border) !important;
+            }
+            .layui-form-select dl dd { color: var(--xhj-fg) !important; }
+            .layui-form-select dl dd.layui-this {
+                background-color: var(--xhj-active-bg) !important;
+                color: #fff !important;
+            }
+            .layui-form-select dl dd:hover { background-color: var(--xhj-hover-bg) !important; }
+            
+            /* 自动同步按钮样式 (通过 ID 覆盖) */
+            #auto-sync-button-v3 {
+                background: var(--xhj-active-bg) !important;
+                color: var(--xhj-active-fg) !important;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+            }
+            #auto-sync-settings-v3 {
+                background: var(--xhj-header-bg) !important;
+                color: var(--xhj-fg) !important;
+                border: 1px solid var(--xhj-border) !important;
+            }
+        </style><script charset="utf-8" src="chrome-extension://jgphnjokjhjlcnnajmfjlacjnjkhleah/js/btype.js"></script><script type="text/javascript" charset="utf-8" src="chrome-extension://jgphnjokjhjlcnnajmfjlacjnjkhleah/js/chrome.js"></script><style type="text/css">* {
+ text-shadow: transparent 0px 0px 0px, rgba(0,0,0,0.68) 0px 0px 0px !important; 
+}</style><link id="layuicss-layer" rel="stylesheet" href="./象视平台后台管理_files/layer.css" media="all"><style type="text/css">.gwd-row {
+  display: flex;
+  flex-direction: row;
+}
+.gwd-inline-row {
+  display: inline-flex;
+  flex-direction: row;
+}
+.gwd-column {
+  display: flex;
+  flex-direction: column;
+}
+.gwd-inline-column {
+  display: inline-flex;
+  flex-direction: column;
+}
+.gwd-align {
+  align-content: center;
+  align-items: center;
+}
+.gwd-jcc {
+  justify-content: center;
+}
+.gwd-jic {
+  justify-items: center;
+}
+.gwd-button {
+  outline: none;
+  border: none;
+}
+.bjg-bar-button {
+  font-size: 0;
+}
+.bjg-hover-bg {
+  background: #fffbef;
+}
+.bjg-bar-button:hover {
+  background: #fffbef;
+  cursor: pointer;
+}
+.bjg-bar-button:hover .bjg-window {
+  display: block;
+}
+.mainbar-fold .bjg-bar-button,
+.mainbar-fold #top_coupon_btn,
+.mainbar-fold .rinfo-btn,
+.mainbar-fold .gwd-bottom-tmall {
+  display: none!important;
+}
+.gwd-font12 {
+  font-size: 12px;
+}
+.gwd-font14 {
+  font-size: 14px;
+}
+.gwd-red {
+  color: #ff3532;
+}
+.gwd-red-bg {
+  background: #ff3532;
+}
+.gwd-hui333 {
+  color: #333333;
+}
+.gwd-hui999 {
+  color: #999999;
+}
+.gwd-font10 {
+  font-size: 12px;
+  transform: scale(0.8333);
+  transform-origin: bottom center;
+}
+.gwd-font11 {
+  font-size: 12px;
+  transform: scale(0.91666);
+  transform-origin: bottom center;
+}
+.gwd-font9 {
+  font-size: 12px;
+  transform: scale(0.75);
+  transform-origin: bottom center;
+}
+.gwd-hoverable:hover {
+  background: #edf1f2;
+}
+.right-info > * {
+  border-left: 1px solid #edf1f2;
+}
+.gwd-red-after-visit:hover {
+  color: #e03024 !important;
+}
+.gwd-button:hover {
+  filter: brightness(1.1);
+}
+.gwd-button {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+.gwd-button:active {
+  filter: brightness(0.9);
+}
+.gwd-fadeout-5s {
+  opacity: 0;
+  transition: opacity 5s;
+}
+.gwd-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  border-radius: 17px;
+}
+.gwd-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 17px;
+  background: #999;
+}
+#gwdang_main,
+.gwdang-main,
+.bjgext-detail {
+  font-size: 12px;
+}
+#gwdang_main button,
+.gwdang-main button,
+.bjgext-detail button {
+  text-align: center;
+}
+.gwd-width-100 {
+  width: 100%;
+}
+.gwd-overlay {
+  font-family: "Microsoft YaHei", "Arial", "SimSun", serif;
+  font-size: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 999999999;
+}
+.gwd-font-pfm {
+  font-family: 'PingFangSC-Medium';
+  font-weight: normal!important;
+}
+@font-face {
+  font-family: 'PingFangSC-Medium';
+  src: local('PingFangSC-Medium');
+}
+.gwd-font-pfm {
+  font-family: local('PingFangSC-Medium'), system-ui;
+  font-weight: bold;
+}
+#gwd_minibar svg,
+.gwdang-main svg,
+#bjgext_mb_bg svg,
+#bjgext_mainbar svg {
+  fill: transparent;
+}
+.gwd-common-font {
+  font-family: 'PingFang SC', 'Microsoft YaHei', '\5FAE\8F6F\96C5\9ED1', 'Hiragino Sans GB', 'WenQuanYi Micro Hei';
+}
+</style><style type="text/css">.gwd-row[data-v-07d1070f] {
+  display: flex;
+  flex-direction: row;
+}
+.gwd-inline-row[data-v-07d1070f] {
+  display: inline-flex;
+  flex-direction: row;
+}
+.gwd-column[data-v-07d1070f] {
+  display: flex;
+  flex-direction: column;
+}
+.gwd-inline-column[data-v-07d1070f] {
+  display: inline-flex;
+  flex-direction: column;
+}
+.gwd-align[data-v-07d1070f] {
+  align-content: center;
+  align-items: center;
+}
+.gwd-jcc[data-v-07d1070f] {
+  justify-content: center;
+}
+.gwd-jic[data-v-07d1070f] {
+  justify-items: center;
+}
+.gwd-button[data-v-07d1070f] {
+  outline: none;
+  border: none;
+}
+.bjg-bar-button[data-v-07d1070f] {
+  font-size: 0;
+}
+.bjg-hover-bg[data-v-07d1070f] {
+  background: #fffbef;
+}
+.bjg-bar-button[data-v-07d1070f]:hover {
+  background: #fffbef;
+  cursor: pointer;
+}
+.bjg-bar-button:hover .bjg-window[data-v-07d1070f] {
+  display: block;
+}
+.mainbar-fold .bjg-bar-button[data-v-07d1070f],
+.mainbar-fold #top_coupon_btn[data-v-07d1070f],
+.mainbar-fold .rinfo-btn[data-v-07d1070f],
+.mainbar-fold .gwd-bottom-tmall[data-v-07d1070f] {
+  display: none!important;
+}
+.gwd-font12[data-v-07d1070f] {
+  font-size: 12px;
+}
+.gwd-font14[data-v-07d1070f] {
+  font-size: 14px;
+}
+.gwd-red[data-v-07d1070f] {
+  color: #ff3532;
+}
+.gwd-red-bg[data-v-07d1070f] {
+  background: #ff3532;
+}
+.gwd-hui333[data-v-07d1070f] {
+  color: #333333;
+}
+.gwd-hui999[data-v-07d1070f] {
+  color: #999999;
+}
+.gwd-font10[data-v-07d1070f] {
+  font-size: 12px;
+  transform: scale(0.8333);
+  transform-origin: bottom center;
+}
+.gwd-font11[data-v-07d1070f] {
+  font-size: 12px;
+  transform: scale(0.91666);
+  transform-origin: bottom center;
+}
+.gwd-font9[data-v-07d1070f] {
+  font-size: 12px;
+  transform: scale(0.75);
+  transform-origin: bottom center;
+}
+.gwd-hoverable[data-v-07d1070f]:hover {
+  background: #edf1f2;
+}
+.right-info > *[data-v-07d1070f] {
+  border-left: 1px solid #edf1f2;
+}
+.gwd-red-after-visit[data-v-07d1070f]:hover {
+  color: #e03024 !important;
+}
+.gwd-button[data-v-07d1070f]:hover {
+  filter: brightness(1.1);
+}
+.gwd-button[data-v-07d1070f] {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+.gwd-button[data-v-07d1070f]:active {
+  filter: brightness(0.9);
+}
+.gwd-fadeout-5s[data-v-07d1070f] {
+  opacity: 0;
+  transition: opacity 5s;
+}
+.gwd-scrollbar[data-v-07d1070f]::-webkit-scrollbar {
+  width: 6px;
+  border-radius: 17px;
+}
+.gwd-scrollbar[data-v-07d1070f]::-webkit-scrollbar-thumb {
+  border-radius: 17px;
+  background: #999;
+}
+#gwdang_main[data-v-07d1070f],
+.gwdang-main[data-v-07d1070f],
+.bjgext-detail[data-v-07d1070f] {
+  font-size: 12px;
+}
+#gwdang_main button[data-v-07d1070f],
+.gwdang-main button[data-v-07d1070f],
+.bjgext-detail button[data-v-07d1070f] {
+  text-align: center;
+}
+.gwd-width-100[data-v-07d1070f] {
+  width: 100%;
+}
+.gwd-overlay[data-v-07d1070f] {
+  font-family: "Microsoft YaHei", "Arial", "SimSun", serif;
+  font-size: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 999999999;
+}
+.gwd-font-pfm[data-v-07d1070f] {
+  font-family: 'PingFangSC-Medium';
+  font-weight: normal!important;
+}
+@font-face {
+  font-family: 'PingFangSC-Medium';
+  src: local('PingFangSC-Medium');
+}
+.gwd-font-pfm[data-v-07d1070f] {
+  font-family: local('PingFangSC-Medium'), system-ui;
+  font-weight: bold;
+}
+#gwd_minibar svg[data-v-07d1070f],
+.gwdang-main svg[data-v-07d1070f],
+#bjgext_mb_bg svg[data-v-07d1070f],
+#bjgext_mainbar svg[data-v-07d1070f] {
+  fill: transparent;
+}
+.gwd-common-font[data-v-07d1070f] {
+  font-family: 'PingFang SC', 'Microsoft YaHei', '\5FAE\8F6F\96C5\9ED1', 'Hiragino Sans GB', 'WenQuanYi Micro Hei';
+}
+.gwd-taobao[data-v-07d1070f] {
+  margin-top: 20px;
+}
+.gwd-taobao span[data-v-07d1070f] {
+  color: #ff4400;
+}
+.gwd-jd[data-v-07d1070f] {
+  margin-top: 20px;
+}
+.gwd-jd span[data-v-07d1070f] {
+  color: #e2231a;
+}
+a[data-v-07d1070f] {
+  white-space: nowrap;
+  position: relative;
+  height: 24px;
+  font-family: 'Microsoft YaHei';
+}
+a[data-v-07d1070f]:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+a:hover .gwd-tooltip[data-v-07d1070f] {
+  display: block;
+}
+.gwd-coupon[data-v-07d1070f] {
+  height: 24px;
+  box-sizing: border-box;
+  min-width: 106px;
+}
+.gwd-coupon[data-v-07d1070f] {
+  background-size: contain;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.gwd-coupon[data-v-07d1070f]:before,
+.gwd-coupon[data-v-07d1070f]:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 9px;
+  background-size: contain;
+}
+.gwd-coupon[data-v-07d1070f]:before {
+  left: 0;
+}
+.gwd-coupon[data-v-07d1070f]:after {
+  right: 0;
+  transform: rotate(180deg);
+}
+.gwd-coupon.gwd-taobao[data-v-07d1070f] {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAA0CAYAAAAjfRLqAAAAAXNSR0IArs4c6QAAAU5JREFUeF7tlNENgDAQhdrd3H+lc4cmGgX8r5YHca+eFgAtsOdaA+IJRb5AQcsDoOHvmekPTbMq5ilosXwiekETrYqZClosn4he0ESrYqaCFssnohc00aqYqaDF8onoBU20KmYqaLF8InpBE62KmQpaLJ+IXtBEq2KmghbLJ6IXNNGqmKmgxfKJ6AVNtCpmKmixfCJ6QROtipkKWiyfiF7QRKtipoIWyyeiFzTRqpipoMXyiegFTbQqZiposXwiekETrYqZClosn4he0ESrYqaCFssnohc00aqYqaDF8onoBU20KmYqaLF8InpBE62KmQpaLJ+IXtBEq2KmghbLJ6IXNNGqmKmgxfKJ6AVNtCpmKmixfCJ6QROtipkKWiyfiF7QRKtipoL+m/yZv9341fvuuVYLvTp5H3tygYJ+ct3zd/eTOdxuH57rWAt8coEbbyjDgopRg1YAAAAASUVORK5CYII=);
+}
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:before,
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:after {
+  background-repeat: no-repeat;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAA0CAYAAACHO2h8AAAAAXNSR0IArs4c6QAAAZJJREFUSEvtlz9OAkEUh79NsNJiOy038QDuEUggxM6INWCrDRRSwwE0UtqtiR7A3mKPwBH2CF7AZM2bAeJkIeyb3U004TU0w5f3Z37vNxtQUwTCybvkVXkNgT79E3MzumjDQwJnkbrSYmknITymcB6rYAZkGt4m4og5OSMkM4EpYgNawUJaZEDIewan5Ut0QKurIKm0TUaSWcnYBloCcSVQ3mFMwMKUJKUpwk6tQ0KANMTWMn2F3kiBAXf8xyEMZ9CfqCBy2AV9fIHAPMIF1SYR5ch/J16UiPTn7lld3Bok0ogIuDK3ejiHwUwFcyXSNeNPEeG+ZZjfkrH7Zr8sVRugGa3ll0R8I1rzU7/ZRS0jERlXTO8WpknJ7thjxfGLYJ9S1S4qgmTkNxMvmTQkkdq0drCjbResGYmsfO0v2pFsSKWTFLUmdjSYqwT7H+xI9rTHa237PqrJjuzL4X4B12NVww92tL9d9maLHYmXtRAPir2fx85HTS121B9bsSre1+uiG7Kj/T3deaLe77UKiWz++gOA98aFVwFZGwAAAABJRU5ErkJggg==);
+}
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:hover {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAA0CAYAAAAjfRLqAAAAAXNSR0IArs4c6QAAAVNJREFUeF7tlMENgzAUxZLd2H+NXrvB7w6RQMU290D8bLFXTwuAFthzrQHxhCJfoKDlAdDw93w//aFpVsU8BS2WT0QvaKJVMVNBi+UT0QuaaFXMVNBi+UT0giZaFTMVtFg+Eb2giVbFTAUtlk9EL2iiVTFTQYvlE9ELmmhVzFTQYvlE9IImWhUzFbRYPhG9oIlWxUwFLZZPRC9oolUxU0GL5RPRC5poVcxU0GL5RPSCJloVMxW0WD4RvaCJVsVMBS2WT0QvaKJVMVNBi+UT0QuaaFXMVNBi+UT0giZaFTMVtFg+Eb2giVbFTAUtlk9EL2iiVTFTQYvlE9ELmmhVzFTQYvlE9IImWhUzFbRYPhG9oIlWxUwFLZZPRC9oolUxU0GL5RPRC5poVcxU0G+TP/O2Gz963z3XaqFHJ+9jdy5Q0Heue/7ufjKH2+3Dcx1rgb9c4AdcEryACPINxAAAAABJRU5ErkJggg==);
+}
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:hover:before,
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:hover:after {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAA0CAYAAACHO2h8AAAAAXNSR0IArs4c6QAAAYtJREFUSEvtl79Kw2AUxX+BuCiULroVstfBVadIOwgd3NqxOOii4GAfwDoLdqpjcVdfwKF7HZydHH0JIXJvk+pHWujNH6nQC9mSk/Pde849iUdB5QlO1CTKi1cS0ONnZmIuo/oBnA9gp2YGTB9tqwL9Jwh2TWAKpA0PCdjgmoguwkzADDUDisGq+HwAVYYT0xEdoFgKYyBURsJsyZoH9Abs5QKKGlziMWC7BveTJblMb5tOrcEIj0CPJCUSOOxkAEosslmBTg9apyaQH0YJ0MM7iI4ylCvIwixiHPlv4mmLSH9ObsyHS4DEGgEex6rq9hW0eyYw1yJNHf9YGz58NTV+sbJvX0wboByvRUcEfCFey+Z+3UW+WuRODRt24GJgb7aTImJY0ZNx3bo6krG3zkzTSmiXZJHCvLaOo3kCK8cica6tYhzJhjQmSXrVZtiO/yGOjJ8yfxJHXX1L1qklFKN1HC10v8aRZJnPSOOovg/951WIIzGqXMZMS3utsBQxdcW9udj/tRxEZo9+AyVqv4MZSS3ZAAAAAElFTkSuQmCC);
+}
+.gwd-coupon.gwd-jd[data-v-07d1070f] {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKoAAAAsCAYAAAD1nyNHAAAAAXNSR0IArs4c6QAAAR1JREFUeF7tnbERgFAMhcz+2+k0VnGF33kcWFvwAmfrXD1dAHCBee9nAZwhyi9QqPIAKPNnd/uiUmyJOQtVLJ80vVBJtsSshSqWT5peqCRbYtZCFcsnTS9Uki0xa6GK5ZOmFyrJlpi1UMXySdMLlWRLzFqoYvmk6YVKsiVmLVSxfNL0QiXZErMWqlg+aXqhkmyJWQtVLJ80vVBJtsSshSqWT5peqCRbYtZCFcsnTS9Uki0xa6GK5ZOmFyrJlpi1UMXySdMLlWRLzFqoYvmk6YVKsiVmLVSxfNL0QiXZErMWqlg+aXqhkmyJWQtVLJ80vVBJtsSshSqWT5peqCRbYtZCFcsnTe/3PSRbYtZC/V9+v086cDAH7/RKF/j9Ah900KcI8oZhhwAAAABJRU5ErkJggg==);
+}
+.gwd-coupon.gwd-jd[data-v-07d1070f]:before,
+.gwd-coupon.gwd-jd[data-v-07d1070f]:after {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAsCAYAAABovuiKAAAAAXNSR0IArs4c6QAAAdVJREFUSEvNVlFO20AQfbOzayEhUUepgkIicFBKCmoljpAb0CNwA7gBuUG4AUfhCCvb6jdH4DPFldhqXCWya/Exi5G6n5b9/ObNmzdL6OmQ4LwUZXgv3scAudMZaH8/ilyHEX8egsdjNVgNtMnzFUCZAa5AlPJoBD4cqcBqoO3Z+HJpGI+UOLjFIh6o2cHk+7d4oMr7y8DWwzkkXyMYbYrimog+UcAKQCr6iE6a0+matF9soD0tIHs6g+nDR1qBm6xbjMwgrbWhJNFWhq5GiYOdzdRgO0NuvM+Y7UMAljGCt5wdvE8rts9gRnJxriqvBdSbs3+XP+9ew+squrSqKB8DKANCJqz45Bh8cKAvbRe1xoAnR+A0VYHIy63292ZItzhT+2dLvRu1Eem4K60qigeJWjGjPLTTCcxgoNKp5aNfeX5LZNbR7W/+ettBrfD/hL/PDNun6BGRgQWQsXXrEMKlxImdTvUatXa/c3XUajOp1X4JfTMcgphVbD7O2TH+edPZsq7tfK4u7+8lQnY+QgqDNYiyd18idiv7v4naKi9vAuGe9vbgvsxVFqg1kukPIInFH3XUTifgmOlvOjvmJtIxpLs4V7f9TR+phGm83O89O5ZF87s/IaG3Cf8Fdl8AAAAASUVORK5CYII=);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.gwd-coupon.gwd-jd[data-v-07d1070f]:hover {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKoAAAAsCAYAAAD1nyNHAAAAAXNSR0IArs4c6QAAAR9JREFUeF7tnbENgFAQhbz9t9NdTGzUFX73Q8DagncQW+fo6QKAC8xzXh+AM0T5BQpVHgBl/rz33ReVYkvMWahi+aTphUqyJWYtVLF80vRCJdkSsxaqWD5peqGSbIlZC1UsnzS9UEm2xKyFKpZPml6oJFti1kIVyydNL1SSLTFroYrlk6YXKsmWmLVQxfJJ0wuVZEvMWqhi+aTphUqyJWYtVLF80vRCJdkSsxaqWD5peqGSbIlZC1UsnzS9UEm2xKyFKpZPml6oJFti1kIVyydNL1SSLTFroYrlk6YXKsmWmLVQxfJJ0wuVZEvMWqhi+aTphUqyJWYtVLF80vRCJdkSsxaqWD5per/vIdkSsxbqfvn9PmnBwSy80ytdYPsFfqOApDYolPr+AAAAAElFTkSuQmCC);
+}
+.gwd-coupon.gwd-jd[data-v-07d1070f]:hover:before,
+.gwd-coupon.gwd-jd[data-v-07d1070f]:hover:after {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAsCAYAAABovuiKAAAAAXNSR0IArs4c6QAAAclJREFUSEvNlttNw0AQRe/MrgURChgThUeAmEcBKSEdQAl0AB2QDkIHlEIJlm3xTQl8BoyURePIkY3Fx6yDxPxFcq5m75x5EDYUJDqfWe666v2NkBmdgHs9r+RaGXEYwgwO1GKl0CJNZwDFDNyAKORoHyaKVGKlUBWLJJ+ywQtZCxuP/YXqFQyur/yFiiSZOGMTWIvAJ6NFlt0R0R45zAD4e1QHknrbsKOR6lnycaP8dnQC2gRHWoPraTcy4n4fwhAFQbenlW+1FtIqWrE1kIskiY2xzw6Yik/ilyYaZLskCQtj38GM4PJCo7OqWj0qFLTGN4S+8tfHpVvOfFgqhYosf3GgGHCx/DbHR+CdHf3T1mQzwwwG4N2+SqRFttaXX4G043M1P5VYe9RGEUy07/e0IsueZdQKjKXZw6Hap0b5P9L0gYjnncne2KiVfmNj37xbRAQAxMYGc+fcRMaJORyqDG+vbFlFvmOkIlvKTmEIYlZl83dk+/DzK9nluj4/g1ROE6sjQnY+XAjGHERx5yNivbL/zagt0vzeEZ5oawv27FRj0Wr4S/c7UAjgtlP3148IH6PbR8TlhRfVLSGVKT8+3uyd3SWT6r/fRdq0N2b1Td4AAAAASUVORK5CYII=);
+}
+.gwd-redpack[data-v-07d1070f] {
+  padding-right: 5px;
+  padding-left: 8px;
+  background: white;
+}
+.gwd-redpack.gwd-taobao[data-v-07d1070f] {
+  border: 1px solid #ff4400;
+}
+.gwd-redpack.gwd-taobao[data-v-07d1070f]:hover {
+  background: #fff0e7;
+}
+.gwd-redpack.gwd-jd[data-v-07d1070f] {
+  border: 1px solid #f9d2d3;
+}
+.gwd-redpack.gwd-jd[data-v-07d1070f]:hover {
+  background: #fff0e7;
+}
+.gwd-tooltip[data-v-07d1070f] {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+  z-index: 1;
+  color: #3c3c3c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: none;
+  background: white;
+  border-radius: 2px;
+}
+.gwd-tooltip span[data-v-07d1070f] {
+  color: #3c3c3c;
+}
+.gwd-tooltip[data-v-07d1070f]:after {
+  /* a triangle at bottom */
+  content: " ";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent white transparent;
+  transform: rotate(180deg);
+}
+</style><style class="redeviation-bs-style" data-name="content">body>div#redeviation-bs-indicator>div{opacity:0;pointer-events:none}body>#redeviation-bs-overlay.redeviation-bs-visible,body>#redeviation-bs-sidebar.redeviation-bs-visible{opacity:1;pointer-events:auto}body.redeviation-bs-noscroll{overflow:hidden !important}body>div#redeviation-bs-indicator>div{position:absolute;transform:translate3d(-24px, 0, 0);top:0;left:0;width:24px !important;height:100%;background:rgba(0,0,0,0.5);border-radius:0 10px 10px 0;transition:opacity .3s,transform .3s;z-index:2}body>div#redeviation-bs-indicator>div>span{-webkit-mask:no-repeat center/24px;-webkit-mask-image:url(chrome-extension://jdbnofccmhefkmjbkkdkfiicjkgofkdh/img/icon-bookmark.svg);background-color:#ffffff;position:absolute;display:block;top:0;left:0;width:100%;height:100%}body>div#redeviation-bs-indicator[data-pos=right]{left:auto;right:0}body>div#redeviation-bs-indicator[data-pos=right]>div{transform:translate3d(24px, 0, 0);left:auto;right:0;border-radius:10px 0 0 10px}body>div#redeviation-bs-indicator.redeviation-bs-fullHeight>div{border-radius:0}body>div#redeviation-bs-indicator.redeviation-bs-hover>div{transform:translate3d(0, 0, 0);opacity:1}body>div#redeviation-bs-indicator[data-pos=left].redeviation-bs-has-lsb{height:100% !important;top:0 !important}body>div#redeviation-bs-indicator[data-pos=left].redeviation-bs-has-lsb>div{background:rgba(0,0,0,0)}body>div#redeviation-bs-indicator[data-pos=left].redeviation-bs-has-lsb>div>span{-webkit-mask-position-y:20px}body>#redeviation-bs-sidebar{width:350px;max-width:none;height:0;z-index:2147483646;background-color:rgba(255, 255, 255, 0.8) !important;color-scheme:auto !important;speak:none;border:none;display:block !important;visibility:visible !important;transform:translate3d(-350px, 0, 0);transition:width 0s .3s,height 0s .3s,opacity .3s,transform .3s}body>#redeviation-bs-sidebar[data-pos=right]{left:auto;right:0;transform:translate3d(350px, 0, 0)}body>#redeviation-bs-sidebar.redeviation-bs-visible{width:calc(100% + 350px);height:100%;transform:translate3d(0, 0, 0);transition:opacity .3s,transform .3s}body>#redeviation-bs-sidebar.sidepanel{width:100% !important}body>#redeviation-bs-sidebar.redeviation-bs-hideMask{background:none !important}body>#redeviation-bs-sidebar.redeviation-bs-hideMask:not(.redeviation-bs-hover){width:calc(350px + 50px)}body>#redeviation-bs-overlay{width:100%;max-width:none;height:100%;z-index:2147483647;border:none;speak:none;background:rgba(0, 0, 0, 0.5) !important;color-scheme:auto !important;transition:opacity .3s}/*# sourceMappingURL=content.css.map */
+</style></head>
+<body class="skin-0" style="background-color: rgb(13, 17, 23);">
+<script>
+    var ADMIN = '/static/admin';
+    var navs = [{"id":289,"href":"House\/index","title":"\u623f\u52d8\u7ba1\u7406","type":1,"status":1,"authopen":0,"icon":"icon-list2","condition":"","pid":0,"sort":4,"addtime":1718870966,"zt":null,"menustatus":1,"children":[{"id":290,"href":"\/houseadmin\/house\/index.html","title":"\u623f\u52d8\u5217\u8868","type":1,"status":1,"authopen":1,"icon":"","condition":"","pid":289,"sort":1,"addtime":1718871075,"zt":null,"menustatus":1}]},{"id":303,"href":"Pano\/index","title":"\u5168\u666f\u7ba1\u7406","type":1,"status":1,"authopen":0,"icon":"icon-list2","condition":"","pid":0,"sort":5,"addtime":1739755305,"zt":null,"menustatus":1,"children":[{"id":304,"href":"\/houseadmin\/pano\/index.html","title":"\u552e\u623f\u5168\u666f","type":1,"status":1,"authopen":0,"icon":"","condition":"","pid":303,"sort":1,"addtime":1739755472,"zt":null,"menustatus":1}]},{"id":293,"href":"pano\/datacenter","title":"\u6570\u636e\u4e2d\u5fc3","type":1,"status":1,"authopen":0,"icon":"icon-database","condition":"","pid":0,"sort":8,"addtime":1729738431,"zt":null,"menustatus":1,"children":[{"id":295,"href":"\/houseadmin\/pano\/everybody.html","title":"\u4e2a\u4eba\u6570\u636e","type":1,"status":1,"authopen":0,"icon":"","condition":"","pid":293,"sort":2,"addtime":1729738500,"zt":null,"menustatus":1}]},{"id":286,"href":"user\/index","title":"\u4e2a\u4eba\u4e2d\u5fc3","type":1,"status":1,"authopen":1,"icon":"icon-user","condition":"","pid":0,"sort":10,"addtime":1626751048,"zt":null,"menustatus":1,"children":[{"id":287,"href":"\/houseadmin\/user\/index.html","title":"\u4e2a\u4eba\u8d44\u6599","type":1,"status":1,"authopen":1,"icon":"","condition":"","pid":286,"sort":10,"addtime":1626751095,"zt":null,"menustatus":1}]}];
+</script>
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header header">
+        <div class="layui-main">
+            <div class="admin-login-box">
+                <a class="logo" style="left: 0;" href="https://vr.xhj.com/admin/index/index.html">
+                    <span style="font-size: 22px;">象视平台</span>
+                </a>
+                <div class="admin-side-toggle fs1">
+                    <span class="icon icon-menu"></span>
+                </div>
+               <!--  <div class="admin-side-full">
+                    <span class="icon icon-enlarge"></span>
+                </div> -->
+            </div>
+
+            <ul class="layui-nav admin-header-item" lay-filter="side-top-right">
+                <li class="layui-nav-item" id="cache">
+                    <a href="javascript:;">清除缓存</a>
+                </li>
+                <!-- <li class="layui-nav-item">
+                    <a href="/mobile/index/index.html" target="_blank">浏览网站</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a class="name" href="javascript:;">主题</a>
+                    <dl class="layui-nav-child">
+                        <dd data-skin="0"><a href="javascript:;">默认</a></dd>
+                        <dd data-skin="1"><a href="javascript:;">纯白</a></dd>
+                        <dd data-skin="2"><a href="javascript:;">蓝白</a></dd>
+                    </dl>
+                </li> -->
+                <li class="layui-nav-item">
+                    <a href="javascript:;" class="admin-header-user">
+                        <img src="./象视平台后台管理_files/aac7cc2a53d92948c9afa09c3ff1efa4.jpeg" class="layui-nav-img">
+                        <span>221105371</span>
+                    <span class="layui-nav-more"></span></a>
+                    <dl class="layui-nav-child">
+                        <dd>
+                            <a href="https://vr.xhj.com/houseadmin/index/logout.html"><i class="fa fa-sign-out" aria-hidden="true"></i>注销</a>
+                        </dd>
+                    </dl>
+                </li>
+            <span class="layui-nav-bar"></span></ul>
+            <ul class="layui-nav admin-header-item-mobile">
+                <li class="layui-nav-item">
+                    <a href="https://vr.xhj.com/mobile/index/index.html" target="_blank">浏览网站</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="https://vr.xhj.com/houseadmin/index/logout.html"><i class="fa fa-sign-out" aria-hidden="true"></i> 注销</a>
+                </li>
+            <span class="layui-nav-bar"></span></ul>
+        </div>
+    </div>
+    <div class="layui-side layui-bg-black" id="admin-side">
+        <div class="layui-side-scroll" id="admin-navbar-side" lay-filter="side"><ul class="layui-nav layui-nav-tree beg-navbar"><li class="layui-nav-item layui-nav-itemed"><a href="javascript:;"><i class="icon icon-list2" aria-hidden="true" data-icon="icon-list2"></i><cite>房勘管理</cite><span class="layui-nav-more"></span></a><dl class="layui-nav-child"><dd title="房勘列表" class="layui-this"><a href="javascript:;" data-url="/houseadmin/house/index.html"><cite>房勘列表</cite></a></dd></dl></li><li class="layui-nav-item"><a href="javascript:;"><i class="icon icon-list2" aria-hidden="true" data-icon="icon-list2"></i><cite>全景管理</cite><span class="layui-nav-more"></span></a><dl class="layui-nav-child"><dd title="售房全景"><a href="javascript:;" data-url="/houseadmin/pano/index.html"><cite>售房全景</cite></a></dd></dl></li><li class="layui-nav-item"><a href="javascript:;"><i class="icon icon-database" aria-hidden="true" data-icon="icon-database"></i><cite>数据中心</cite><span class="layui-nav-more"></span></a><dl class="layui-nav-child"><dd title="个人数据"><a href="javascript:;" data-url="/houseadmin/pano/everybody.html"><cite>个人数据</cite></a></dd></dl></li><li class="layui-nav-item"><a href="javascript:;"><i class="icon icon-user" aria-hidden="true" data-icon="icon-user"></i><cite>个人中心</cite><span class="layui-nav-more"></span></a><dl class="layui-nav-child"><dd title="个人资料"><a href="javascript:;" data-url="/houseadmin/user/index.html"><cite>个人资料</cite></a></dd></dl></li><span class="layui-nav-bar" style="top: 22.5px; height: 0px; opacity: 0;"></span></ul></div>
+    </div>
+    <div class="layui-body" style="bottom: 0;border-left: solid 2px #1AA094;" id="admin-body">
+        <div class="layui-tab admin-nav-card layui-tab-brief" lay-filter="admin-tab">
+            <ul class="layui-tab-title">
+                <li class="">
+                    <i class="icon icon-earth" aria-hidden="true"></i>
+                    <cite>控制面板</cite>
+                </li>
+            <li lay-id="1769328697098" class="layui-this"><cite>房勘列表</cite><i class="layui-icon layui-unselect layui-tab-close" data-id="1">ဆ</i></li></ul>
+            <div class="layui-tab-content" style="min-height: 150px; padding: 0px; height: 1034px;">
+                <div class="layui-tab-item">
+                    <iframe src="./象视平台后台管理_files/index.html" style="height: 1034px;"></iframe>
+                </div>
+            <div class="layui-tab-item layui-show"><iframe src="./象视平台后台管理_files/index(1).html" data-id="1" style="height: 1034px;"></iframe></div></div>
+        </div>
+    </div>
+    <div class="site-tree-mobile layui-hide">
+        <i class="layui-icon"></i>
+    </div>
+    <div class="site-mobile-shade"></div>
+    <script type="text/javascript" src="./象视平台后台管理_files/layui.js"></script>
+
+<div style="display:none;"><script type="text/javascript" src="./象视平台后台管理_files/z_stat.php"></script></div>
+    <script src="./象视平台后台管理_files/index.js"></script>
+    <script>
+        layui.use('layer',function(){
+            var $ = layui.jquery, layer = layui.layer;
+            $('#cache').click(function () {
+                document.cookie="skin=;expires="+new Date().toGMTString();
+                layer.confirm('确认要清除缓存？', {icon: 3}, function () {
+                    $.post('/houseadmin/index/clear.html',function (data) {
+                        layer.msg(data.info, {icon: 6}, function (index) {
+                            layer.close(index);
+                            window.location.href = data.url;
+                        });
+                    });
+                });
+            });
+        })
+    </script>
+</div>
+
+<div style="position: fixed; bottom: 20px; right: 20px; z-index: 99999; font-family: sans-serif;"><div style="position: absolute; bottom: 70px; right: 0px; background: rgba(30, 30, 40, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 10px 30px; display: none; width: 160px; transform-origin: right bottom;"><button style="display: block; width: 100%; padding: 10px; margin-bottom: 6px; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255, 255, 255, 0.05); cursor: pointer; text-align: left; border-radius: 6px; color: rgb(221, 221, 221); transition: 0.2s; font-size: 13px;">默认 (Default)</button><button style="display: block; width: 100%; padding: 10px; margin-bottom: 6px; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255, 255, 255, 0.05); cursor: pointer; text-align: left; border-radius: 6px; color: rgb(221, 221, 221); transition: 0.2s; font-size: 13px;">Dracula</button><button style="display: block; width: 100%; padding: 10px; margin-bottom: 6px; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255, 255, 255, 0.05); cursor: pointer; text-align: left; border-radius: 6px; color: rgb(221, 221, 221); transition: 0.2s; font-size: 13px;">Solarized Dark</button><button style="display: block; width: 100%; padding: 10px; margin-bottom: 6px; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255, 255, 255, 0.05); cursor: pointer; text-align: left; border-radius: 6px; color: rgb(221, 221, 221); transition: 0.2s; font-size: 13px;">Monokai</button><button style="display: block; width: 100%; padding: 10px; margin-bottom: 6px; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255, 255, 255, 0.05); cursor: pointer; text-align: left; border-radius: 6px; color: rgb(221, 221, 221); transition: 0.2s; font-size: 13px;">GitHub Dark</button></div><button style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgb(26, 160, 148), rgb(47, 64, 86)); color: white; border: 2px solid rgba(255, 255, 255, 0.2); font-size: 24px; cursor: pointer; box-shadow: rgba(0, 0, 0, 0.4) 0px 4px 15px; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 100000;">🎨</button></div><span id="ctrlcCopy" style="display: inline-block; position: absolute; left: -9999em;"></span><bookmark-sidebar-jwo0soehmoo id="redeviation-bs-sidebar" class="notranslate" data-theme="default" data-pos="left"><template shadowrootmode="closed"><iframe style="margin:0;padding: 0;border: none;width: 100%;height: 100%;"></iframe></template></bookmark-sidebar-jwo0soehmoo><div id="redeviation-bs-indicator" data-theme="default" style="height: 100%; top: 0%;" class="redeviation-bs-fullHeight"></div><div class="ileft" title="展示网站地区和ip；按ESC可隐藏,单击复制IP" style="margin-top:0px;margin-bottom:0px;margin-left:0px;margin-right:0px;" id="chrome-website-ip" fr-bold-283ab9d1d618=""><div id="chrome-website-ip-addr-city" fr-bold-283ab9d1d618="">中国-青岛</div><div id="chrome-website-ip-value" fr-bold-283ab9d1d618="">47.105.83.52</div></div><div class="layui-layer-move"></div></body><div style="display: contents !important;"><template shadowrootmode="closed"><div class="photoshow photoshow__viewer photoshow__viewer--color-scheme-system" popover="manual" dir="ltr">
+        
+        <div class="photoshow__viewer-viewport">
+          <div class="photoshow__image-perspective-wrapper">
+            <div class="photoshow__image-rotation-wrapper">
+              <div class="photoshow__image-scrolling-wrapper">
+                <img class="photoshow__image photoshow__image--no-smoothing">
+              </div>
+            </div>
+          </div>
+          <div class="photoshow__view-mode-label" data-view-mode="a"></div>
+        </div>
+        <i class="photoshow__image-info"></i>
+      <div class="photoshow__thumbnail-indicator"></div></div></template></div></html>
