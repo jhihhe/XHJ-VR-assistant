@@ -1,4 +1,4 @@
-# 🎨 象视平台助手 (v1.18)
+# 🎨 象视平台助手 (v1.30)
 
 ![平台](https://img.shields.io/badge/平台-象视后台-blue)
 ![环境](https://img.shields.io/badge/环境-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![语言](https://img.shields.io/badge/语言-JavaScript-yellow)
 ![许可](https://img.shields.io/badge/许可-MIT-green)
 ![版权](https://img.shields.io/badge/版权-%C2%A9%202026%20Xiangshi-lightgrey)
-![版本](https://img.shields.io/badge/版本-v1.18-brightgreen)
+![版本](https://img.shields.io/badge/版本-v1.30-brightgreen)
 
 [中文](README.md) | [English](README-EN.md)
 
@@ -38,6 +38,7 @@
 ### 4. 🎨 多款精选主题
 内置多款程序员喜爱的经典配色方案，一键切换：
 *   🧛🏻‍♂️ **Dracula** (默认推荐 - 经典吸血鬼深色主题)
+*   🔮 **Future Tech** (赛博朋克霓虹风格，自带动态网格背景)
 *   ☀️ **Solarized Dark** (高对比度护眼)
 *   🎨 **Monokai** (Sublime Text 风格)
 *   🐱 **GitHub Dark** (GitHub 官方深色)
@@ -57,6 +58,14 @@
 5.  **同步**：在支持的列表页（如房勘列表），点击顶部的 **🔄 自动同步** 按钮即可开始工作。
 
 ## 📝 更新日志
+
+### v1.30
+*   **全新主题 Future Tech**：新增“未来科技 (Neon)”主题，采用深邃蓝黑背景搭配高饱和霓虹光效，并内置动态网格背景，营造极致赛博朋克体验。
+*   **全局波纹特效**：新增点击波纹 (Ripple Effect) 交互，每一次点击都伴随流光溢彩的扩散动画，操作反馈感拉满。
+*   **UI 交互全面升级**：
+    *   **悬浮球进化**：升级为渐变光球，支持鼠标悬停旋转与呼吸光晕。
+    *   **菜单玻璃拟态**：主题菜单采用更细腻的 Glassmorphism 毛玻璃效果，展开/收起增加丝滑缩放动画。
+    *   **细节打磨**：菜单项悬停增加滑动高亮与边缘发光效果。
 
 ### v1.18
 *   **弹窗尺寸智能扩容**：针对“新增房堪图”等弹窗进行强制扩容（高度+300px，宽度+100px），彻底解决底部按钮显示不全的问题，无需手动调整窗口大小。

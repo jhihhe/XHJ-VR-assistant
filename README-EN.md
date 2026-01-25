@@ -1,4 +1,4 @@
-# 🎨 Xiangshi Platform Assistant (v1.18)
+# 🎨 Xiangshi Platform Assistant (v1.30)
 
 ![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
 ![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
-![Version](https://img.shields.io/badge/Version-v1.18-brightgreen)
+![Version](https://img.shields.io/badge/Version-v1.30-brightgreen)
 
 [中文](README.md) | [English](README-EN.md)
 
@@ -57,6 +57,14 @@ Built-in classic color schemes loved by programmers, switch with one click:
 5.  **Sync**: On supported list pages (such as Housing Survey List), click the **🔄 Auto Sync** button at the top to start working.
 
 ## 📝 Changelog
+
+### v1.30
+*   **New Theme: Future Tech**: Added "Future Tech (Neon)" theme, featuring a deep blue-black background with high-saturation neon effects and a built-in dynamic grid background for an ultimate cyberpunk experience.
+*   **Global Ripple Effect**: Added click ripple effect interaction; every click is accompanied by a colorful spreading animation, maximizing operational feedback.
+*   **UI Interaction Overhaul**:
+    *   **Floating Ball Evolution**: Upgraded to a gradient light ball, supporting hover rotation and breathing halo effects.
+    *   **Glassmorphism Menu**: The theme menu now uses a more refined Glassmorphism effect, with silky zoom animations for expanding/collapsing.
+    *   **Polished Details**: Menu items now have sliding highlight and edge glow effects on hover.
 
 ### v1.18
 *   **Smart Modal Expansion**: Forced expansion for modals like "Add Housing Survey Map" (Height +300px, Width +100px), thoroughly resolving the issue of bottom buttons not being fully displayed, eliminating the need to manually adjust window size.

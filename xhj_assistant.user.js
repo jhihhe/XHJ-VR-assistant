@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.18
-// @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/macOS风格）、iframe 样式同步、以及自动化同步操作功能。
+// @version      1.30
+// @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
@@ -42,7 +42,8 @@
                 '--xhj-border': '#6272a4',
                 '--xhj-hover-bg': '#6272a4',
                 '--xhj-input-bg': '#44475a',
-                '--xhj-table-head': '#44475a'
+                '--xhj-table-head': '#44475a',
+                '--xhj-glow-color': 'rgba(189, 147, 249, 0.6)'
             }
         },
         'solarized-dark': {
@@ -57,7 +58,8 @@
                 '--xhj-border': '#586e75',
                 '--xhj-hover-bg': '#586e75',
                 '--xhj-input-bg': '#073642',
-                '--xhj-table-head': '#073642'
+                '--xhj-table-head': '#073642',
+                '--xhj-glow-color': 'rgba(38, 139, 210, 0.6)'
             }
         },
         'monokai': {
@@ -72,7 +74,8 @@
                 '--xhj-border': '#75715e',
                 '--xhj-hover-bg': '#49483e',
                 '--xhj-input-bg': '#3e3d32',
-                '--xhj-table-head': '#3e3d32'
+                '--xhj-table-head': '#3e3d32',
+                '--xhj-glow-color': 'rgba(166, 226, 46, 0.6)'
             }
         },
         'github-dark': {
@@ -87,7 +90,57 @@
                 '--xhj-border': '#30363d',
                 '--xhj-hover-bg': '#21262d',
                 '--xhj-input-bg': '#0d1117',
-                '--xhj-table-head': '#161b22'
+                '--xhj-table-head': '#161b22',
+                '--xhj-glow-color': 'rgba(31, 111, 235, 0.6)'
+            }
+        },
+        'cyberpunk': {
+            name: 'Cyberpunk 2077',
+            vars: {
+                '--xhj-bg': '#020205',
+                '--xhj-fg': '#00f3ff',
+                '--xhj-header-bg': '#090a0f',
+                '--xhj-side-bg': '#000000',
+                '--xhj-active-bg': '#fcee0a',
+                '--xhj-active-fg': '#000000',
+                '--xhj-border': '#00f3ff',
+                '--xhj-hover-bg': '#ff003c',
+                '--xhj-input-bg': '#050505',
+                '--xhj-table-head': '#121212',
+                '--xhj-glow-color': '#00f3ff',
+                '--xhj-special-font': 'Courier New, monospace'
+            }
+        },
+        'glass-morphism': {
+            name: 'Glass Morphism',
+            vars: {
+                '--xhj-bg': '#1a1c2c',
+                '--xhj-fg': '#e0e6ed',
+                '--xhj-header-bg': 'rgba(255, 255, 255, 0.05)',
+                '--xhj-side-bg': 'rgba(0, 0, 0, 0.2)',
+                '--xhj-active-bg': '#7aa2f7',
+                '--xhj-active-fg': '#ffffff',
+                '--xhj-border': 'rgba(255, 255, 255, 0.1)',
+                '--xhj-hover-bg': 'rgba(255, 255, 255, 0.1)',
+                '--xhj-input-bg': 'rgba(0, 0, 0, 0.2)',
+                '--xhj-table-head': 'rgba(0, 0, 0, 0.3)',
+                '--xhj-glow-color': '#7aa2f7'
+            }
+        },
+        'future-tech': {
+            name: 'Future Tech (Neon)',
+            vars: {
+                '--xhj-bg': '#050a14',
+                '--xhj-fg': '#00f2ff',
+                '--xhj-header-bg': 'rgba(5, 10, 20, 0.9)',
+                '--xhj-side-bg': 'rgba(0, 0, 0, 0.8)',
+                '--xhj-active-bg': '#d900ff',
+                '--xhj-active-fg': '#ffffff',
+                '--xhj-border': '#00f2ff',
+                '--xhj-hover-bg': 'rgba(217, 0, 255, 0.2)',
+                '--xhj-input-bg': 'rgba(0, 0, 0, 0.5)',
+                '--xhj-table-head': 'rgba(0, 242, 255, 0.1)',
+                '--xhj-glow-color': '#d900ff'
             }
         }
     };
@@ -99,16 +152,34 @@
         const varDeclarations = Object.entries(vars)
             .map(([k, v]) => `${k}: ${v};`)
             .join('\n');
+            
+        // Future Tech 专属网格背景
+        let extraCss = '';
+        if (vars['--xhj-bg'] === '#050a14') {
+             extraCss = `
+                body::before {
+                    content: "";
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background-image: 
+                        linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+                    background-size: 50px 50px;
+                    z-index: -1;
+                    pointer-events: none;
+                }
+             `;
+        }
 
         return `
+            ${extraCss}
             :root {
                 ${varDeclarations}
-                --xhj-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                --xhj-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.3);
+                --xhj-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                --xhj-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.5);
                 --xhj-radius: 8px;
                 --xhj-btn-gradient: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(0,0,0,0));
                 --xhj-sidebar-bg: rgba(33, 34, 44, 0.95);
-                --xhj-glow: 0 0 10px rgba(189, 147, 249, 0.4);
+                --xhj-glow: 0 0 15px var(--xhj-glow-color, rgba(189, 147, 249, 0.4));
                 --xhj-glass-border: 1px solid rgba(255, 255, 255, 0.1);
             }
 
@@ -116,6 +187,72 @@
                 0% { transform: translateY(0px); }
                 50% { transform: translateY(-3px); }
                 100% { transform: translateY(0px); }
+            }
+
+            @keyframes neon-pulse {
+                0% { box-shadow: 0 0 5px var(--xhj-active-bg), 0 0 10px var(--xhj-active-bg); }
+                50% { box-shadow: 0 0 10px var(--xhj-active-bg), 0 0 20px var(--xhj-active-bg); }
+                100% { box-shadow: 0 0 5px var(--xhj-active-bg), 0 0 10px var(--xhj-active-bg); }
+            }
+
+            @keyframes ripple-effect {
+                0% { transform: scale(0); opacity: 0.8; }
+                100% { transform: scale(4); opacity: 0; }
+            }
+            
+            /* --- 视觉净化与去噪 (Cleanup) --- */
+            
+            /* 1. 暴力隐藏购物插件注入的垃圾元素 */
+            [class*="gwd-"], [id*="gwd"], [class*="bjg-"] {
+                display: none !important;
+                visibility: hidden !important;
+                width: 0 !important;
+                height: 0 !important;
+                pointer-events: none !important;
+            }
+
+            /* 2. 移除左侧生硬的绿色边框 */
+            #admin-body {
+                border-left: none !important;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.1) !important; /* 用柔和阴影代替 */
+            }
+
+            /* 3. Logo 区域现代化 */
+            .admin-login-box .logo span {
+                /* 科技感霓虹渐变 (极光青 -> 霓虹紫) */
+                background: linear-gradient(135deg, #00dbde 0%, #fc00ff 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-weight: 800;
+                letter-spacing: 2px;
+                filter: drop-shadow(0 0 8px rgba(252, 0, 255, 0.4));
+            }
+            
+            /* 4. 顶部导航栏毛玻璃悬浮感 */
+            .layui-header {
+                background-color: rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.85) !important;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+            }
+
+            /* 5. 滚动条美化 (全局) */
+            ::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.15);
+                border-radius: 4px;
+                border: 1px solid transparent;
+                background-clip: content-box;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--xhj-active-bg);
+                border: 0;
             }
 
             /* --- 核心修复：强制应用背景色 --- */
@@ -154,6 +291,31 @@
                 background-color: transparent !important;
             }
 
+            /* --- 炫酷交互特效 --- */
+
+            /* 选中文字效果 */
+            ::selection {
+                background: var(--xhj-active-bg);
+                color: var(--xhj-active-fg);
+                text-shadow: 0 0 5px var(--xhj-glow-color);
+            }
+
+            /* 鼠标点击波纹元素 */
+            .xhj-click-ripple {
+                position: fixed;
+                border-radius: 50%;
+                background: var(--xhj-active-bg);
+                transform: scale(0);
+                animation: ripple-effect 0.6s linear;
+                pointer-events: none;
+                z-index: 99999999;
+                width: 20px;
+                height: 20px;
+                margin-left: -10px;
+                margin-top: -10px;
+                box-shadow: 0 0 10px var(--xhj-active-bg);
+            }
+
             /* --- 全局组件优化 --- */
             
             /* 过渡动画 */
@@ -185,8 +347,8 @@
             .layui-nav-tree .layui-this > a {
                 background-color: var(--xhj-active-bg) !important;
                 background-image: linear-gradient(135deg, var(--xhj-active-bg), rgba(189, 147, 249, 0.8)) !important;
-                color: white !important;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+                color: var(--xhj-active-fg) !important;
+                box-shadow: var(--xhj-glow) !important;
                 border-radius: 10px !important;
                 margin: 0 10px !important;
                 width: auto !important;
@@ -220,6 +382,7 @@
                 background-color: var(--xhj-header-bg) !important;
                 border-color: var(--xhj-border) !important;
                 border-bottom-color: var(--xhj-header-bg) !important;
+                text-shadow: 0 0 8px var(--xhj-glow-color) !important;
             }
             .layui-tab-title .layui-this:after { border: none !important; }
 
@@ -236,9 +399,11 @@
             .layui-laypage a:hover {
                 color: var(--xhj-active-bg) !important;
                 border-color: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 5px var(--xhj-glow-color) !important;
             }
             .layui-laypage .layui-laypage-curr .layui-laypage-em {
                 background-color: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 8px var(--xhj-glow-color) !important;
             }
             .layui-laypage input, .layui-laypage button, .layui-laypage select {
                 background-color: var(--xhj-input-bg) !important;
@@ -267,6 +432,12 @@
                 border-radius: 12px !important;
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
                 backdrop-filter: blur(8px);
+                transition: transform 0.3s !important;
+            }
+            .layui-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
+                border-color: var(--xhj-active-bg) !important;
             }
             .layui-card-header {
                 border-bottom: 1px solid rgba(255,255,255,0.05) !important;
@@ -309,7 +480,7 @@
             }
             .layui-input:focus, .layui-select:focus, .layui-textarea:focus {
                 border-color: var(--xhj-active-bg) !important;
-                box-shadow: 0 0 0 3px rgba(189, 147, 249, 0.2) !important;
+                box-shadow: 0 0 0 3px var(--xhj-glow-color) !important;
             }
 
             /* 表格 */
@@ -324,6 +495,17 @@
                 background-color: rgba(98, 114, 164, 0.2) !important;
                 backdrop-filter: blur(4px);
             }
+            /* 表格行悬浮 3D 效果 */
+            .layui-table tbody tr {
+                transition: transform 0.2s, background-color 0.2s !important;
+            }
+            .layui-table tbody tr:hover {
+                transform: scale(1.002) translateY(-1px);
+                z-index: 10;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                background-color: rgba(255,255,255,0.03) !important;
+            }
+
             .layui-table thead tr, .layui-table-header {
                 background-color: var(--xhj-table-head) !important;
                 color: var(--xhj-fg) !important;
@@ -382,14 +564,6 @@
             body.xhj-table-sales .layui-table tr td:nth-child(9) .layui-table-cell, body.xhj-table-sales .layui-table th:nth-child(9) .layui-table-cell { 
                 min-width: 30px !important; width: 30px !important; 
             }
-            /* 第11、12列: 全景时间、同步时间 -> 动态处理 */
-            /* 
-            body.xhj-table-sales .layui-table tr td:nth-child(11) .layui-table-cell, body.xhj-table-sales .layui-table th:nth-child(11) .layui-table-cell,
-            body.xhj-table-sales .layui-table tr td:nth-child(12) .layui-table-cell, body.xhj-table-sales .layui-table th:nth-child(12) .layui-table-cell { 
-                min-width: 75px !important; width: 75px !important; 
-                white-space: normal !important; line-height: 1.2 !important; font-size: 12px !important;
-            }
-            */
 
             /* 房堪列表 - 缩窄特定列 (楼盘名称、申请人、摄影师、上传人、状态) */
             body.xhj-table-survey .layui-table tr td:nth-child(3) .layui-table-cell, body.xhj-table-survey .layui-table th:nth-child(3) .layui-table-cell { 
@@ -410,7 +584,7 @@
                 background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important;
             }
 
-            /* 列颜色 (Dracula) */
+            /* 列颜色 (Dracula/Cyberpunk 适配) */
             .layui-table tr td:nth-child(1) .layui-table-cell { color: #ff79c6 !important; box-shadow: inset 3px 0 0 #ff79c6, 0 1px 2px rgba(0,0,0,0.1) !important; border-left: 1px solid rgba(255,255,255,0.1) !important; }
             .layui-table tr td:nth-child(2) .layui-table-cell { color: #8be9fd !important; box-shadow: inset 3px 0 0 #8be9fd, 0 1px 2px rgba(0,0,0,0.1) !important; border-left: 1px solid rgba(255,255,255,0.1) !important; }
             .layui-table tr td:nth-child(3) .layui-table-cell { color: #50fa7b !important; box-shadow: inset 3px 0 0 #50fa7b, 0 1px 2px rgba(0,0,0,0.1) !important; border-left: 1px solid rgba(255,255,255,0.1) !important; }
@@ -443,6 +617,7 @@
             }
             .el-input__inner:focus, .el-textarea__inner:focus {
                 border-color: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 5px var(--xhj-glow-color) !important;
             }
             .el-input.is-disabled .el-input__inner {
                 background-color: rgba(255, 255, 255, 0.05) !important;
@@ -481,6 +656,7 @@
             .el-radio__input.is-checked .el-radio__inner {
                 border-color: var(--xhj-active-bg) !important;
                 background: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 5px var(--xhj-glow-color);
             }
             .el-radio__label {
                 color: var(--xhj-fg) !important;
@@ -505,6 +681,7 @@
             .el-button--primary:hover, .el-button--primary:focus {
                 background-color: #bd93f9 !important; /* Dracula Pink/Purple lighter */
                 border-color: #bd93f9 !important;
+                box-shadow: 0 0 8px var(--xhj-glow-color);
             }
 
             /* 消除白色背景 */
@@ -565,6 +742,7 @@
             .layui-upload-drag:hover, .pic-add:hover {
                 border-color: var(--xhj-active-bg) !important;
                 background-color: rgba(255, 255, 255, 0.1) !important;
+                box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
             }
             .layui-upload-drag p, .layui-upload-drag i {
                 color: var(--xhj-fg) !important;
@@ -593,6 +771,7 @@
                 background-color: var(--xhj-active-bg) !important;
                 color: var(--xhj-active-fg) !important;
                 border-color: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 10px var(--xhj-glow-color);
             }
 
             /* 上传组件 (Upload Drag / Box) */
@@ -675,6 +854,20 @@
         applyTheme(themeName);
     };
 
+    // 全局点击波纹特效逻辑
+    document.addEventListener('click', function(e) {
+        const ripple = document.createElement('div');
+        ripple.classList.add('xhj-click-ripple');
+        document.body.appendChild(ripple);
+        
+        ripple.style.left = e.clientX + 'px';
+        ripple.style.top = e.clientY + 'px';
+        
+        ripple.addEventListener('animationend', () => {
+            ripple.remove();
+        });
+    });
+
     const createUI = () => {
         if (window.top !== window.self) return;
 
@@ -684,38 +877,86 @@
         const toggleBtn = document.createElement('button');
         toggleBtn.textContent = '🎨';
         toggleBtn.style.cssText = `
-            width: 50px; height: 50px; border-radius: 50%;
-            background: linear-gradient(135deg, #1AA094, #2F4056);
-            color: white; border: 2px solid rgba(255,255,255,0.2);
-            font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, #00dbde, #fc00ff);
+            color: white; border: 2px solid rgba(255,255,255,0.5);
+            font-size: 24px; cursor: pointer; box-shadow: 0 0 20px rgba(252, 0, 255, 0.6);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             z-index: 100000;
+            backdrop-filter: blur(5px);
         `;
         
         const menu = document.createElement('div');
         menu.style.cssText = `
-            position: absolute; bottom: 70px; right: 0;
-            background: rgba(30, 30, 40, 0.95); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-            padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: none; width: 160px; transform-origin: bottom right;
+            position: absolute; bottom: 80px; right: 0;
+            background: rgba(10, 10, 20, 0.85); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+            padding: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05);
+            display: none; width: 200px; transform-origin: bottom right;
+            opacity: 0; transform: scale(0.8) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         `;
 
         Object.keys(themes).forEach(key => {
             const btn = document.createElement('button');
             btn.textContent = themes[key].name;
             btn.style.cssText = `
-                display: block; width: 100%; padding: 10px; margin-bottom: 6px;
-                border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.05);
-                cursor: pointer; text-align: left; border-radius: 6px; color: #ddd;
-                transition: all 0.2s; font-size: 13px;
+                display: block; width: 100%; padding: 12px 16px; margin-bottom: 8px;
+                border: 1px solid rgba(255,255,255,0.05); background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
+                cursor: pointer; text-align: left; border-radius: 8px; color: #eee;
+                transition: all 0.3s; font-size: 14px; font-weight: 500;
+                position: relative; overflow: hidden;
             `;
-            btn.onclick = () => { switchTheme(key); menu.style.display = 'none'; };
+            
+            // 按钮悬停特效
+            btn.onmouseenter = () => {
+                btn.style.background = 'linear-gradient(90deg, var(--xhj-active-bg, #00dbde), transparent)';
+                btn.style.color = '#fff';
+                btn.style.transform = 'translateX(5px)';
+                btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                btn.style.borderColor = 'rgba(255,255,255,0.3)';
+            };
+            btn.onmouseleave = () => {
+                btn.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.05), transparent)';
+                btn.style.color = '#eee';
+                btn.style.transform = 'translateX(0)';
+                btn.style.boxShadow = 'none';
+                btn.style.borderColor = 'rgba(255,255,255,0.05)';
+            };
+
+            btn.onclick = () => { switchTheme(key); toggleMenu(false); };
             menu.appendChild(btn);
         });
 
+        const toggleMenu = (show) => {
+            if (show) {
+                menu.style.display = 'block';
+                // 强制重绘
+                menu.offsetHeight;
+                menu.style.opacity = '1';
+                menu.style.transform = 'scale(1) translateY(0)';
+            } else {
+                menu.style.opacity = '0';
+                menu.style.transform = 'scale(0.8) translateY(20px)';
+                setTimeout(() => {
+                    if (menu.style.opacity === '0') menu.style.display = 'none';
+                }, 300);
+            }
+        };
+
         toggleBtn.onclick = () => {
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            const isVisible = menu.style.display === 'block' && menu.style.opacity !== '0';
+            toggleMenu(!isVisible);
+        };
+        
+        // 鼠标悬停旋转特效
+        toggleBtn.onmouseenter = () => {
+            toggleBtn.style.transform = 'rotate(180deg) scale(1.1)';
+            toggleBtn.style.boxShadow = '0 0 30px rgba(252, 0, 255, 0.8)';
+        };
+        toggleBtn.onmouseleave = () => {
+            toggleBtn.style.transform = 'rotate(0deg) scale(1)';
+            toggleBtn.style.boxShadow = '0 0 20px rgba(252, 0, 255, 0.6)';
         };
 
         container.appendChild(menu);
@@ -892,6 +1133,21 @@
         if (window.top !== window.self) {
             document.body.classList.add('xhj-iframe-body');
         }
+        
+        // 注册全局点击特效事件
+        document.addEventListener('click', (e) => {
+            // 简单防抖或限制，避免过于频繁
+            const ripple = document.createElement('div');
+            ripple.className = 'xhj-click-ripple';
+            ripple.style.left = `${e.clientX}px`;
+            ripple.style.top = `${e.clientY}px`;
+            document.body.appendChild(ripple);
+            
+            // 动画结束后移除
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
 
         // 2. 识别表格类型 & 强力去白底
         setInterval(() => {
