@@ -1,5 +1,11 @@
 # 🎨 象视平台助手 (v1.18)
 
+![平台](https://img.shields.io/badge/平台-象视后台-blue)
+![环境](https://img.shields.io/badge/环境-Tampermonkey-orange)
+![语言](https://img.shields.io/badge/语言-JavaScript-yellow)
+![许可](https://img.shields.io/badge/许可-MIT-green)
+![版本](https://img.shields.io/badge/版本-v1.18-brightgreen)
+
 [中文](README.md) | [English](README-EN.md)
 
 **为象视平台后台管理系统提供极致的 macOS 风格深色模式、智能排版优化与高效自动化工具。**

@@ -1,5 +1,11 @@
 # 🎨 Xiangshi Platform Assistant (v1.18)
 
+![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
+![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
+![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Version](https://img.shields.io/badge/Version-v1.18-brightgreen)
+
 [中文](README.md) | [English](README-EN.md)
 
 **Providing the ultimate macOS-style dark mode, intelligent layout optimization, and efficient automation tools for the Xiangshi Platform backend management system.**
