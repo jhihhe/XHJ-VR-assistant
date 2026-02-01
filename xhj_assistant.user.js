@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.32
+// @version      1.33
 // @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
@@ -980,6 +980,41 @@
             menu.appendChild(btn);
         });
 
+        // --- 分割线 ---
+        const divider = document.createElement('div');
+        divider.style.cssText = 'height: 1px; background: rgba(255,255,255,0.1); margin: 8px 0;';
+        menu.appendChild(divider);
+
+        // --- 自动缩放开关 ---
+        const scaleBtn = document.createElement('button');
+        const updateScaleBtnText = () => {
+            scaleBtn.textContent = isScaleEnabled() ? '🖥️ 关闭自动缩放' : '🖥️ 开启自动缩放';
+            scaleBtn.style.background = isScaleEnabled() 
+                ? 'linear-gradient(90deg, rgba(76, 175, 80, 0.2), transparent)' 
+                : 'linear-gradient(90deg, rgba(255,255,255,0.05), transparent)';
+        };
+        updateScaleBtnText();
+        scaleBtn.style.cssText = `
+            display: block; width: 100%; padding: 12px 16px; margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.05); 
+            cursor: pointer; text-align: left; border-radius: 8px; color: #eee;
+            transition: all 0.3s; font-size: 14px; font-weight: 500;
+        `;
+        scaleBtn.onclick = () => {
+            toggleScale(!isScaleEnabled());
+            updateScaleBtnText();
+            // 不关闭菜单，方便查看效果
+        };
+        scaleBtn.onmouseenter = () => {
+             scaleBtn.style.transform = 'translateX(5px)';
+             scaleBtn.style.color = '#fff';
+        };
+        scaleBtn.onmouseleave = () => {
+             scaleBtn.style.transform = 'translateX(0)';
+             scaleBtn.style.color = '#eee';
+        };
+        menu.appendChild(scaleBtn);
+
         const toggleMenu = (show) => {
             if (show) {
                 menu.style.display = 'block';
@@ -1171,6 +1206,63 @@
             console.error("自动化操作失败:", error);
         }
     }
+
+    /* ==========================================================================
+       模块 4: 自动缩放功能 (Auto Scale)
+       ========================================================================== */
+    const AUTO_SCALE_STORAGE_KEY = 'xhj_auto_scale_enabled';
+    const DESIGN_WIDTH = 1920;
+
+    // 获取当前缩放状态
+    const isScaleEnabled = () => localStorage.getItem(AUTO_SCALE_STORAGE_KEY) === 'true';
+
+    // 设置缩放
+    const applyScale = () => {
+        if (!isScaleEnabled()) {
+            document.body.style.zoom = '';
+            return;
+        }
+        
+        const scale = window.innerWidth / DESIGN_WIDTH;
+        // 只有当窗口宽度小于设计宽度时才缩放，或者用户希望始终保持比例
+        // 这里按照“自动缩放页面到对应该有的大小”逻辑，始终应用比例
+        document.body.style.zoom = scale;
+    };
+
+    // 切换缩放开关
+    const toggleScale = (enable) => {
+        localStorage.setItem(AUTO_SCALE_STORAGE_KEY, enable);
+        if (enable) {
+            applyScale();
+            window.addEventListener('resize', applyScale);
+            showToast('已开启自动缩放模式 (基准: 1920px)');
+        } else {
+            document.body.style.zoom = '';
+            window.removeEventListener('resize', applyScale);
+            showToast('已关闭自动缩放模式');
+        }
+    };
+
+    // 简单的 Toast 提示
+    const showToast = (msg) => {
+        const toast = document.createElement('div');
+        toast.textContent = msg;
+        toast.style.cssText = `
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8); color: #fff; padding: 10px 20px;
+            border-radius: 20px; z-index: 9999999; font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); pointer-events: none;
+            opacity: 0; transition: opacity 0.3s;
+        `;
+        document.body.appendChild(toast);
+        // 强制重绘
+        toast.offsetHeight;
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    };
 
     /* ==========================================================================
        初始化 (Initialization)
@@ -1440,7 +1532,13 @@
             if (e.key === SKIN_STORAGE_KEY) applyTheme(e.newValue);
         });
 
-        // 4. 初始化 UI 和 自动同步按钮
+        // 4. 自动缩放初始化
+        if (isScaleEnabled()) {
+            applyScale();
+            window.addEventListener('resize', applyScale);
+        }
+
+        // 5. 初始化 UI 和 自动同步按钮
         const initDOM = () => {
             createUI();
             initSyncButtons();
