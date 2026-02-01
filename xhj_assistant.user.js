@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.30
+// @version      1.31
 // @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
@@ -878,9 +878,9 @@
         toggleBtn.textContent = '🎨';
         toggleBtn.style.cssText = `
             width: 56px; height: 56px; border-radius: 50%;
-            background: linear-gradient(135deg, #00dbde, #fc00ff);
-            color: white; border: 2px solid rgba(255,255,255,0.5);
-            font-size: 24px; cursor: pointer; box-shadow: 0 0 20px rgba(252, 0, 255, 0.6);
+            background: linear-gradient(135deg, var(--xhj-active-bg), var(--xhj-glow-color));
+            color: var(--xhj-active-fg); border: 2px solid rgba(255,255,255,0.5);
+            font-size: 24px; cursor: pointer; box-shadow: 0 0 20px var(--xhj-glow-color);
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             z-index: 100000;
             backdrop-filter: blur(5px);
@@ -952,11 +952,11 @@
         // 鼠标悬停旋转特效
         toggleBtn.onmouseenter = () => {
             toggleBtn.style.transform = 'rotate(180deg) scale(1.1)';
-            toggleBtn.style.boxShadow = '0 0 30px rgba(252, 0, 255, 0.8)';
+            toggleBtn.style.boxShadow = '0 0 30px var(--xhj-glow-color)';
         };
         toggleBtn.onmouseleave = () => {
             toggleBtn.style.transform = 'rotate(0deg) scale(1)';
-            toggleBtn.style.boxShadow = '0 0 20px rgba(252, 0, 255, 0.6)';
+            toggleBtn.style.boxShadow = '0 0 20px var(--xhj-glow-color)';
         };
 
         container.appendChild(menu);
@@ -1248,6 +1248,30 @@
                     updateColumnWidth('同步时间', 90, 'sync-time', 'nowrap');
                 }
             }
+
+            // 3. VR上传状态颜色区分 (新增)
+            const statusCells = document.querySelectorAll('.layui-table-cell, .layui-upload-list span, .status-text, td');
+            statusCells.forEach(cell => {
+                // 仅针对包含特定状态文字的单元格
+                const text = cell.textContent.trim();
+                if (!text) return;
+                
+                if (text === '正在上传' || text.includes('正在上传')) {
+                    cell.style.setProperty('color', '#f1c40f', 'important'); // 橙黄色
+                    cell.style.fontWeight = 'bold';
+                    cell.style.textShadow = '0 0 8px rgba(241, 196, 15, 0.4)';
+                } else if (text === '上传完成' || text.includes('上传完成')) {
+                    cell.style.setProperty('color', '#00ff9d', 'important'); // 荧光绿
+                    cell.style.fontWeight = 'bold';
+                    cell.style.textShadow = '0 0 8px rgba(0, 255, 157, 0.4)';
+                } else if (text === '上传失败' || text.includes('上传失败')) {
+                    cell.style.setProperty('color', '#ff5252', 'important'); // 红色
+                    cell.style.fontWeight = 'bold';
+                    cell.style.textShadow = '0 0 8px rgba(255, 82, 82, 0.4)';
+                } else if (text === '等待上传' || text.includes('等待上传')) {
+                    cell.style.setProperty('color', '#a0a0a0', 'important'); // 灰色
+                }
+            });
             
             // 修复“新增房堪图”弹窗高度不足导致按钮被遮挡的问题
             const layerTitles = document.querySelectorAll('.layui-layer-title');

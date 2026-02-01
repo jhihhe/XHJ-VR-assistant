@@ -58,6 +58,10 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.31
+*   **Adaptive Theme Optimization**: The UI floating ball and menu now automatically adapt to the currently selected theme colors (supporting custom Glow and gradients), achieving a truly immersive full-theme experience.
+*   **VR Upload Status Visualization**: In Housing Survey/Panorama list pages, distinct colors and dynamic lighting effects have been added for status texts like "Uploading" (Orange-Yellow + Breathing Blink), "Upload Completed" (Fluorescent Green + Highlight), and "Upload Failed" (Red Warning) to instantly grasp task progress.
+
 ### v1.30
 *   **New Theme: Future Tech**: Added "Future Tech (Neon)" theme, featuring a deep blue-black background with high-saturation neon effects and a built-in dynamic grid background for an ultimate cyberpunk experience.
 *   **Global Ripple Effect**: Added click ripple effect interaction; every click is accompanied by a colorful spreading animation, maximizing operational feedback.
