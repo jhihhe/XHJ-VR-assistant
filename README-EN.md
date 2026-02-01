@@ -58,6 +58,9 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.36
+*   **Search Bar Layout Optimization**: In the "Sales Panorama" management page, the "Search" and "Refresh" buttons have been moved below the "Project Name or Project ID" input box, and their sizes have been adjusted to match the "Pending/All" buttons, making the operation area more compact and reasonable.
+
 ### v1.35
 *   **Auto Scale Enabled by Default**: In response to user requests, the Auto Scale feature is now **enabled by default**. New users or those who clear their cache will automatically experience the 125% full-screen adaptive layout without manual setup.
 

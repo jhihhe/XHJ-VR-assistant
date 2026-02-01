@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.35
+// @version      1.36
 // @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
@@ -1392,6 +1392,78 @@
 
                     // 10. 同步时间 (90px, 单行)
                     updateColumnWidth('同步时间', 90, 'sync-time', 'nowrap');
+
+                    // 11. 调整搜索和刷新按钮位置 (v1.36)
+                    const inputs = document.querySelectorAll('input[placeholder*="项目名称"], input[placeholder*="项目ID"]');
+                    if (inputs.length > 0) {
+                        const targetInput = inputs[0];
+                        // 向上找 layui-inline
+                        const inputContainer = targetInput.closest('.layui-inline');
+                        
+                        if (inputContainer && !inputContainer.dataset.xhjBtnMoved) {
+                            // 查找搜索和刷新按钮 (通常在同一个 form-item 或相邻的 inline 中)
+                            // 我们在整个 document 中找（或者在 inputContainer 的父级 form 中找更安全）
+                            const form = inputContainer.closest('.layui-form') || document.body;
+                            
+                            // 搜索按钮：通常有 icon-search 或 文本包含搜索
+                            const allBtns = Array.from(form.querySelectorAll('.layui-btn'));
+                            const searchBtn = allBtns.find(b => b.textContent.trim().includes('搜索') || b.querySelector('.layui-icon-search'));
+                            const refreshBtn = allBtns.find(b => b.textContent.trim().includes('刷新') || b.querySelector('.layui-icon-refresh'));
+                            
+                            // 参考按钮：待处理/全部
+                            const refBtn = allBtns.find(b => b.textContent.trim() === '待处理' || b.textContent.trim() === '全部');
+                            
+                            if (searchBtn && refreshBtn) {
+                                // 创建新容器
+                                const newContainer = document.createElement('div');
+                                newContainer.className = 'layui-block'; // 独占一行
+                                newContainer.style.marginTop = '10px';
+                                newContainer.style.marginBottom = '10px';
+                                // 尝试与输入框左对齐 (如果输入框前面有 label，我们需要偏移)
+                                // 这里简单处理，直接放在下方
+                                
+                                if (inputContainer.nextSibling) {
+                                    inputContainer.parentNode.insertBefore(newContainer, inputContainer.nextSibling);
+                                } else {
+                                    inputContainer.parentNode.appendChild(newContainer);
+                                }
+                                
+                                newContainer.appendChild(searchBtn);
+                                // 加一点间距
+                                searchBtn.style.marginRight = '10px';
+                                newContainer.appendChild(refreshBtn);
+                                
+                                // 调整样式
+                                if (refBtn) {
+                                    // 获取 refBtn 的高度/padding/字体大小
+                                    const computedStyle = window.getComputedStyle(refBtn);
+                                    const height = computedStyle.height;
+                                    const lineHeight = computedStyle.lineHeight;
+                                    const padding = computedStyle.padding;
+                                    const fontSize = computedStyle.fontSize;
+                                    
+                                    [searchBtn, refreshBtn].forEach(btn => {
+                                        btn.style.setProperty('height', height, 'important');
+                                        btn.style.setProperty('line-height', lineHeight, 'important');
+                                        btn.style.setProperty('padding', padding, 'important');
+                                        btn.style.setProperty('font-size', fontSize, 'important');
+                                        
+                                        // 移除可能导致大小不一致的类 (如 layui-btn-xs)
+                                        btn.classList.remove('layui-btn-xs', 'layui-btn-sm', 'layui-btn-lg');
+                                        // 添加与 refBtn 相同的大小类 (如果有)
+                                        refBtn.classList.forEach(cls => {
+                                            if (['layui-btn-xs', 'layui-btn-sm', 'layui-btn-lg'].includes(cls)) {
+                                                btn.classList.add(cls);
+                                            }
+                                        });
+                                    });
+                                }
+                                
+                                // 标记已处理
+                                inputContainer.dataset.xhjBtnMoved = 'true';
+                            }
+                        }
+                    }
                 }
             }
 
