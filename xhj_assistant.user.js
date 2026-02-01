@@ -260,7 +260,8 @@
                 background-color: var(--xhj-bg) !important;
                 color: var(--xhj-fg) !important;
                 -webkit-font-smoothing: antialiased;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                /* Polish Style Font Stack */
+                font-family: ui-rounded, 'SF Pro Rounded', 'SF Pro Text', 'Helvetica Neue', -apple-system, system-ui, BlinkMacSystemFont, Roboto, sans-serif !important;
             }
             
             /* 修复 iframe 内可能存在的白色背景类 */
@@ -316,7 +317,55 @@
                 box-shadow: 0 0 10px var(--xhj-active-bg);
             }
 
-            /* --- 全局组件优化 --- */
+            /* --- Polish Style UI 深度优化 (V2EX Polish 风格移植) --- */
+            
+            /* 1. 大圆角容器 (Polish Style: 18px) */
+            .layui-card, .layui-panel, .layui-layer, .layui-layer-page {
+                border-radius: 18px !important;
+            }
+            
+            /* 2. 按钮优化 (Polish Style: 6px-10px, subtle shadow) */
+            .layui-btn {
+                border-radius: 10px !important;
+                font-weight: 600 !important;
+                letter-spacing: 0.5px;
+                /* 模拟 V2EX Polish 按钮阴影 */
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.1) inset !important;
+            }
+            .layui-btn:hover {
+                transform: translateY(-1px) !important;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.1) inset !important;
+            }
+            
+            /* 3. 输入框优化 (Polish Style) */
+            .layui-input, .layui-select, .layui-textarea {
+                border-radius: 10px !important;
+                padding-left: 12px !important;
+            }
+            
+            /* 4. 侧边栏与导航 (Polish Style: Capsule Tabs) */
+            .layui-nav-tree .layui-nav-item a {
+                border-radius: 12px !important;
+                margin: 4px 10px !important;
+            }
+            
+            /* 5. 表格圆角化 */
+            .layui-table-view {
+                border-radius: 14px !important;
+                overflow: hidden !important;
+                border: 1px solid rgba(255,255,255,0.05) !important;
+            }
+            
+            /* 6. 弹窗头部圆角 */
+            .layui-layer-title {
+                border-radius: 18px 18px 0 0 !important;
+                padding-left: 25px !important;
+            }
+            .layui-layer-btn {
+                border-radius: 0 0 18px 18px !important;
+            }
+
+            /* --- 全局组件优化 (保留原有) --- */
             
             /* 过渡动画 */
             .layui-btn, .layui-input, .layui-nav-item a, .layui-table-cell, .layui-tab-title li {
@@ -332,8 +381,7 @@
             }
             .layui-nav-tree .layui-nav-item a {
                 color: var(--xhj-fg) !important;
-                margin: 4px 8px !important;
-                border-radius: 6px !important;
+                /* margin & radius moved to Polish section */
                 width: auto !important;
             }
             .layui-nav-tree .layui-nav-item a:hover {
@@ -349,7 +397,7 @@
                 background-image: linear-gradient(135deg, var(--xhj-active-bg), rgba(189, 147, 249, 0.8)) !important;
                 color: var(--xhj-active-fg) !important;
                 box-shadow: var(--xhj-glow) !important;
-                border-radius: 10px !important;
+                border-radius: 12px !important; /* Updated to 12px */
                 margin: 0 10px !important;
                 width: auto !important;
                 transform: translateY(-1px) scale(1.02) !important;
@@ -375,7 +423,7 @@
                 background-color: rgba(255, 255, 255, 0.05) !important;
                 border-color: transparent !important;
                 margin-right: 2px;
-                border-radius: 4px 4px 0 0;
+                border-radius: 8px 8px 0 0 !important; /* Polish Style */
             }
             .layui-tab-title .layui-this {
                 color: var(--xhj-active-bg) !important;
@@ -395,6 +443,7 @@
                 color: var(--xhj-fg) !important;
                 background-color: transparent !important;
                 border-color: var(--xhj-border) !important;
+                border-radius: 8px !important; /* Polish Style */
             }
             .layui-laypage a:hover {
                 color: var(--xhj-active-bg) !important;
@@ -404,11 +453,13 @@
             .layui-laypage .layui-laypage-curr .layui-laypage-em {
                 background-color: var(--xhj-active-bg) !important;
                 box-shadow: 0 0 8px var(--xhj-glow-color) !important;
+                border-radius: 8px !important;
             }
             .layui-laypage input, .layui-laypage button, .layui-laypage select {
                 background-color: var(--xhj-input-bg) !important;
                 color: var(--xhj-fg) !important;
                 border: 1px solid var(--xhj-border) !important;
+                border-radius: 8px !important;
             }
 
             /* 表单元素 */
@@ -422,6 +473,7 @@
                 background-color: rgba(255,255,255,0.05) !important;
                 color: var(--xhj-fg) !important;
                 border-color: var(--xhj-border) !important;
+                border-radius: 8px 0 0 8px !important;
             }
 
             /* 卡片与容器 */
@@ -429,7 +481,7 @@
                 background-color: rgba(68, 71, 90, 0.95) !important;
                 color: var(--xhj-fg) !important;
                 border: var(--xhj-glass-border) !important;
-                border-radius: 12px !important;
+                /* Radius moved to Polish section */
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
                 backdrop-filter: blur(8px);
                 transition: transform 0.3s !important;
@@ -442,20 +494,20 @@
             .layui-card-header {
                 border-bottom: 1px solid rgba(255,255,255,0.05) !important;
                 color: var(--xhj-fg) !important;
+                border-radius: 18px 18px 0 0 !important;
             }
 
-            /* 按钮 */
+            /* 按钮 (Styles partially overridden by Polish section above) */
             .layui-btn {
                 background-color: var(--xhj-active-bg) !important;
                 color: var(--xhj-active-fg) !important;
-                border-radius: 6px !important;
+                /* Radius overridden */
                 border: none !important;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
+                /* Box shadow overridden */
                 background-image: var(--xhj-btn-gradient) !important;
             }
             .layui-btn:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 0 15px var(--xhj-active-bg), 0 0 5px var(--xhj-active-bg) !important;
                 opacity: 1;
             }
             .layui-btn-primary {
@@ -475,7 +527,7 @@
                 background-color: var(--xhj-input-bg) !important;
                 color: var(--xhj-fg) !important;
                 border: 1px solid var(--xhj-border) !important;
-                border-radius: 6px !important;
+                /* Radius overridden */
                 box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
             }
             .layui-input:focus, .layui-select:focus, .layui-textarea:focus {
@@ -487,7 +539,7 @@
             .layui-table, .layui-table-view {
                 background-color: var(--xhj-bg) !important;
                 color: var(--xhj-fg) !important;
-                border-radius: 8px;
+                /* Radius overridden */
                 border: none !important;
             }
             .layui-table-hover, .layui-table-click, .layui-table tbody tr:hover, 

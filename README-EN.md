@@ -59,6 +59,7 @@ Built-in classic color schemes loved by programmers, switch with one click:
 ## 📝 Changelog
 
 ### v1.31
+*   **Polish Style UI Upgrade**: Deeply replicated the V2EX Polish style, introducing large rounded corners (18px), SF Pro Rounded font stack, and subtle shadow effects, making the interface more rounded and modern while preserving the original color schemes of each theme.
 *   **Adaptive Theme Optimization**: The UI floating ball and menu now automatically adapt to the currently selected theme colors (supporting custom Glow and gradients), achieving a truly immersive full-theme experience.
 *   **VR Upload Status Visualization**: In Housing Survey/Panorama list pages, distinct colors and dynamic lighting effects have been added for status texts like "Uploading" (Orange-Yellow + Breathing Blink), "Upload Completed" (Fluorescent Green + Highlight), and "Upload Failed" (Red Warning) to instantly grasp task progress.
 
