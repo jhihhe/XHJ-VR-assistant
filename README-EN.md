@@ -58,6 +58,11 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.39
+*   **Search Bar Alignment Deep Fix**:
+    *   **Forced Top Alignment**: Addressed vertical misalignment issues in the Layui layout (where input boxes, dropdowns, and date pickers were not on the same horizontal line). Now, the search bar and all sibling form elements in the same row (including dropdowns and date pickers) are forcibly set to top alignment (`vertical-align: top`).
+    *   **Container Optimization**: Refactored the search bar wrapper to fully inherit original Layui class names and cleared internal element margins, ensuring perfect integration with native components.
+
 ### v1.38
 *   **Search Bar Layout Fix**: Improved the container layout of the search bar (switched from flex to inline-block) to fix misalignment issues with the right-side filter boxes on certain screen sizes, enhancing layout stability.
 *   **Auto Scale Adjustment**: Rolled back the minimum scale limit and adjusted the default auto-scale ratio to **120%** (previously 125%) based on user feedback, providing a more optimal viewing experience.

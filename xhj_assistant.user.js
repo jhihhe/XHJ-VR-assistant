@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.38
+// @version      1.39
 // @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
@@ -1416,33 +1416,38 @@
                             const refBtn = allBtns.find(b => b.textContent.trim() === '待处理' || b.textContent.trim() === '全部');
                             
                             if (searchBtn && refreshBtn) {
-                                // v1.38 改进布局：使用 inline-block 确保在 Layui 中更稳定的对齐
-                                // 将输入框和按钮组打包在一个容器中
+                                // v1.39 深度对齐修复：
+                                // 1. 创建 wrapper 并复制原始 container 的所有类名
+                                // 2. 强制 wrapper 和所有兄弟元素 vertical-align: top
                                 
                                 const wrapper = document.createElement('div');
-                                // 使用 inline-block 以像原生 Layui 元素一样表现
+                                
+                                // 复制原始类名 (保留 layui-inline 等布局类)
+                                wrapper.className = inputContainer.className;
+                                
+                                // 强制样式覆盖
                                 wrapper.style.display = 'inline-block'; 
-                                wrapper.style.verticalAlign = 'top';
+                                wrapper.style.verticalAlign = 'top'; // 关键：顶部对齐
                                 wrapper.style.marginRight = '10px'; 
                                 wrapper.setAttribute('data-xhj-wrapper', 'true');
                                 
-                                // 添加 layui-inline 类以继承 Layui 的行内属性
-                                wrapper.classList.add('layui-inline');
-
                                 // 插入 wrapper 到 inputContainer 前面
                                 inputContainer.parentNode.insertBefore(wrapper, inputContainer);
 
                                 // 将 inputContainer 移动到 wrapper 内部
                                 wrapper.appendChild(inputContainer);
-                                // 确保 inputContainer (layui-inline) 也是 block 布局以垂直堆叠，或者我们手动换行
+                                
+                                // 重置 inputContainer 样式，防止内部偏移
                                 inputContainer.style.display = 'block';
-                                inputContainer.style.marginBottom = '4px'; // 稍微增加间距
+                                inputContainer.style.marginBottom = '4px'; 
+                                inputContainer.style.marginTop = '0'; // 防止内部下沉
+                                inputContainer.style.verticalAlign = 'top';
+                                inputContainer.classList.remove('layui-inline'); // 移除内部的布局类，避免双重影响
 
                                 // 创建按钮容器
                                 const btnContainer = document.createElement('div');
                                 btnContainer.className = 'xhj-btn-container';
-                                btnContainer.style.display = 'block'; // 块级显示，确保在输入框下方
-                                // 移除 flex gap，使用 margin
+                                btnContainer.style.display = 'block'; 
                                 btnContainer.style.marginTop = '0px'; 
 
                                 // 移动按钮到新容器
@@ -1453,6 +1458,15 @@
                                 searchBtn.style.marginRight = '10px';
                                 
                                 wrapper.appendChild(btnContainer);
+                                
+                                // v1.39: 强制统一整行兄弟元素的垂直对齐
+                                // 找到父容器下的所有 layui-inline 元素 (如下拉框、时间选择器)
+                                const siblings = wrapper.parentNode.querySelectorAll('.layui-inline');
+                                siblings.forEach(sib => {
+                                    sib.style.verticalAlign = 'top';
+                                });
+                                
+                                // 调整按钮样式 (参考 refBtn)
                                 
                                 // 调整按钮样式 (参考 refBtn)
                                 if (refBtn) {
