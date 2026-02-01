@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.31
+// @version      1.32
 // @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
@@ -1302,17 +1302,27 @@
             }
 
             // 3. VR上传状态颜色区分 (新增)
-            const statusCells = document.querySelectorAll('.layui-table-cell, .layui-upload-list span, .status-text, td');
+            // 扩展选择器以覆盖更多可能的元素（如按钮文本）
+            const statusCells = document.querySelectorAll('.layui-table-cell, .layui-upload-list span, .status-text, td, .layui-btn, div, span');
             statusCells.forEach(cell => {
-                // 仅针对包含特定状态文字的单元格
-                const text = cell.textContent.trim();
-                if (!text) return;
+                // 仅针对包含特定状态文字的单元格，且文本长度较短（避免误伤长文本）
+                // 排除 script 和 style 标签
+                if (['SCRIPT', 'STYLE'].includes(cell.tagName)) return;
                 
-                if (text === '正在上传' || text.includes('正在上传')) {
+                // 仅处理直接包含文本的节点，避免父容器被错误着色
+                if (cell.children.length > 0 && cell.tagName !== 'TD' && !cell.classList.contains('layui-btn')) {
+                    // 如果是容器但没有直接文本，跳过 (除非是特定类名)
+                     // 这里简化逻辑：只检查 textContent
+                }
+
+                const text = cell.textContent.trim();
+                if (!text || text.length > 20) return; // 忽略长文本
+                
+                if (text === '正在上传' || text.includes('正在上传') || text.includes('上传中')) {
                     cell.style.setProperty('color', '#f1c40f', 'important'); // 橙黄色
                     cell.style.fontWeight = 'bold';
                     cell.style.textShadow = '0 0 8px rgba(241, 196, 15, 0.4)';
-                } else if (text === '上传完成' || text.includes('上传完成')) {
+                } else if (text === '上传完成' || text.includes('上传完成') || text.includes('上传成功')) {
                     cell.style.setProperty('color', '#00ff9d', 'important'); // 荧光绿
                     cell.style.fontWeight = 'bold';
                     cell.style.textShadow = '0 0 8px rgba(0, 255, 157, 0.4)';
@@ -1322,6 +1332,11 @@
                     cell.style.textShadow = '0 0 8px rgba(255, 82, 82, 0.4)';
                 } else if (text === '等待上传' || text.includes('等待上传')) {
                     cell.style.setProperty('color', '#a0a0a0', 'important'); // 灰色
+                } else if (text === '上传') {
+                    // "上传" 可能是按钮，给一个醒目的蓝色
+                    cell.style.setProperty('color', '#3498db', 'important'); // 蓝色
+                    // 如果是按钮，可能还需要加粗
+                    cell.style.fontWeight = 'bold';
                 }
             });
             

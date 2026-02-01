@@ -58,6 +58,10 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.32
+*   **Status Indication Enhancement**: Further expanded the recognition range of status texts, adding color distinction for "Uploading...", "Upload Success", and "Upload" (Button), fully covering the status display of the entire upload process.
+*   **Compatibility Optimization**: Expanded the detection range of status texts (supporting `div`, `span`, and button texts) to ensure correct coloring under different page structures.
+
 ### v1.31
 *   **Polish Style UI Upgrade**: Deeply replicated the V2EX Polish style, introducing large rounded corners (18px), SF Pro Rounded font stack, and subtle shadow effects, making the interface more rounded and modern while preserving the original color schemes of each theme.
 *   **Adaptive Theme Optimization**: The UI floating ball and menu now automatically adapt to the currently selected theme colors (supporting custom Glow and gradients), achieving a truly immersive full-theme experience.
