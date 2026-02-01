@@ -58,6 +58,10 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.37
+*   **Search Bar Layout Refinement**: Further optimized the layout of the search bar on the "Sales Panorama" page. The input box and search buttons are now grouped together without forcing a line break, allowing the filter dropdowns on the right to flow automatically, reducing white space and creating a more compact visual effect.
+*   **Auto Scale Optimization**: Adjusted the auto-scaling logic by adding a **minimum scale limit (1.0)**. This means that when the window is resized smaller (e.g., 3/4 of the screen), the web content will not shrink excessively and will remain clear and readable.
+
 ### v1.36
 *   **Search Bar Layout Optimization**: In the "Sales Panorama" management page, the "Search" and "Refresh" buttons have been moved below the "Project Name or Project ID" input box, and their sizes have been adjusted to match the "Pending/All" buttons, making the operation area more compact and reasonable.
 
