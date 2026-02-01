@@ -58,6 +58,9 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.35
+*   **Auto Scale Enabled by Default**: In response to user requests, the Auto Scale feature is now **enabled by default**. New users or those who clear their cache will automatically experience the 125% full-screen adaptive layout without manual setup.
+
 ### v1.34
 *   **Auto Scale Logic Optimization**: The baseline for auto-scaling has been adjusted from a fixed 1920px to **125% of the current screen resolution width**. This means that in full-screen mode, page content will default to 125% zoom, making it more suitable for high-DPI screens or scenarios requiring larger text, while maintaining responsiveness to window size changes.
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.34
+// @version      1.35
 // @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
@@ -1213,8 +1213,8 @@
     const AUTO_SCALE_STORAGE_KEY = 'xhj_auto_scale_enabled';
     // const DESIGN_WIDTH = 1920; // 不再使用固定设计宽度
 
-    // 获取当前缩放状态
-    const isScaleEnabled = () => localStorage.getItem(AUTO_SCALE_STORAGE_KEY) === 'true';
+    // 获取当前缩放状态 (默认开启: 只要不是 'false' 就算开启)
+    const isScaleEnabled = () => localStorage.getItem(AUTO_SCALE_STORAGE_KEY) !== 'false';
 
     // 设置缩放
     const applyScale = () => {
