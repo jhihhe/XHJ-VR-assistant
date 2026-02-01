@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.37
+// @version      1.38
 // @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
@@ -1225,10 +1225,9 @@
         
         // 使用当前屏幕分辨率宽度作为基准
         const baseWidth = window.screen.width;
-        // 计算缩放比例：(当前窗口宽度 / 屏幕宽度) * 1.25 (125%)
-        // v1.37: 增加最小缩放比例限制 (1.0)，避免窗口变小时内容过小
-        const rawScale = (window.innerWidth / baseWidth) * 1.25;
-        const scale = Math.max(1.0, rawScale);
+        // 计算缩放比例：(当前窗口宽度 / 屏幕宽度) * 1.20 (120%)
+        // v1.38: 回滚最小缩放限制，调整基准比例为 120%
+        const scale = (window.innerWidth / baseWidth) * 1.20;
         
         document.body.style.zoom = scale;
     };
@@ -1239,7 +1238,7 @@
         if (enable) {
             applyScale();
             window.addEventListener('resize', applyScale);
-            showToast(`已开启自动缩放模式 (基准: 屏幕宽度 * 125%)`);
+            showToast(`已开启自动缩放模式 (基准: 屏幕宽度 * 120%)`);
         } else {
             document.body.style.zoom = '';
             window.removeEventListener('resize', applyScale);
@@ -1417,33 +1416,41 @@
                             const refBtn = allBtns.find(b => b.textContent.trim() === '待处理' || b.textContent.trim() === '全部');
                             
                             if (searchBtn && refreshBtn) {
-                                // v1.37 改进布局：将输入框和按钮组打包在一个 inline-flex 容器中
-                                // 这样后面的下拉框 (Layui Select) 可以自动流式排列到右侧
+                                // v1.38 改进布局：使用 inline-block 确保在 Layui 中更稳定的对齐
+                                // 将输入框和按钮组打包在一个容器中
                                 
                                 const wrapper = document.createElement('div');
-                                wrapper.style.display = 'inline-flex';
-                                wrapper.style.flexDirection = 'column';
+                                // 使用 inline-block 以像原生 Layui 元素一样表现
+                                wrapper.style.display = 'inline-block'; 
                                 wrapper.style.verticalAlign = 'top';
-                                wrapper.style.marginRight = '10px'; // 与右侧元素保持间距
+                                wrapper.style.marginRight = '10px'; 
                                 wrapper.setAttribute('data-xhj-wrapper', 'true');
+                                
+                                // 添加 layui-inline 类以继承 Layui 的行内属性
+                                wrapper.classList.add('layui-inline');
 
                                 // 插入 wrapper 到 inputContainer 前面
                                 inputContainer.parentNode.insertBefore(wrapper, inputContainer);
 
                                 // 将 inputContainer 移动到 wrapper 内部
                                 wrapper.appendChild(inputContainer);
+                                // 确保 inputContainer (layui-inline) 也是 block 布局以垂直堆叠，或者我们手动换行
+                                inputContainer.style.display = 'block';
+                                inputContainer.style.marginBottom = '4px'; // 稍微增加间距
 
                                 // 创建按钮容器
                                 const btnContainer = document.createElement('div');
                                 btnContainer.className = 'xhj-btn-container';
-                                btnContainer.style.display = 'flex';
-                                btnContainer.style.gap = '8px'; // 按钮间距
-                                btnContainer.style.marginTop = '4px'; // 与上方输入框的间距 (紧凑一点)
-                                btnContainer.style.marginBottom = '4px'; 
+                                btnContainer.style.display = 'block'; // 块级显示，确保在输入框下方
+                                // 移除 flex gap，使用 margin
+                                btnContainer.style.marginTop = '0px'; 
 
                                 // 移动按钮到新容器
                                 btnContainer.appendChild(searchBtn);
                                 btnContainer.appendChild(refreshBtn);
+                                
+                                // 确保按钮之间有间距
+                                searchBtn.style.marginRight = '10px';
                                 
                                 wrapper.appendChild(btnContainer);
                                 

@@ -58,6 +58,10 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.38
+*   **Search Bar Layout Fix**: Improved the container layout of the search bar (switched from flex to inline-block) to fix misalignment issues with the right-side filter boxes on certain screen sizes, enhancing layout stability.
+*   **Auto Scale Adjustment**: Rolled back the minimum scale limit and adjusted the default auto-scale ratio to **120%** (previously 125%) based on user feedback, providing a more optimal viewing experience.
+
 ### v1.37
 *   **Search Bar Layout Refinement**: Further optimized the layout of the search bar on the "Sales Panorama" page. The input box and search buttons are now grouped together without forcing a line break, allowing the filter dropdowns on the right to flow automatically, reducing white space and creating a more compact visual effect.
 *   **Auto Scale Optimization**: Adjusted the auto-scaling logic by adding a **minimum scale limit (1.0)**. This means that when the window is resized smaller (e.g., 3/4 of the screen), the web content will not shrink excessively and will remain clear and readable.
