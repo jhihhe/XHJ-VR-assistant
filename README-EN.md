@@ -58,6 +58,9 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.34
+*   **Auto Scale Logic Optimization**: The baseline for auto-scaling has been adjusted from a fixed 1920px to **125% of the current screen resolution width**. This means that in full-screen mode, page content will default to 125% zoom, making it more suitable for high-DPI screens or scenarios requiring larger text, while maintaining responsiveness to window size changes.
+
 ### v1.33
 *   **Auto Scale**: Added full-screen adaptive feature. Based on 1920px standard, when the browser window size changes, the page content automatically scales to maintain the optimal layout ratio, solving the problem of incomplete content display on small screens. You can toggle this feature at any time in the UI floating menu.
 

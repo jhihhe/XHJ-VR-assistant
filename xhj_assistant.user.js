@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.33
+// @version      1.34
 // @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
@@ -1211,7 +1211,7 @@
        模块 4: 自动缩放功能 (Auto Scale)
        ========================================================================== */
     const AUTO_SCALE_STORAGE_KEY = 'xhj_auto_scale_enabled';
-    const DESIGN_WIDTH = 1920;
+    // const DESIGN_WIDTH = 1920; // 不再使用固定设计宽度
 
     // 获取当前缩放状态
     const isScaleEnabled = () => localStorage.getItem(AUTO_SCALE_STORAGE_KEY) === 'true';
@@ -1223,9 +1223,11 @@
             return;
         }
         
-        const scale = window.innerWidth / DESIGN_WIDTH;
-        // 只有当窗口宽度小于设计宽度时才缩放，或者用户希望始终保持比例
-        // 这里按照“自动缩放页面到对应该有的大小”逻辑，始终应用比例
+        // 使用当前屏幕分辨率宽度作为基准
+        const baseWidth = window.screen.width;
+        // 计算缩放比例：(当前窗口宽度 / 屏幕宽度) * 1.25 (125%)
+        const scale = (window.innerWidth / baseWidth) * 1.25;
+        
         document.body.style.zoom = scale;
     };
 
@@ -1235,7 +1237,7 @@
         if (enable) {
             applyScale();
             window.addEventListener('resize', applyScale);
-            showToast('已开启自动缩放模式 (基准: 1920px)');
+            showToast(`已开启自动缩放模式 (基准: 屏幕宽度 * 125%)`);
         } else {
             document.body.style.zoom = '';
             window.removeEventListener('resize', applyScale);
