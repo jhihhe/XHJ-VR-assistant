@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.39
+// @version      1.40
 // @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
@@ -1218,6 +1218,17 @@
 
     // 设置缩放
     const applyScale = () => {
+        // v1.40: 针对全景图管理-上传页面禁用自动缩放 (解决DPI异常问题)
+        // 识别策略：检查URL或标题是否包含"新增"、"上传"等关键词
+        // 许多管理系统的添加页面URL通常包含 /add 或 /create
+        if (window.location.href.includes('/add') || 
+            window.location.href.includes('/upload') || 
+            document.title.includes('新增') || 
+            document.title.includes('上传')) {
+            document.body.style.zoom = '';
+            return;
+        }
+
         if (!isScaleEnabled()) {
             document.body.style.zoom = '';
             return;

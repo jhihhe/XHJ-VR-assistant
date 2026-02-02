@@ -58,6 +58,9 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.40
+*   **Panorama Upload Page DPI Fix**: Automatically detects and **disables Auto Scale** for the panorama upload page (popup or standalone). This resolves abnormal DPI display issues (such as blurred text or misaligned controls) caused by auto-scaling in the upload window, ensuring precise operation.
+
 ### v1.39
 *   **Search Bar Alignment Deep Fix**:
     *   **Forced Top Alignment**: Addressed vertical misalignment issues in the Layui layout (where input boxes, dropdowns, and date pickers were not on the same horizontal line). Now, the search bar and all sibling form elements in the same row (including dropdowns and date pickers) are forcibly set to top alignment (`vertical-align: top`).
