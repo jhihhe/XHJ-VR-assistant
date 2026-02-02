@@ -1,4 +1,4 @@
-# 🎨 Xiangshi Platform Assistant (v1.30)
+# 🎨 Xiangshi Platform Assistant (v1.40)
 
 ![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
 ![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
-![Version](https://img.shields.io/badge/Version-v1.30-brightgreen)
+![Version](https://img.shields.io/badge/Version-v1.40-brightgreen)
 
 [中文](README.md) | [English](README-EN.md)
 
@@ -21,6 +21,7 @@ This is a Tampermonkey script developed specifically for the [Xiangshi Platform 
 *   **Light and Shadow Aesthetics**: Carefully tuned Shadow and Glow effects give interface elements distinct layers, rejecting flat design.
 *   **Fluid Animations**: Micro-interactions like button ripples, menu rebound, and hover scaling provide a silky smooth user experience.
 *   **Rounded Design**: Rounded corners applied throughout the site for a softer and more comfortable visual appearance.
+*   **Auto Scale**: (v1.33+) Intelligent full-screen adaptation, defaulting to 120% of screen width to solve small screen display issues, with a one-click toggle.
 
 ### 2.  Intelligent Auto-Sync (New in v1.16)
 *   **One-Click Sync**: Integrated "Auto-Sync" function allows batch processing of housing survey/panorama data synchronization tasks with a single click.
