@@ -67,6 +67,11 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.47 (2025-02-08)
+- **Toast Notification Redesign**: Replaced the legacy square Layui alerts with MacOS-style "Capsule" notifications.
+- **Global Glassmorphism**: All dialogs and layers now feature authentic Frosted Glass effects (Blur + Translucency), perfectly matching the MacOS Light theme.
+- **Refined Details**: Optimized icon positioning and typography for a cleaner look.
+
 ### v1.46 (2025-02-08)
 - **Pure MacOS Mode**: Specifically optimized for "MacOS Light" theme to achieve pixel-perfect system restoration.
 - **Sidebar De-Black**: Removed forced black backgrounds in Layui sidebar, applying authentic translucent frosted glass effect.

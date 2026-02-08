@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.46
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v1.46: 极致净化 MacOS 主题，去除多余色彩，还原系统级磨砂质感。
+// @version      1.47
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v1.47: 全新 MacOS 风格消息提示 (Toast Notification)，磨砂玻璃与胶囊圆角设计，告别土味弹窗。
 // @author       Jhih he
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
@@ -1040,10 +1040,41 @@
 
             /* --- 弹窗与上传适配 (重点修复) --- */
             
-            /* 弹窗层 - 强制背景色 */
+            /* 弹窗层 - 强制背景色 (Glassmorphism Upgrade) */
             .layui-layer, .layui-layer-page, .layui-layer-iframe, .layui-layer-dialog {
-                background-color: var(--xhj-bg) !important;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.6) !important;
+                background-color: var(--xhj-header-bg) !important; /* 使用半透明背景 */
+                backdrop-filter: blur(20px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1) !important;
+                border-radius: 12px !important; /* 统一圆角 */
+                border: 1px solid rgba(255,255,255,0.1) !important;
+            }
+
+            /* --- 消息提示 (Toast) 专项美化 (MacOS Capsule Style) --- */
+            .layui-layer-msg {
+                border-radius: 50px !important; /* 胶囊圆角 */
+                background-color: var(--xhj-header-bg) !important;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1) !important;
+                border: 1px solid rgba(255,255,255,0.2) !important;
+                min-width: 120px !important;
+            }
+            .layui-layer-msg .layui-layer-content {
+                padding: 12px 24px !important;
+                color: var(--xhj-fg) !important;
+                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .layui-layer-msg .layui-layer-ico {
+                position: relative !important;
+                top: 0 !important;
+                left: 0 !important;
+                margin-right: 8px !important;
+                margin-top: 0 !important;
+                transform: scale(0.9);
             }
             
             /* 弹窗标题 */
