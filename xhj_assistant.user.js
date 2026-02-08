@@ -398,45 +398,90 @@
 
             /* --- 7. 原版平台深度适配 (Original Platform Adaptation) --- */
             
-            /* 7.1 Element UI 组件适配 */
+            /* 7.1 Element UI 组件适配 (3D Enhanced v1.45) */
             .el-dialog {
                 background: var(--xhj-side-bg) !important;
+                /* 3D Surface Gradient */
+                background-image: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%) !important;
                 color: var(--xhj-fg) !important;
-                border: 1px solid var(--xhj-border) !important;
-                box-shadow: var(--xhj-shadow-hover) !important;
-                border-radius: 12px !important;
+                /* Rim Light & Deep Shadow */
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                box-shadow: 
+                    0 25px 50px -12px rgba(0,0,0,0.5), 
+                    0 0 0 1px rgba(255,255,255,0.1) inset,
+                    0 10px 30px rgba(0,0,0,0.2) inset !important;
+                border-radius: 16px !important;
+                backdrop-filter: blur(25px) saturate(180%);
             }
-            .el-dialog__title { color: var(--xhj-active-bg) !important; font-weight: 600 !important; }
+            .el-dialog__title { 
+                color: var(--xhj-active-bg) !important; 
+                font-weight: 700 !important;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
             .el-dialog__headerbtn .el-dialog__close { color: var(--xhj-fg) !important; }
-            .el-dialog__body { color: var(--xhj-fg) !important; padding: 20px !important; }
-            .el-form-item__label { color: var(--xhj-fg) !important; }
+            .el-dialog__body { color: var(--xhj-fg) !important; padding: 25px !important; }
+            .el-form-item__label { color: var(--xhj-fg) !important; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
             
+            /* Input 3D Recessed Look */
             .el-input__inner, .el-textarea__inner {
-                background-color: var(--xhj-input-bg) !important;
+                background-color: rgba(0, 0, 0, 0.25) !important;
                 color: var(--xhj-fg) !important;
-                border: 1px solid var(--xhj-border) !important;
-                border-radius: 8px !important;
+                border: 1px solid rgba(0,0,0,0.3) !important;
+                border-bottom: 1px solid rgba(255,255,255,0.1) !important; /* Bottom Highlight */
+                border-radius: 10px !important;
+                box-shadow: inset 0 2px 5px rgba(0,0,0,0.4) !important; /* Inner Shadow */
+                transition: all 0.3s ease;
             }
             .el-input__inner:focus, .el-textarea__inner:focus {
                 border-color: var(--xhj-active-bg) !important;
-                box-shadow: 0 0 0 2px var(--xhj-glow-color) !important;
+                background-color: rgba(0, 0, 0, 0.4) !important;
+                box-shadow: 
+                    inset 0 2px 5px rgba(0,0,0,0.5),
+                    0 0 0 2px var(--xhj-glow-color) !important;
+            }
+            
+            /* Upload Box 3D Slot Look */
+            .el-upload--picture-card, .picture-add, .avatar-uploader .el-upload {
+                background-color: rgba(0,0,0,0.2) !important;
+                border: 2px dashed rgba(255,255,255,0.2) !important;
+                border-radius: 12px !important;
+                box-shadow: inset 0 0 15px rgba(0,0,0,0.3) !important;
+                transition: all 0.3s !important;
+            }
+            .el-upload--picture-card:hover, .picture-add:hover, .avatar-uploader .el-upload:hover {
+                border-color: var(--xhj-active-bg) !important;
+                box-shadow: inset 0 0 20px var(--xhj-glow-color) !important;
+                transform: scale(0.98);
             }
             
             .el-button {
                 background: var(--xhj-input-bg) !important;
-                border: 1px solid var(--xhj-border) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
                 color: var(--xhj-fg) !important;
-                border-radius: 8px !important;
+                border-radius: 10px !important;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
             }
             .el-button--primary {
                 background: var(--xhj-active-bg) !important;
                 border-color: var(--xhj-active-bg) !important;
                 color: var(--xhj-active-fg) !important;
-                box-shadow: 0 4px 14px -4px var(--xhj-active-bg) !important;
+                /* Glossy 3D Button */
+                background-image: linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(0,0,0,0.15)) !important;
+                box-shadow: 
+                    0 4px 14px -4px var(--xhj-active-bg),
+                    0 1px 0 rgba(255,255,255,0.2) inset,
+                    0 -1px 0 rgba(0,0,0,0.1) inset !important;
             }
             .el-button--primary:hover {
                 filter: brightness(1.1);
                 transform: translateY(-1px);
+                box-shadow: 
+                    0 6px 20px -4px var(--xhj-active-bg),
+                    0 1px 0 rgba(255,255,255,0.2) inset !important;
+            }
+            .el-button--primary:active {
+                transform: translateY(1px) scale(0.98);
+                box-shadow: inset 0 3px 5px rgba(0,0,0,0.3) !important;
             }
 
             /* 7.2 自定义布局组件 (from app.css) */
