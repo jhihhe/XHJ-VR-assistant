@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.42
-// @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Midnight/Synthwave/Emerald/Modern/Glass等）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
+// @version      1.43
+// @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Midnight/Synthwave/Emerald/V2EX Pro/Modern/Glass等）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
@@ -206,6 +206,22 @@
                 '--xhj-table-head': '#064e3b',
                 '--xhj-glow-color': 'rgba(52, 211, 153, 0.6)'
             }
+        },
+        'v2ex-pro': {
+            name: 'V2EX Pro (Light)',
+            vars: {
+                '--xhj-bg': '#F0F2F5',
+                '--xhj-fg': '#1F2937',
+                '--xhj-header-bg': 'rgba(255, 255, 255, 0.95)',
+                '--xhj-side-bg': '#FFFFFF',
+                '--xhj-active-bg': '#111827',
+                '--xhj-active-fg': '#FFFFFF',
+                '--xhj-border': '#E5E7EB',
+                '--xhj-hover-bg': '#F3F4F6',
+                '--xhj-input-bg': '#FFFFFF',
+                '--xhj-table-head': '#F9FAFB',
+                '--xhj-glow-color': 'rgba(0, 0, 0, 0.05)'
+            }
         }
     };
 
@@ -396,45 +412,79 @@
                 border-radius: 18px !important;
             }
             
-            /* 2. 按钮优化 (Polish Style: 6px-10px, subtle shadow) */
+            /* 2. 按钮优化 (Polish Style: Capsule) */
             .layui-btn {
-                border-radius: 10px !important;
+                border-radius: 20px !important;
                 font-weight: 600 !important;
                 letter-spacing: 0.5px;
-                /* 模拟 V2EX Polish 按钮阴影 */
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.1) inset !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+                border: 1px solid transparent !important;
             }
             .layui-btn:hover {
                 transform: translateY(-1px) !important;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.1) inset !important;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
             }
             
-            /* 3. 输入框优化 (Polish Style) */
+            /* 3. 输入框优化 (Polish Style: Capsule) */
             .layui-input, .layui-select, .layui-textarea {
-                border-radius: 10px !important;
-                padding-left: 12px !important;
+                border-radius: 12px !important;
+                padding-left: 15px !important;
+                border: 1px solid var(--xhj-border) !important;
+            }
+            /* 搜索框特化 - 全圆角 */
+            input[name="keyword"], .layui-input-search {
+                border-radius: 99px !important;
             }
             
-            /* 4. 侧边栏与导航 (Polish Style: Capsule Tabs) */
+            /* 4. 侧边栏与导航 (Polish Style: Floating Pills) */
             .layui-nav-tree .layui-nav-item a {
                 border-radius: 12px !important;
-                margin: 4px 10px !important;
+                margin: 6px 12px !important;
             }
             
-            /* 5. 表格圆角化 */
+            /* 5. 表格圆角化与卡片化 */
             .layui-table-view {
-                border-radius: 14px !important;
+                border-radius: 16px !important;
                 overflow: hidden !important;
-                border: 1px solid rgba(255,255,255,0.05) !important;
+                border: 1px solid var(--xhj-border) !important;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             }
             
             /* 6. 弹窗头部圆角 */
+            .layui-layer {
+                border-radius: 20px !important;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
+            }
             .layui-layer-title {
-                border-radius: 18px 18px 0 0 !important;
+                border-radius: 20px 20px 0 0 !important;
                 padding-left: 25px !important;
             }
             .layui-layer-btn {
-                border-radius: 0 0 18px 18px !important;
+                border-radius: 0 0 20px 20px !important;
+            }
+
+            /* 7. V2EX Style Tabs (Pill Shape) */
+            .layui-tab-title {
+                border-bottom: none !important;
+            }
+            .layui-tab-title li {
+                border-radius: 99px !important;
+                margin: 0 6px !important;
+                border: none !important;
+                background: transparent !important;
+                padding: 0 20px !important;
+                line-height: 32px !important;
+                height: 32px !important;
+                margin-top: 8px !important;
+            }
+            .layui-tab-title .layui-this {
+                background-color: var(--xhj-active-bg) !important;
+                color: var(--xhj-active-fg) !important;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+            }
+            .layui-tab-title .layui-this::after { display: none !important; }
+            .layui-tab-content {
+                padding: 20px 0 !important;
             }
 
             /* --- 全局组件优化 (保留原有) --- */
