@@ -75,6 +75,7 @@ Built-in classic color schemes loved by programmers, switch with one click:
   - More natural levitation animation for card hover states
   - Enhanced texture feel for sidebar and top navigation
 - **Theme Adaptation**: All 12 themes fully adapted to the new lighting/shadow system
+- **Deep Integration**: Added full support for Element UI components (Dialogs, Forms, Buttons) and original platform custom widgets (.topbox, .isAction), ensuring a unified style across the backend management system.
 
 ### v1.44 (2025-02-08)
 *   **UI/UX Deep Optimization**: Upgraded all themes to Pro standards (Monokai Pro/Dracula Official/Solarized Pro), refining every pixel.

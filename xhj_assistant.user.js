@@ -396,6 +396,89 @@
 
             /* --- 炫酷交互特效 --- */
 
+            /* --- 7. 原版平台深度适配 (Original Platform Adaptation) --- */
+            
+            /* 7.1 Element UI 组件适配 */
+            .el-dialog {
+                background: var(--xhj-side-bg) !important;
+                color: var(--xhj-fg) !important;
+                border: 1px solid var(--xhj-border) !important;
+                box-shadow: var(--xhj-shadow-hover) !important;
+                border-radius: 12px !important;
+            }
+            .el-dialog__title { color: var(--xhj-active-bg) !important; font-weight: 600 !important; }
+            .el-dialog__headerbtn .el-dialog__close { color: var(--xhj-fg) !important; }
+            .el-dialog__body { color: var(--xhj-fg) !important; padding: 20px !important; }
+            .el-form-item__label { color: var(--xhj-fg) !important; }
+            
+            .el-input__inner, .el-textarea__inner {
+                background-color: var(--xhj-input-bg) !important;
+                color: var(--xhj-fg) !important;
+                border: 1px solid var(--xhj-border) !important;
+                border-radius: 8px !important;
+            }
+            .el-input__inner:focus, .el-textarea__inner:focus {
+                border-color: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 0 2px var(--xhj-glow-color) !important;
+            }
+            
+            .el-button {
+                background: var(--xhj-input-bg) !important;
+                border: 1px solid var(--xhj-border) !important;
+                color: var(--xhj-fg) !important;
+                border-radius: 8px !important;
+            }
+            .el-button--primary {
+                background: var(--xhj-active-bg) !important;
+                border-color: var(--xhj-active-bg) !important;
+                color: var(--xhj-active-fg) !important;
+                box-shadow: 0 4px 14px -4px var(--xhj-active-bg) !important;
+            }
+            .el-button--primary:hover {
+                filter: brightness(1.1);
+                transform: translateY(-1px);
+            }
+
+            /* 7.2 自定义布局组件 (from app.css) */
+            .topbox {
+                background-color: var(--xhj-side-bg) !important;
+                border: 1px solid var(--xhj-border) !important;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 1px 2px rgba(255,255,255,0.05) !important;
+                border-radius: 30px !important;
+                backdrop-filter: blur(10px);
+            }
+            .topbox_item { color: var(--xhj-fg) !important; transition: all 0.3s !important; }
+            
+            .isAction {
+                background-color: var(--xhj-active-bg) !important;
+                color: var(--xhj-active-fg) !important;
+                box-shadow: 0 2px 10px var(--xhj-glow-color) !important;
+                background-image: var(--xhj-btn-gradient) !important;
+                transform: scale(1.05);
+                font-weight: bold;
+            }
+            
+            /* 7.3 轮播图控制适配 */
+            .swiper-button-prev, .swiper-button-next {
+                color: var(--xhj-active-bg) !important;
+                filter: drop-shadow(0 0 5px var(--xhj-glow-color));
+                transition: all 0.3s;
+            }
+            .swiper-button-prev:hover, .swiper-button-next:hover {
+                transform: scale(1.2);
+                color: #fff !important;
+            }
+            
+            /* 7.4 头部与侧边栏深度覆盖 */
+            .site-tree {
+                background-color: var(--xhj-side-bg) !important;
+                border-right: 1px solid var(--xhj-border) !important;
+            }
+            .site-banner {
+                background-color: var(--xhj-header-bg) !important;
+                background-image: var(--xhj-card-gradient) !important;
+            }
+
             /* 选中文字效果 */
             ::selection {
                 background: var(--xhj-active-bg);
