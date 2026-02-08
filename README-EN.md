@@ -67,6 +67,12 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.46 (2025-02-08)
+- **Pure MacOS Mode**: Specifically optimized for "MacOS Light" theme to achieve pixel-perfect system restoration.
+- **Sidebar De-Black**: Removed forced black backgrounds in Layui sidebar, applying authentic translucent frosted glass effect.
+- **System Color Palette**: Neutralized vivid Layui buttons (Blue/Red/Orange) to standard Apple System Colors (San Francisco Blue, Sunset Orange, etc.).
+- **Visual Softening**: Reduced overall contrast and shadow hardness for a cleaner, flatter, yet deep aesthetic.
+
 ### v1.45 (2025-02-08)
 - **Visual Upgrade**: Enhanced 3D depth and vividness across all themes
 - **3D Effects**: Added sophisticated layered shadows and subtle glow gradients to cards and buttons

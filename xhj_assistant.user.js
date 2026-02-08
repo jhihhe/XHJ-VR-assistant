@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.45
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。
+// @version      1.46
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v1.46: 极致净化 MacOS 主题，去除多余色彩，还原系统级磨砂质感。
 // @author       Jhih he
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
@@ -223,16 +223,16 @@
             vars: {
                 '--xhj-bg': '#F5F5F7',
                 '--xhj-fg': '#1D1D1F',
-                '--xhj-header-bg': 'rgba(255, 255, 255, 0.85)',
-                '--xhj-side-bg': '#F2F2F7',
+                '--xhj-header-bg': 'rgba(255, 255, 255, 0.6)',
+                '--xhj-side-bg': 'rgba(235, 235, 240, 0.85)', /* Finder Sidebar Gray */
                 '--xhj-active-bg': '#007AFF',
                 '--xhj-active-fg': '#FFFFFF',
-                '--xhj-border': '#D1D1D6',
+                '--xhj-border': 'rgba(0, 0, 0, 0.1)',
                 '--xhj-hover-bg': 'rgba(0, 0, 0, 0.05)',
                 '--xhj-input-bg': '#FFFFFF',
                 '--xhj-table-head': 'rgba(0, 0, 0, 0.02)',
-                '--xhj-glow-color': 'rgba(0, 122, 255, 0.3)',
-                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.1)'
+                '--xhj-glow-color': 'rgba(0, 122, 255, 0.2)',
+                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.05)'
             }
         }
     };
@@ -258,6 +258,51 @@
                     background-size: 50px 50px;
                     z-index: -1;
                     pointer-events: none;
+                }
+             `;
+        }
+        
+        // MacOS Light 专属极致净化 (Pure MacOS)
+        if (vars['--xhj-bg'] === '#F5F5F7') {
+             extraCss += `
+                /* 1. 强制去除侧边栏黑色 (Force Light Sidebar) */
+                .layui-side, .layui-side-scroll, .layui-nav, .layui-nav-tree, .layui-nav-item, .layui-nav-child, .layui-logo {
+                    background-color: transparent !important;
+                    background: transparent !important;
+                }
+                /* 确保 Logo 区域颜色适配 */
+                .layui-layout-admin .layui-logo {
+                    color: var(--xhj-fg) !important;
+                    border-bottom: 1px solid var(--xhj-border) !important;
+                    box-shadow: none !important;
+                }
+                /* 侧边栏文字颜色 */
+                .layui-nav-tree .layui-nav-item a {
+                    color: #1d1d1f !important; /* Force Dark Text */
+                }
+                .layui-nav-tree .layui-nav-item a:hover {
+                    background-color: rgba(0,0,0,0.05) !important;
+                }
+                
+                /* 2. 净化高亮与按钮颜色 (System Colors) */
+                .layui-btn-normal { background-color: #007AFF !important; } /* System Blue */
+                .layui-btn-warm { background-color: #FF9500 !important; }   /* System Orange */
+                .layui-btn-danger { background-color: #FF3B30 !important; } /* System Red */
+                .layui-bg-cyan { background-color: #5AC8FA !important; }    /* System Cyan */
+                .layui-bg-green { background-color: #34C759 !important; }   /* System Green */
+                .layui-badge { border-radius: 4px !important; }
+                
+                /* 3. 柔化卡片与表格 (Soften & De-noise) */
+                .layui-card {
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+                    border: 1px solid rgba(0,0,0,0.05) !important;
+                }
+                .layui-table-header {
+                    background-color: rgba(0,0,0,0.02) !important;
+                }
+                /* 去除过重的阴影 */
+                .el-dialog, .el-button--primary {
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
                 }
              `;
         }
