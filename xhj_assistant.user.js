@@ -2,7 +2,7 @@
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
 // @version      1.43
-// @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Midnight/Synthwave/Emerald/V2EX Pro/Modern/Glass等）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
@@ -207,20 +207,20 @@
                 '--xhj-glow-color': 'rgba(52, 211, 153, 0.6)'
             }
         },
-        'v2ex-pro': {
-            name: 'V2EX Pro (Light)',
+        'macos-light': {
+            name: 'MacOS Light (Clean)',
             vars: {
-                '--xhj-bg': '#F0F2F5',
-                '--xhj-fg': '#1F2937',
-                '--xhj-header-bg': 'rgba(255, 255, 255, 0.95)',
-                '--xhj-side-bg': '#FFFFFF',
-                '--xhj-active-bg': '#111827',
+                '--xhj-bg': '#F5F5F7',
+                '--xhj-fg': '#1D1D1F',
+                '--xhj-header-bg': 'rgba(255, 255, 255, 0.85)',
+                '--xhj-side-bg': '#F2F2F7',
+                '--xhj-active-bg': '#007AFF',
                 '--xhj-active-fg': '#FFFFFF',
-                '--xhj-border': '#E5E7EB',
-                '--xhj-hover-bg': '#F3F4F6',
+                '--xhj-border': '#D1D1D6',
+                '--xhj-hover-bg': 'rgba(0, 0, 0, 0.05)',
                 '--xhj-input-bg': '#FFFFFF',
-                '--xhj-table-head': '#F9FAFB',
-                '--xhj-glow-color': 'rgba(0, 0, 0, 0.05)'
+                '--xhj-table-head': 'rgba(0, 0, 0, 0.02)',
+                '--xhj-glow-color': 'rgba(0, 122, 255, 0.3)'
             }
         }
     };
@@ -412,79 +412,45 @@
                 border-radius: 18px !important;
             }
             
-            /* 2. 按钮优化 (Polish Style: Capsule) */
+            /* 2. 按钮优化 (Polish Style: 6px-10px, subtle shadow) */
             .layui-btn {
-                border-radius: 20px !important;
+                border-radius: 10px !important;
                 font-weight: 600 !important;
                 letter-spacing: 0.5px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-                border: 1px solid transparent !important;
+                /* 模拟 V2EX Polish 按钮阴影 */
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.1) inset !important;
             }
             .layui-btn:hover {
                 transform: translateY(-1px) !important;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.1) inset !important;
             }
             
-            /* 3. 输入框优化 (Polish Style: Capsule) */
+            /* 3. 输入框优化 (Polish Style) */
             .layui-input, .layui-select, .layui-textarea {
-                border-radius: 12px !important;
-                padding-left: 15px !important;
-                border: 1px solid var(--xhj-border) !important;
-            }
-            /* 搜索框特化 - 全圆角 */
-            input[name="keyword"], .layui-input-search {
-                border-radius: 99px !important;
+                border-radius: 10px !important;
+                padding-left: 12px !important;
             }
             
-            /* 4. 侧边栏与导航 (Polish Style: Floating Pills) */
+            /* 4. 侧边栏与导航 (Polish Style: Capsule Tabs) */
             .layui-nav-tree .layui-nav-item a {
                 border-radius: 12px !important;
-                margin: 6px 12px !important;
+                margin: 4px 10px !important;
             }
             
-            /* 5. 表格圆角化与卡片化 */
+            /* 5. 表格圆角化 */
             .layui-table-view {
-                border-radius: 16px !important;
+                border-radius: 14px !important;
                 overflow: hidden !important;
-                border: 1px solid var(--xhj-border) !important;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                border: 1px solid rgba(255,255,255,0.05) !important;
             }
             
             /* 6. 弹窗头部圆角 */
-            .layui-layer {
-                border-radius: 20px !important;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
-            }
             .layui-layer-title {
-                border-radius: 20px 20px 0 0 !important;
+                border-radius: 18px 18px 0 0 !important;
                 padding-left: 25px !important;
             }
             .layui-layer-btn {
-                border-radius: 0 0 20px 20px !important;
-            }
-
-            /* 7. V2EX Style Tabs (Pill Shape) */
-            .layui-tab-title {
-                border-bottom: none !important;
-            }
-            .layui-tab-title li {
-                border-radius: 99px !important;
-                margin: 0 6px !important;
-                border: none !important;
-                background: transparent !important;
-                padding: 0 20px !important;
-                line-height: 32px !important;
-                height: 32px !important;
-                margin-top: 8px !important;
-            }
-            .layui-tab-title .layui-this {
-                background-color: var(--xhj-active-bg) !important;
-                color: var(--xhj-active-fg) !important;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
-            }
-            .layui-tab-title .layui-this::after { display: none !important; }
-            .layui-tab-content {
-                padding: 20px 0 !important;
+                border-radius: 0 0 18px 18px !important;
             }
 
             /* --- 全局组件优化 (保留原有) --- */
@@ -608,10 +574,13 @@
                 backdrop-filter: blur(16px) saturate(180%);
                 transition: transform 0.3s !important;
             }
+            /* 6. 卡片高级悬浮效果 (Glass + Lift) */
             .layui-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
+                transform: translateY(-4px) scale(1.005);
+                box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--xhj-border);
+                backdrop-filter: blur(10px) saturate(150%);
                 border-color: var(--xhj-active-bg) !important;
+                z-index: 10;
             }
             .layui-card-header {
                 border-bottom: 1px solid rgba(255,255,255,0.05) !important;
@@ -652,9 +621,24 @@
                 /* Radius overridden */
                 box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
             }
+            /* 7. 输入框聚焦动效 (Glow) */
             .layui-input:focus, .layui-select:focus, .layui-textarea:focus {
                 border-color: var(--xhj-active-bg) !important;
-                box-shadow: 0 0 0 3px var(--xhj-glow-color) !important;
+                box-shadow: 0 0 0 4px var(--xhj-glow-color) !important;
+                background-color: var(--xhj-input-bg) !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* 8. 按钮点击涟漪效果模拟 */
+            .layui-btn:active {
+                transform: scale(0.96) !important;
+                filter: brightness(0.9);
+            }
+
+            /* 9. 表格行悬浮高亮 */
+            .layui-table tbody tr:hover {
+                background-color: var(--xhj-hover-bg) !important;
+                transform: scale(1); /* 修复可能的抖动 */
             }
 
             /* 表格 */

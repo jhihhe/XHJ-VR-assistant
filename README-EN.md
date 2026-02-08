@@ -22,7 +22,7 @@ This is a Tampermonkey script developed specifically for the [Xiangshi Platform 
 *   **Fluid Animations**: Micro-interactions like button ripples, menu rebound, and hover scaling provide a silky smooth user experience.
 *   **Rounded Design**: Rounded corners applied throughout the site for a softer and more comfortable visual appearance.
 *   **Auto Scale**: (v1.33+) Intelligent full-screen adaptation, defaulting to 120% of screen width to solve small screen display issues, with a one-click toggle.
-*   **UI/UX Deep Optimization (v1.43)**: Added **V2EX Pro** theme, applied Pill Tabs and Capsule Inputs design language globally.
+*   **UI/UX Deep Optimization (v1.43)**: Added MacOS Light theme, enhanced global Glassmorphism, optimized card hover & input glow effects.
 
 ### 2.  Intelligent Auto-Sync (New in v1.16)
 *   **One-Click Sync**: Integrated "Auto-Sync" function allows batch processing of housing survey/panorama data synchronization tasks with a single click.
@@ -40,9 +40,9 @@ This is a Tampermonkey script developed specifically for the [Xiangshi Platform 
 ### 4. 🎨 Selected Themes
 Built-in classic color schemes loved by programmers, switch with one click:
 *   🧛🏻‍♂️ **Dracula** (Default Recommended - Classic Vampire Dark Theme)
+*   🍎 **MacOS Light** (New in v1.43 - Apple Clean White Style)
 *   🪨 **Modern Dark (Stone)** (New in v1.41 - Modern Premium Grey Style)
 *   🌊 **Midnight Blue** (New in v1.42 - Deep Ocean Immersion)
-*   ⚪️ **V2EX Pro (Light)** (New in v1.42 - Minimalist White)
 *   🌇 **Synthwave '84** (New in v1.42 - Retro Neon Purple)
 *   🌲 **Emerald Forest** (New in v1.42 - Aurora Green)
 *   ☀️ **Solarized Dark** (High Contrast Eye Protection)
