@@ -1,4 +1,4 @@
-# 🎨 Xiangshi Platform Assistant (v1.44)
+# 🎨 Xiangshi Platform Assistant (v1.48)
 
 ![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
 ![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
@@ -6,9 +6,9 @@
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
-![Version](https://img.shields.io/badge/Version-v1.44-brightgreen)
+![Version](https://img.shields.io/badge/Version-v1.48-brightgreen)
 
-[中文](README.md) | [English](README-EN.md)
+[中文](README.md) | [English](README-EN.md) | [GitHub Homepage](https://github.com/jhihhe/XHJ-VR-assistant)
 
 **Providing the ultimate macOS-style dark mode, intelligent layout optimization, and efficient automation tools for the Xiangshi Platform backend management system.**
 
@@ -66,6 +66,10 @@ Built-in classic color schemes loved by programmers, switch with one click:
 5.  **Sync**: On supported list pages (such as Housing Survey List), click the **🔄 Auto Sync** button at the top to start working.
 
 ## 📝 Changelog
+
+### v1.48 (2025-02-08)
+- **Project Homepage Integration**: Added `homepageURL` and `supportURL` to script metadata for easier access to updates and feedback on GitHub.
+- **Documentation Update**: Added GitHub project link to README and synced version number.
 
 ### v1.47 (2025-02-08)
 - **Toast Notification Redesign**: Replaced the legacy square Layui alerts with MacOS-style "Capsule" notifications.

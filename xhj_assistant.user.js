@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.47
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v1.47: 全新 MacOS 风格消息提示 (Toast Notification)，磨砂玻璃与胶囊圆角设计，告别土味弹窗。
+// @version      1.48
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v1.48: 添加项目主页链接，便于版本更新与反馈；优化 Toast 提示体验。
 // @author       Jhih he
+// @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
+// @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
 // @match        *://vr.xhj.com/*
