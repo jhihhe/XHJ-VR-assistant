@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.43
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化、iframe 样式同步、以及自动化同步操作功能。
+// @version      1.44
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色)、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
@@ -31,55 +31,55 @@
             vars: {} // 空对象表示移除样式
         },
         'dracula': {
-            name: 'Dracula',
+            name: 'Dracula (Official)',
             vars: {
                 '--xhj-bg': '#282a36',
                 '--xhj-fg': '#f8f8f2',
                 '--xhj-header-bg': '#44475a',
                 '--xhj-side-bg': '#21222c',
-                '--xhj-active-bg': '#bd93f9',
-                '--xhj-active-fg': '#ffffff',
+                '--xhj-active-bg': '#bd93f9', /* Purple */
+                '--xhj-active-fg': '#282a36',
                 '--xhj-border': '#6272a4',
-                '--xhj-hover-bg': '#6272a4',
-                '--xhj-input-bg': '#44475a',
+                '--xhj-hover-bg': '#44475a',
+                '--xhj-input-bg': '#282a36',
                 '--xhj-table-head': '#44475a',
                 '--xhj-glow-color': 'rgba(189, 147, 249, 0.6)'
             }
         },
         'solarized-dark': {
-            name: 'Solarized Dark',
+            name: 'Solarized Dark (Pro)',
             vars: {
                 '--xhj-bg': '#002b36',
                 '--xhj-fg': '#839496',
                 '--xhj-header-bg': '#073642',
                 '--xhj-side-bg': '#00212b',
-                '--xhj-active-bg': '#268bd2',
-                '--xhj-active-fg': '#ffffff',
+                '--xhj-active-bg': '#2aa198', /* Cyan -> More vibrant than Blue */
+                '--xhj-active-fg': '#002b36',
                 '--xhj-border': '#586e75',
-                '--xhj-hover-bg': '#586e75',
-                '--xhj-input-bg': '#073642',
+                '--xhj-hover-bg': '#073642',
+                '--xhj-input-bg': '#002b36',
                 '--xhj-table-head': '#073642',
-                '--xhj-glow-color': 'rgba(38, 139, 210, 0.6)'
+                '--xhj-glow-color': 'rgba(42, 161, 152, 0.6)'
             }
         },
         'monokai': {
-            name: 'Monokai',
+            name: 'Monokai Pro (Spectrum)',
             vars: {
-                '--xhj-bg': '#272822',
-                '--xhj-fg': '#f8f8f2',
-                '--xhj-header-bg': '#3e3d32',
-                '--xhj-side-bg': '#1e1f1c',
-                '--xhj-active-bg': '#a6e22e',
-                '--xhj-active-fg': '#272822',
-                '--xhj-border': '#75715e',
-                '--xhj-hover-bg': '#49483e',
-                '--xhj-input-bg': '#3e3d32',
-                '--xhj-table-head': '#3e3d32',
-                '--xhj-glow-color': 'rgba(166, 226, 46, 0.6)'
+                '--xhj-bg': '#2D2A2E',
+                '--xhj-fg': '#fcfcfa',
+                '--xhj-header-bg': '#403E41',
+                '--xhj-side-bg': '#221F22',
+                '--xhj-active-bg': '#FFD866', /* Yellow Accent */
+                '--xhj-active-fg': '#2D2A2E',
+                '--xhj-border': '#727072',
+                '--xhj-hover-bg': '#403E41',
+                '--xhj-input-bg': '#2D2A2E',
+                '--xhj-table-head': '#403E41',
+                '--xhj-glow-color': 'rgba(255, 216, 102, 0.6)'
             }
         },
         'github-dark': {
-            name: 'GitHub Dark',
+            name: 'GitHub Dark (Dimmed)',
             vars: {
                 '--xhj-bg': '#0d1117',
                 '--xhj-fg': '#c9d1d9',
@@ -95,50 +95,50 @@
             }
         },
         'cyberpunk': {
-            name: 'Cyberpunk 2077',
+            name: 'Cyberpunk 2077 (Edgerunner)',
             vars: {
-                '--xhj-bg': '#020205',
+                '--xhj-bg': '#000b1e', /* Deeper blue-black */
                 '--xhj-fg': '#00f3ff',
-                '--xhj-header-bg': '#090a0f',
+                '--xhj-header-bg': '#05122b',
                 '--xhj-side-bg': '#000000',
                 '--xhj-active-bg': '#fcee0a',
                 '--xhj-active-fg': '#000000',
-                '--xhj-border': '#00f3ff',
-                '--xhj-hover-bg': '#ff003c',
-                '--xhj-input-bg': '#050505',
-                '--xhj-table-head': '#121212',
+                '--xhj-border': '#ff003c', /* Red Border */
+                '--xhj-hover-bg': 'rgba(255, 0, 60, 0.2)',
+                '--xhj-input-bg': '#000000',
+                '--xhj-table-head': '#05122b',
                 '--xhj-glow-color': '#00f3ff',
                 '--xhj-special-font': 'Courier New, monospace'
             }
         },
         'glass-morphism': {
-            name: 'Glass Morphism',
+            name: 'Glass Morphism (Frost)',
             vars: {
                 '--xhj-bg': '#1a1c2c',
                 '--xhj-fg': '#e0e6ed',
-                '--xhj-header-bg': 'rgba(255, 255, 255, 0.05)',
-                '--xhj-side-bg': 'rgba(0, 0, 0, 0.2)',
+                '--xhj-header-bg': 'rgba(255, 255, 255, 0.08)',
+                '--xhj-side-bg': 'rgba(0, 0, 0, 0.3)',
                 '--xhj-active-bg': '#7aa2f7',
                 '--xhj-active-fg': '#ffffff',
-                '--xhj-border': 'rgba(255, 255, 255, 0.1)',
+                '--xhj-border': 'rgba(255, 255, 255, 0.15)',
                 '--xhj-hover-bg': 'rgba(255, 255, 255, 0.1)',
-                '--xhj-input-bg': 'rgba(0, 0, 0, 0.2)',
-                '--xhj-table-head': 'rgba(0, 0, 0, 0.3)',
+                '--xhj-input-bg': 'rgba(0, 0, 0, 0.25)',
+                '--xhj-table-head': 'rgba(255, 255, 255, 0.05)',
                 '--xhj-glow-color': '#7aa2f7'
             }
         },
         'future-tech': {
-            name: 'Future Tech (Neon)',
+            name: 'Future Tech (Grid)',
             vars: {
                 '--xhj-bg': '#050a14',
                 '--xhj-fg': '#00f2ff',
                 '--xhj-header-bg': 'rgba(5, 10, 20, 0.9)',
-                '--xhj-side-bg': 'rgba(0, 0, 0, 0.8)',
+                '--xhj-side-bg': 'rgba(0, 0, 0, 0.85)',
                 '--xhj-active-bg': '#d900ff',
                 '--xhj-active-fg': '#ffffff',
                 '--xhj-border': '#00f2ff',
-                '--xhj-hover-bg': 'rgba(217, 0, 255, 0.2)',
-                '--xhj-input-bg': 'rgba(0, 0, 0, 0.5)',
+                '--xhj-hover-bg': 'rgba(217, 0, 255, 0.25)',
+                '--xhj-input-bg': 'rgba(0, 0, 0, 0.6)',
                 '--xhj-table-head': 'rgba(0, 242, 255, 0.1)',
                 '--xhj-glow-color': '#d900ff'
             }
@@ -176,19 +176,19 @@
             }
         },
         'synthwave-84': {
-            name: 'Synthwave \'84 (Neon)',
+            name: 'Synthwave \'84 (Retrowave)',
             vars: {
-                '--xhj-bg': '#0F0F23',
-                '--xhj-fg': '#E2E8F0',
-                '--xhj-header-bg': '#1a1a2e',
-                '--xhj-side-bg': '#0F0F23',
-                '--xhj-active-bg': '#F43F5E',
-                '--xhj-active-fg': '#FFFFFF',
-                '--xhj-border': '#2d2d42',
-                '--xhj-hover-bg': '#2d2d42',
-                '--xhj-input-bg': '#1a1a2e',
-                '--xhj-table-head': '#1a1a2e',
-                '--xhj-glow-color': 'rgba(244, 63, 94, 0.6)'
+                '--xhj-bg': '#241b2f', /* Lighter purple-ish base */
+                '--xhj-fg': '#ff71ce', /* Neon Pink Text */
+                '--xhj-header-bg': '#2b213a',
+                '--xhj-side-bg': '#241b2f',
+                '--xhj-active-bg': '#01cdfe', /* Cyan Active */
+                '--xhj-active-fg': '#241b2f',
+                '--xhj-border': '#b967ff',
+                '--xhj-hover-bg': '#b967ff',
+                '--xhj-input-bg': '#2b213a',
+                '--xhj-table-head': '#2b213a',
+                '--xhj-glow-color': 'rgba(1, 205, 254, 0.8)'
             }
         },
         'emerald-forest': {
@@ -198,13 +198,13 @@
                 '--xhj-fg': '#ecfdf5',
                 '--xhj-header-bg': '#064e3b',
                 '--xhj-side-bg': '#022c22',
-                '--xhj-active-bg': '#34d399',
-                '--xhj-active-fg': '#064e3b',
+                '--xhj-active-bg': '#10b981', /* Brighter Emerald */
+                '--xhj-active-fg': '#022c22',
                 '--xhj-border': '#065f46',
                 '--xhj-hover-bg': '#065f46',
                 '--xhj-input-bg': '#064e3b',
                 '--xhj-table-head': '#064e3b',
-                '--xhj-glow-color': 'rgba(52, 211, 153, 0.6)'
+                '--xhj-glow-color': 'rgba(16, 185, 129, 0.6)'
             }
         },
         'macos-light': {
