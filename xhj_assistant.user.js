@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.44
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色)、iframe 样式同步、以及自动化同步操作功能。
+// @version      1.45
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
@@ -37,13 +37,14 @@
                 '--xhj-fg': '#f8f8f2',
                 '--xhj-header-bg': '#44475a',
                 '--xhj-side-bg': '#21222c',
-                '--xhj-active-bg': '#bd93f9', /* Purple */
+                '--xhj-active-bg': '#bd93f9',
                 '--xhj-active-fg': '#282a36',
                 '--xhj-border': '#6272a4',
                 '--xhj-hover-bg': '#44475a',
                 '--xhj-input-bg': '#282a36',
                 '--xhj-table-head': '#44475a',
-                '--xhj-glow-color': 'rgba(189, 147, 249, 0.6)'
+                '--xhj-glow-color': 'rgba(189, 147, 249, 0.6)',
+                '--xhj-shadow-color': 'rgba(98, 114, 164, 0.4)'
             }
         },
         'solarized-dark': {
@@ -53,13 +54,14 @@
                 '--xhj-fg': '#839496',
                 '--xhj-header-bg': '#073642',
                 '--xhj-side-bg': '#00212b',
-                '--xhj-active-bg': '#2aa198', /* Cyan -> More vibrant than Blue */
+                '--xhj-active-bg': '#2aa198',
                 '--xhj-active-fg': '#002b36',
                 '--xhj-border': '#586e75',
                 '--xhj-hover-bg': '#073642',
                 '--xhj-input-bg': '#002b36',
                 '--xhj-table-head': '#073642',
-                '--xhj-glow-color': 'rgba(42, 161, 152, 0.6)'
+                '--xhj-glow-color': 'rgba(42, 161, 152, 0.6)',
+                '--xhj-shadow-color': 'rgba(42, 161, 152, 0.3)'
             }
         },
         'monokai': {
@@ -69,13 +71,14 @@
                 '--xhj-fg': '#fcfcfa',
                 '--xhj-header-bg': '#403E41',
                 '--xhj-side-bg': '#221F22',
-                '--xhj-active-bg': '#FFD866', /* Yellow Accent */
+                '--xhj-active-bg': '#FFD866',
                 '--xhj-active-fg': '#2D2A2E',
                 '--xhj-border': '#727072',
                 '--xhj-hover-bg': '#403E41',
                 '--xhj-input-bg': '#2D2A2E',
                 '--xhj-table-head': '#403E41',
-                '--xhj-glow-color': 'rgba(255, 216, 102, 0.6)'
+                '--xhj-glow-color': 'rgba(255, 216, 102, 0.6)',
+                '--xhj-shadow-color': 'rgba(255, 216, 102, 0.3)'
             }
         },
         'github-dark': {
@@ -91,24 +94,26 @@
                 '--xhj-hover-bg': '#21262d',
                 '--xhj-input-bg': '#0d1117',
                 '--xhj-table-head': '#161b22',
-                '--xhj-glow-color': 'rgba(31, 111, 235, 0.6)'
+                '--xhj-glow-color': 'rgba(31, 111, 235, 0.6)',
+                '--xhj-shadow-color': 'rgba(31, 111, 235, 0.3)'
             }
         },
         'cyberpunk': {
             name: 'Cyberpunk 2077 (Edgerunner)',
             vars: {
-                '--xhj-bg': '#000b1e', /* Deeper blue-black */
+                '--xhj-bg': '#000b1e',
                 '--xhj-fg': '#00f3ff',
                 '--xhj-header-bg': '#05122b',
                 '--xhj-side-bg': '#000000',
                 '--xhj-active-bg': '#fcee0a',
                 '--xhj-active-fg': '#000000',
-                '--xhj-border': '#ff003c', /* Red Border */
+                '--xhj-border': '#ff003c',
                 '--xhj-hover-bg': 'rgba(255, 0, 60, 0.2)',
                 '--xhj-input-bg': '#000000',
                 '--xhj-table-head': '#05122b',
                 '--xhj-glow-color': '#00f3ff',
-                '--xhj-special-font': 'Courier New, monospace'
+                '--xhj-special-font': 'Courier New, monospace',
+                '--xhj-shadow-color': 'rgba(255, 0, 60, 0.5)'
             }
         },
         'glass-morphism': {
@@ -124,7 +129,8 @@
                 '--xhj-hover-bg': 'rgba(255, 255, 255, 0.1)',
                 '--xhj-input-bg': 'rgba(0, 0, 0, 0.25)',
                 '--xhj-table-head': 'rgba(255, 255, 255, 0.05)',
-                '--xhj-glow-color': '#7aa2f7'
+                '--xhj-glow-color': '#7aa2f7',
+                '--xhj-shadow-color': 'rgba(122, 162, 247, 0.3)'
             }
         },
         'future-tech': {
@@ -140,7 +146,8 @@
                 '--xhj-hover-bg': 'rgba(217, 0, 255, 0.25)',
                 '--xhj-input-bg': 'rgba(0, 0, 0, 0.6)',
                 '--xhj-table-head': 'rgba(0, 242, 255, 0.1)',
-                '--xhj-glow-color': '#d900ff'
+                '--xhj-glow-color': '#d900ff',
+                '--xhj-shadow-color': 'rgba(217, 0, 255, 0.4)'
             }
         },
         'modern-dark': {
@@ -156,7 +163,8 @@
                 '--xhj-hover-bg': '#44403C',
                 '--xhj-input-bg': '#292524',
                 '--xhj-table-head': '#292524',
-                '--xhj-glow-color': 'rgba(202, 138, 4, 0.6)'
+                '--xhj-glow-color': 'rgba(202, 138, 4, 0.6)',
+                '--xhj-shadow-color': 'rgba(202, 138, 4, 0.3)'
             }
         },
         'midnight-blue': {
@@ -172,7 +180,8 @@
                 '--xhj-hover-bg': '#1E293B',
                 '--xhj-input-bg': '#0F172A',
                 '--xhj-table-head': '#0F172A',
-                '--xhj-glow-color': 'rgba(56, 189, 248, 0.6)'
+                '--xhj-glow-color': 'rgba(56, 189, 248, 0.6)',
+                '--xhj-shadow-color': 'rgba(56, 189, 248, 0.3)'
             }
         },
         'synthwave-84': {
@@ -188,7 +197,8 @@
                 '--xhj-hover-bg': '#b967ff',
                 '--xhj-input-bg': '#2b213a',
                 '--xhj-table-head': '#2b213a',
-                '--xhj-glow-color': 'rgba(1, 205, 254, 0.8)'
+                '--xhj-glow-color': 'rgba(1, 205, 254, 0.8)',
+                '--xhj-shadow-color': 'rgba(1, 205, 254, 0.4)'
             }
         },
         'emerald-forest': {
@@ -204,7 +214,8 @@
                 '--xhj-hover-bg': '#065f46',
                 '--xhj-input-bg': '#064e3b',
                 '--xhj-table-head': '#064e3b',
-                '--xhj-glow-color': 'rgba(16, 185, 129, 0.6)'
+                '--xhj-glow-color': 'rgba(16, 185, 129, 0.6)',
+                '--xhj-shadow-color': 'rgba(16, 185, 129, 0.3)'
             }
         },
         'macos-light': {
@@ -220,7 +231,8 @@
                 '--xhj-hover-bg': 'rgba(0, 0, 0, 0.05)',
                 '--xhj-input-bg': '#FFFFFF',
                 '--xhj-table-head': 'rgba(0, 0, 0, 0.02)',
-                '--xhj-glow-color': 'rgba(0, 122, 255, 0.3)'
+                '--xhj-glow-color': 'rgba(0, 122, 255, 0.3)',
+                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.1)'
             }
         }
     };
@@ -255,10 +267,12 @@
             ${extraCss}
             :root {
                 ${varDeclarations}
-                --xhj-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-                --xhj-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.5);
+                --xhj-shadow-color: rgba(0, 0, 0, 0.3);
+                --xhj-shadow: 0 10px 30px -10px var(--xhj-shadow-color);
+                --xhj-shadow-hover: 0 20px 40px -12px var(--xhj-shadow-color);
                 --xhj-radius: 8px;
-                --xhj-btn-gradient: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(0,0,0,0));
+                --xhj-btn-gradient: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(0,0,0,0));
+                --xhj-card-gradient: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(0,0,0,0.02));
                 --xhj-sidebar-bg: rgba(33, 34, 44, 0.95);
                 --xhj-glow: 0 0 15px var(--xhj-glow-color, rgba(189, 147, 249, 0.4));
                 --xhj-glass-border: 1px solid rgba(255, 255, 255, 0.1);
@@ -482,7 +496,7 @@
             }
             .layui-nav-tree .layui-this > a {
                 background-color: var(--xhj-active-bg) !important;
-                background-image: linear-gradient(135deg, var(--xhj-active-bg), rgba(189, 147, 249, 0.8)) !important;
+                background-image: linear-gradient(135deg, var(--xhj-active-bg), var(--xhj-glow-color)) !important;
                 color: var(--xhj-active-fg) !important;
                 box-shadow: var(--xhj-glow) !important;
                 border-radius: 12px !important; /* Updated to 12px */
@@ -566,18 +580,20 @@
 
             /* 卡片与容器 */
             .layui-card {
-                background-color: rgba(68, 71, 90, 0.90) !important;
+                background-color: var(--xhj-side-bg) !important;
+                background-image: var(--xhj-card-gradient) !important;
                 color: var(--xhj-fg) !important;
-                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                border: 1px solid var(--xhj-border) !important;
+                border-top: 1px solid rgba(255,255,255,0.1) !important;
                 /* Radius moved to Polish section */
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+                box-shadow: var(--xhj-shadow) !important;
                 backdrop-filter: blur(16px) saturate(180%);
-                transition: transform 0.3s !important;
+                transition: transform 0.3s, box-shadow 0.3s !important;
             }
             /* 6. 卡片高级悬浮效果 (Glass + Lift) */
             .layui-card:hover {
-                transform: translateY(-4px) scale(1.005);
-                box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--xhj-border);
+                transform: translateY(-4px) scale(1.002);
+                box-shadow: var(--xhj-shadow-hover), 0 0 0 1px var(--xhj-active-bg) !important;
                 backdrop-filter: blur(10px) saturate(150%);
                 border-color: var(--xhj-active-bg) !important;
                 z-index: 10;
@@ -594,8 +610,10 @@
                 color: var(--xhj-active-fg) !important;
                 /* Radius overridden */
                 border: none !important;
+                border-top: 1px solid rgba(255,255,255,0.2) !important;
                 /* Box shadow overridden */
                 background-image: var(--xhj-btn-gradient) !important;
+                box-shadow: 0 4px 15px var(--xhj-glow-color), 0 1px 0 rgba(255,255,255,0.2) inset !important;
             }
             .layui-btn:hover {
                 transform: translateY(-2px);

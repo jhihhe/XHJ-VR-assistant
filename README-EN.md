@@ -67,6 +67,18 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v1.45 (2025-02-08)
+- **Visual Upgrade**: Enhanced 3D depth and vividness across all themes
+- **3D Effects**: Added sophisticated layered shadows and subtle glow gradients to cards and buttons
+- **Detail Refinements**:
+  - Buttons now feature inner shadows and ripple effects
+  - More natural levitation animation for card hover states
+  - Enhanced texture feel for sidebar and top navigation
+- **Theme Adaptation**: All 12 themes fully adapted to the new lighting/shadow system
+
+### v1.44 (2025-02-08)
+*   **UI/UX Deep Optimization**: Upgraded all themes to Pro standards (Monokai Pro/Dracula Official/Solarized Pro), refining every pixel.
+
 ### v1.40
 *   **Panorama Upload Page DPI Fix**: Automatically detects and **disables Auto Scale** for the panorama upload page (popup or standalone). This resolves abnormal DPI display issues (such as blurred text or misaligned controls) caused by auto-scaling in the upload window, ensuring precise operation.
 
