@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.40
-// @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
+// @version      1.41
+// @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Modern Dark/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
@@ -142,6 +142,22 @@
                 '--xhj-table-head': 'rgba(0, 242, 255, 0.1)',
                 '--xhj-glow-color': '#d900ff'
             }
+        },
+        'modern-dark': {
+            name: 'Modern Dark (Stone)',
+            vars: {
+                '--xhj-bg': '#1C1917',
+                '--xhj-fg': '#E7E5E4',
+                '--xhj-header-bg': '#292524',
+                '--xhj-side-bg': '#1C1917',
+                '--xhj-active-bg': '#CA8A04',
+                '--xhj-active-fg': '#FFFFFF',
+                '--xhj-border': '#44403C',
+                '--xhj-hover-bg': '#44403C',
+                '--xhj-input-bg': '#292524',
+                '--xhj-table-head': '#292524',
+                '--xhj-glow-color': 'rgba(202, 138, 4, 0.6)'
+            }
         }
     };
 
@@ -171,6 +187,7 @@
         }
 
         return `
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
             ${extraCss}
             :root {
                 ${varDeclarations}
@@ -228,12 +245,12 @@
                 filter: drop-shadow(0 0 8px rgba(252, 0, 255, 0.4));
             }
             
-            /* 4. 顶部导航栏毛玻璃悬浮感 */
+            /* 4. 顶部导航栏毛玻璃悬浮感 (Enhanced) */
             .layui-header {
-                background-color: rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.85) !important;
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
-                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+                background-color: rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.8) !important;
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
+                border-bottom: 1px solid rgba(255,255,255,0.08) !important;
             }
 
             /* 5. 滚动条美化 (全局) */
@@ -260,8 +277,14 @@
                 background-color: var(--xhj-bg) !important;
                 color: var(--xhj-fg) !important;
                 -webkit-font-smoothing: antialiased;
-                /* Polish Style Font Stack */
-                font-family: ui-rounded, 'SF Pro Rounded', 'SF Pro Text', 'Helvetica Neue', -apple-system, system-ui, BlinkMacSystemFont, Roboto, sans-serif !important;
+                /* Polish Style Font Stack + Inter */
+                font-family: 'Inter', ui-rounded, 'SF Pro Rounded', 'SF Pro Text', 'Helvetica Neue', -apple-system, system-ui, BlinkMacSystemFont, Roboto, sans-serif !important;
+            }
+            
+            /* Accessibility: Focus States */
+            :focus-visible {
+                outline: 2px solid var(--xhj-active-bg) !important;
+                outline-offset: 2px !important;
             }
             
             /* 修复 iframe 内可能存在的白色背景类 */
@@ -478,12 +501,12 @@
 
             /* 卡片与容器 */
             .layui-card {
-                background-color: rgba(68, 71, 90, 0.95) !important;
+                background-color: rgba(68, 71, 90, 0.90) !important;
                 color: var(--xhj-fg) !important;
-                border: var(--xhj-glass-border) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
                 /* Radius moved to Polish section */
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
-                backdrop-filter: blur(8px);
+                backdrop-filter: blur(16px) saturate(180%);
                 transition: transform 0.3s !important;
             }
             .layui-card:hover {
