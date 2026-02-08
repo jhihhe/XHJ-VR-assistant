@@ -1,4 +1,4 @@
-# 🎨 象视平台助手 (v1.41)
+# 🎨 象视平台助手 (v1.42)
 
 ![平台](https://img.shields.io/badge/平台-象视后台-blue)
 ![环境](https://img.shields.io/badge/环境-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![语言](https://img.shields.io/badge/语言-JavaScript-yellow)
 ![许可](https://img.shields.io/badge/许可-MIT-green)
 ![版权](https://img.shields.io/badge/版权-%C2%A9%202026%20Xiangshi-lightgrey)
-![版本](https://img.shields.io/badge/版本-v1.41-brightgreen)
+![版本](https://img.shields.io/badge/版本-v1.42-brightgreen)
 
 [中文](README.md) | [English](README-EN.md)
 
@@ -22,7 +22,7 @@
 *   **流畅动效**：按钮点击涟漪、菜单回弹、悬浮缩放等微交互，带来丝般顺滑的操作体验。
 *   **圆角设计**：全站元素圆角化处理，视觉更加柔和舒适。
 *   **Auto Scale 自动缩放**：(v1.33+) 智能全屏适配功能，默认以屏幕宽度的 120% 进行缩放，解决小屏显示不全问题，支持一键开关。
-*   **UI/UX 深度优化 (v1.41)**：引入 Inter 字体，增强 Glassmorphism 效果，优化 Accessibility (Focus 态)。
+*   **UI/UX 深度优化 (v1.42)**：新增 3 款主题 (Midnight/Synthwave/Emerald)，优化滚动条与交互细节，引入 Inter 字体，增强 Glassmorphism 效果。
 
 ### 2.  智能自动同步 (v1.16 新增)
 *   **一键同步**：集成“自动同步”功能，一键即可批量处理房勘/全景数据的同步任务。
@@ -42,6 +42,9 @@
 *   🧛🏻‍♂️ **Dracula** (默认推荐 - 经典吸血鬼深色主题)
 *   🔮 **Future Tech** (赛博朋克霓虹风格，自带动态网格背景)
 *   🪨 **Modern Dark (Stone)** (v1.41 新增 - 现代高级灰风格)
+*   🌊 **Midnight Blue** (v1.42 新增 - 深海沉浸蓝)
+*   🌇 **Synthwave '84** (v1.42 新增 - 复古霓虹紫)
+*   🌲 **Emerald Forest** (v1.42 新增 - 极光森林绿)
 *   ☀️ **Solarized Dark** (高对比度护眼)
 *   🎨 **Monokai** (Sublime Text 风格)
 *   🐱 **GitHub Dark** (GitHub 官方深色)

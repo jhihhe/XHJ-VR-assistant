@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      1.41
-// @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Cyberpunk/Modern Dark/Glass风格）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
+// @version      1.42
+// @description  象视平台综合辅助工具：包含多款皮肤切换（Dracula/Midnight/Synthwave/Emerald/Modern/Glass等）、UI 炫酷特效、iframe 样式同步、以及自动化同步操作功能。
 // @author       Jhih he
 // @license      MIT
 // @match        https://vr.xhj.com/houseadmin/*
@@ -158,6 +158,54 @@
                 '--xhj-table-head': '#292524',
                 '--xhj-glow-color': 'rgba(202, 138, 4, 0.6)'
             }
+        },
+        'midnight-blue': {
+            name: 'Midnight Blue (Deep Ocean)',
+            vars: {
+                '--xhj-bg': '#020617',
+                '--xhj-fg': '#F1F5F9',
+                '--xhj-header-bg': '#0F172A',
+                '--xhj-side-bg': '#020617',
+                '--xhj-active-bg': '#38BDF8',
+                '--xhj-active-fg': '#000000',
+                '--xhj-border': '#1E293B',
+                '--xhj-hover-bg': '#1E293B',
+                '--xhj-input-bg': '#0F172A',
+                '--xhj-table-head': '#0F172A',
+                '--xhj-glow-color': 'rgba(56, 189, 248, 0.6)'
+            }
+        },
+        'synthwave-84': {
+            name: 'Synthwave \'84 (Neon)',
+            vars: {
+                '--xhj-bg': '#0F0F23',
+                '--xhj-fg': '#E2E8F0',
+                '--xhj-header-bg': '#1a1a2e',
+                '--xhj-side-bg': '#0F0F23',
+                '--xhj-active-bg': '#F43F5E',
+                '--xhj-active-fg': '#FFFFFF',
+                '--xhj-border': '#2d2d42',
+                '--xhj-hover-bg': '#2d2d42',
+                '--xhj-input-bg': '#1a1a2e',
+                '--xhj-table-head': '#1a1a2e',
+                '--xhj-glow-color': 'rgba(244, 63, 94, 0.6)'
+            }
+        },
+        'emerald-forest': {
+            name: 'Emerald Forest (Nature)',
+            vars: {
+                '--xhj-bg': '#022c22',
+                '--xhj-fg': '#ecfdf5',
+                '--xhj-header-bg': '#064e3b',
+                '--xhj-side-bg': '#022c22',
+                '--xhj-active-bg': '#34d399',
+                '--xhj-active-fg': '#064e3b',
+                '--xhj-border': '#065f46',
+                '--xhj-hover-bg': '#065f46',
+                '--xhj-input-bg': '#064e3b',
+                '--xhj-table-head': '#064e3b',
+                '--xhj-glow-color': 'rgba(52, 211, 153, 0.6)'
+            }
         }
     };
 
@@ -262,7 +310,8 @@
                 background: transparent;
             }
             ::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.15);
+                background: var(--xhj-border); /* 使用主题变量 */
+                opacity: 0.5;
                 border-radius: 4px;
                 border: 1px solid transparent;
                 background-clip: content-box;
