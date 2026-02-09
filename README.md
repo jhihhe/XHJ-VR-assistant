@@ -6,7 +6,7 @@
 ![语言](https://img.shields.io/badge/语言-JavaScript-yellow)
 ![许可](https://img.shields.io/badge/许可-MIT-green)
 ![版权](https://img.shields.io/badge/版权-%C2%A9%202026%20Xiangshi-lightgrey)
-![版本](https://img.shields.io/badge/版本-v2.5.2-brightgreen)
+![版本](https://img.shields.io/badge/版本-v2.5.3-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub 项目主页](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -23,6 +23,7 @@
 *   **圆角设计**：全站元素圆角化处理，视觉更加柔和舒适。
 *   **Auto Scale 自动缩放**：(v1.33+) 智能全屏适配功能，默认以屏幕宽度的 120% 进行缩放，解决小屏显示不全问题，支持一键开关。
 *   **UI/UX 深度优化 (v1.44)**：全主题配色升级为 Pro 级标准 (Monokai Pro/Dracula Official/Solarized Pro)，细节打磨更极致。
+*   **登录页深度美化 (v2.5.3)**：登录页面背景、输入框、按钮完全适配当前选择的主题，支持磨砂玻璃效果与动态光影，告别突兀的默认样式。
 
 ### 2.  智能自动同步 (v1.16 新增)
 *   **一键同步**：集成“自动同步”功能，一键即可批量处理房勘/全景数据的同步任务。
@@ -72,6 +73,9 @@
 5.  **同步**：在支持的列表页（如房勘列表），点击顶部的 **🔄 自动同步** 按钮即可开始工作。
 
 ## 📝 更新日志
+
+### v2.5.3 (2025-02-09)
+- **登录页美化**: 新增登录页 (`/houseadmin/login/index.html`) 主题适配功能，背景图、登录框及控件样式将跟随当前主题自动切换，支持磨砂玻璃特效。
 
 ### v2.5.2 (2025-02-09)
 - **计数器优化**: 移除了“新增房堪图”弹窗顶部的父级重复计数，仅保留内容区域更准确的子级计数，界面更加清爽。

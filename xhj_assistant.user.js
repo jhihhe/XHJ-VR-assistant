@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.5.2
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.5.2: 移除房堪上传父级重复计数。
+// @version      2.5.3
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.5.3: 新增登录页主题深度适配。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -337,6 +337,80 @@
                 }
              `;
         }
+        
+        // 登录页专属样式 (Login Page)
+        extraCss += `
+            /* 1. 覆盖 body 背景 */
+            body.beg-login-bg {
+                background-color: var(--xhj-bg) !important;
+                background-image: none !important;
+            }
+            
+            /* 2. 处理原有背景容器 */
+            #large-header {
+                background: transparent !important;
+                background-image: none !important;
+            }
+            #demo-canvas {
+                opacity: 0.15 !important; /* 降低原有粒子动画透明度，避免干扰主题色 */
+                mix-blend-mode: overlay; /* 尝试混合模式 */
+            }
+
+            /* 3. 登录框美化 */
+            .beg-login-box {
+                background-color: var(--xhj-side-bg) !important;
+                border: 1px solid var(--xhj-border) !important;
+                box-shadow: 0 10px 40px var(--xhj-shadow-color) !important;
+                backdrop-filter: blur(12px) !important;
+                border-radius: 16px !important;
+                color: var(--xhj-fg) !important;
+            }
+
+            /* 4. 登录框内部元素 */
+            .beg-login-box header {
+                color: var(--xhj-fg) !important;
+                border-bottom: 1px solid var(--xhj-border) !important;
+            }
+            .beg-login-box .layui-form-item label.layui-icon {
+                color: var(--xhj-fg) !important; /* 图标颜色 */
+                opacity: 0.7;
+            }
+            .beg-login-box input[type="text"], 
+            .beg-login-box input[type="password"] {
+                background-color: var(--xhj-input-bg) !important;
+                border: 1px solid var(--xhj-border) !important;
+                color: var(--xhj-fg) !important;
+                border-radius: 8px !important;
+                transition: all 0.3s;
+            }
+            .beg-login-box input:focus {
+                border-color: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 0 2px var(--xhj-glow-color) !important;
+            }
+            
+            /* 5. 登录按钮 */
+            .beg-login-box .layui-btn-primary {
+                background-color: var(--xhj-active-bg) !important;
+                color: var(--xhj-active-fg) !important;
+                border: none !important;
+                border-radius: 8px !important;
+                font-weight: 600;
+                transition: all 0.3s;
+                height: 40px;
+                line-height: 40px;
+            }
+            .beg-login-box .layui-btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px var(--xhj-glow-color) !important;
+                filter: brightness(1.1);
+            }
+            
+            /* 6. 底部文字 */
+            .beg-login-footer p {
+                color: var(--xhj-fg) !important;
+                opacity: 0.6;
+            }
+        `;
 
         return `
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');

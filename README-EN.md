@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
-![Version](https://img.shields.io/badge/Version-v2.5.2-brightgreen)
+![Version](https://img.shields.io/badge/Version-v2.5.3-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub Homepage](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -23,6 +23,7 @@ This is a Tampermonkey script developed specifically for the [Xiangshi Platform 
 *   **Rounded Design**: Rounded corners applied throughout the site for a softer and more comfortable visual appearance.
 *   **Auto Scale**: (v1.33+) Intelligent full-screen adaptation, defaulting to 120% of screen width to solve small screen display issues, with a one-click toggle.
 *   **UI/UX Deep Optimization (v1.44)**: Upgraded all themes to Pro standards (Monokai Pro/Dracula Official/Solarized Pro), refining every pixel.
+*   **Login Page Beautification (v2.5.3)**: The login page background, input boxes, and buttons fully adapt to the currently selected theme, supporting frosted glass effects and dynamic lighting, saying goodbye to the jarring default style.
 
 ### 2.  Intelligent Auto-Sync (New in v1.16)
 *   **One-Click Sync**: Integrated "Auto-Sync" function allows batch processing of housing survey/panorama data synchronization tasks with a single click.
@@ -72,6 +73,9 @@ Built-in classic color schemes loved by programmers, switch with one click:
 5.  **Sync**: On supported list pages (such as Housing Survey List), click the **🔄 Auto Sync** button at the top to start working.
 
 ## 📝 Changelog
+
+### v2.5.3 (2025-02-09)
+- **Login Page Beautification**: Added theme adaptation for the login page (`/houseadmin/login/index.html`). Background images, login boxes, and controls now automatically switch with the current theme, supporting frosted glass effects.
 
 ### v2.5.2 (2025-02-09)
 - **Counter Optimization**: Removed duplicate parent-level counter in the "New Housing Survey" modal header, keeping only the more accurate child-level counter in the content area for a cleaner interface.
