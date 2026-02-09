@@ -23,7 +23,6 @@ This is a Tampermonkey script developed specifically for the [Xiangshi Platform 
 *   **Rounded Design**: Rounded corners applied throughout the site for a softer and more comfortable visual appearance.
 *   **Auto Scale**: (v1.33+) Intelligent full-screen adaptation, defaulting to 120% of screen width to solve small screen display issues, with a one-click toggle.
 *   **UI/UX Deep Optimization (v1.44)**: Upgraded all themes to Pro standards (Monokai Pro/Dracula Official/Solarized Pro), refining every pixel.
-*   **Login Page Beautification (v2.5.3)**: The login page background, input boxes, and buttons fully adapt to the currently selected theme, supporting frosted glass effects and dynamic lighting, saying goodbye to the jarring default style.
 
 ### 2.  Intelligent Auto-Sync (New in v1.16)
 *   **One-Click Sync**: Integrated "Auto-Sync" function allows batch processing of housing survey/panorama data synchronization tasks with a single click.
@@ -63,6 +62,15 @@ Built-in classic color schemes loved by programmers, switch with one click:
 *   **AutoVerify Engine**: Integrated lightweight ONNX Runtime for efficient local recognition of login CAPTCHAs.
 *   **Privacy & Security**: No image upload to third-party servers; all processing is done locally.
 *   **Zero Configuration**: Out-of-the-box usage, no need to apply for API Keys or complex configurations.
+
+### 7. 🔐 Login Page Beautification (v2.5.3)
+*   **Full Theme Adaptation**: The background, cards, and controls of the login page (`/houseadmin/login/index.html`) fully adapt to the current theme, saying goodbye to the jarring default white background.
+*   **Frosted Glass Effect**: The login box features advanced Glassmorphism effects, paired with dynamic lighting and breathing interactions, enhancing the first impression of the system.
+*   **Refined Details**: Preserves original particle animations while optimizing their opacity to ensure readability under dark themes.
+
+### 8. 🔢 Smart Counter & Interaction (v2.5)
+*   **Precise Penetration Counting**: Uses a "child-push" mechanism to perfectly solve the housing survey image counting loss issue caused by Layui iframe nesting, achieving 100% accurate real-time statistics.
+*   **Distraction-Free Layout**: Intelligently removes redundant parent-level counters from the modal header, keeping only the real-time statistics in the content area for a cleaner and more focused interface.
 
 ## 🚀 How to Use
 
