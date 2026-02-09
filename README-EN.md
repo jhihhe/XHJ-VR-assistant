@@ -1,4 +1,4 @@
-# 🎨 Xiangshi Platform Assistant (v2.5.3)
+# 🎨 Xiangshi Platform Assistant (v2.5.4)
 
 ![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
 ![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
-![Version](https://img.shields.io/badge/Version-v2.5.3-brightgreen)
+![Version](https://img.shields.io/badge/Version-v2.5.4-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub Homepage](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -48,6 +48,7 @@ Built-in classic color schemes loved by programmers, switch with one click:
 *   🌲 **Emerald Forest** (New in v1.42 - Aurora Green)
 *   🧊 **Glass Morphism** (Frost Style - Ultimate Blur & Translucency)
 *   🤖 **Future Tech** (Grid Style - Dynamic Grid & Tech Blue)
+*   📐 **Bauhaus** (v2.5.4 New - Classic geometry with red/yellow/blue, paying homage to Bauhaus design)
 *   🗿 **Modern Dark** (Stone Style - Warm Graphite Dark)
 *   🌊 **Midnight Blue** (Deep Ocean Style - Immersive Deep Sea)
 *   🐱 **GitHub Dark** (GitHub Official Dark)
@@ -81,6 +82,9 @@ Built-in classic color schemes loved by programmers, switch with one click:
 5.  **Sync**: On supported list pages (such as Housing Survey List), click the **🔄 Auto Sync** button at the top to start working.
 
 ## 📝 Changelog
+
+### v2.5.4 (2026-02-09)
+- **New Theme**: Added **Bauhaus** theme, featuring classic red/yellow/blue primary colors and geometric background patterns, combined with sharp right-angle designs to pay homage to modernism.
 
 ### v2.5.3 (2026-02-09)
 - **Login Page Beautification**: Added theme adaptation for the login page (`/houseadmin/login/index.html`). Background images, login boxes, and controls now automatically switch with the current theme, supporting frosted glass effects.

@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.5.3
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.5.3: 新增登录页主题深度适配。
+// @version      2.5.4
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.5.4: 新增包豪斯(Bauhaus)风格主题。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -30,6 +30,23 @@
 
     // 定义主题配置
     const themes = {
+        'bauhaus': {
+            name: 'Bauhaus (Geometric)',
+            vars: {
+                '--xhj-bg': '#f0f0f0',
+                '--xhj-fg': '#121212',
+                '--xhj-header-bg': '#E31C25',
+                '--xhj-side-bg': '#ffffff',
+                '--xhj-active-bg': '#1C4DE3',
+                '--xhj-active-fg': '#ffffff',
+                '--xhj-border': '#121212',
+                '--xhj-hover-bg': '#F2C511',
+                '--xhj-input-bg': '#ffffff',
+                '--xhj-table-head': '#e0e0e0',
+                '--xhj-glow-color': 'rgba(227, 28, 37, 0.4)',
+                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.2)'
+            }
+        },
         'default': {
             name: '默认 (Default)',
             vars: {} // 空对象表示移除样式
@@ -293,6 +310,42 @@
              `;
         }
         
+        // Bauhaus 专属几何背景
+        if (vars['--xhj-bg'] === '#f0f0f0') {
+            extraCss += `
+                body::before {
+                    content: "";
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background-image: 
+                        radial-gradient(circle at 10% 20%, rgba(227, 28, 37, 0.05) 0%, transparent 20%),
+                        radial-gradient(circle at 90% 80%, rgba(28, 77, 227, 0.05) 0%, transparent 20%),
+                        linear-gradient(45deg, rgba(18, 18, 18, 0.02) 25%, transparent 25%, transparent 75%, rgba(18, 18, 18, 0.02) 75%, rgba(18, 18, 18, 0.02)),
+                        linear-gradient(45deg, rgba(18, 18, 18, 0.02) 25%, transparent 25%, transparent 75%, rgba(18, 18, 18, 0.02) 75%, rgba(18, 18, 18, 0.02));
+                    background-position: 0 0, 0 0, 0 0, 10px 10px;
+                    background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
+                    z-index: -1;
+                    pointer-events: none;
+                }
+                
+                /* Bauhaus 强风格化元素 */
+                .layui-card, .layui-btn, .layui-input {
+                    border-radius: 0 !important; /* 锐利直角 */
+                }
+                .layui-btn {
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    font-weight: 700;
+                }
+                .layui-nav-tree .layui-nav-item a {
+                     color: #121212 !important;
+                }
+                .layui-nav-tree .layui-nav-item a:hover {
+                    background-color: #F2C511 !important; /* 黄色高亮 */
+                    color: #121212 !important;
+                }
+            `;
+        }
+
         // MacOS Light 专属极致净化 (Pure MacOS)
         if (vars['--xhj-bg'] === '#F5F5F7') {
              extraCss += `
