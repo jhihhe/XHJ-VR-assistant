@@ -1,4 +1,4 @@
-# 🎨 Xiangshi Platform Assistant (v1.48)
+# 🎨 Xiangshi Platform Assistant (v2.5.3)
 
 ![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
 ![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
@@ -82,19 +82,19 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
-### v2.5.3 (2025-02-09)
+### v2.5.3 (2026-02-09)
 - **Login Page Beautification**: Added theme adaptation for the login page (`/houseadmin/login/index.html`). Background images, login boxes, and controls now automatically switch with the current theme, supporting frosted glass effects.
 
-### v2.5.2 (2025-02-09)
+### v2.5.2 (2026-02-09)
 - **Counter Optimization**: Removed duplicate parent-level counter in the "New Housing Survey" modal header, keeping only the more accurate child-level counter in the content area for a cleaner interface.
 
-### v2.5.1 (2025-02-09)
+### v2.5.1 (2026-02-09)
 - **Logic Refactoring**: Housing survey upload counter now uses a "child-push" mechanism, fixing issues where iframe internal counter disappeared or parent count showed 0.
 
-### v2.5 (2025-02-09)
+### v2.5 (2026-02-09)
 - **Bug Fix**: Fixed the issue of duplicate image counters appearing in the housing survey upload modal.
 
-### v2.0 (2025-02-09)
+### v2.0 (2026-02-09)
 - **Major Update**: Fully integrated **AutoVerify** intelligent CAPTCHA recognition engine, supporting automatic recognition and filling of login CAPTCHAs (running locally via ONNX Runtime, no external API needed).
 - **Safari/iOS Deep Adaptation**: Added exclusive optimizations for Safari (macOS) and iPhone/iPad, fixing Glassmorphism rendering issues and improving touch scrolling/mobile layout.
 - **Experience Optimization**: Introduced MutationObserver mechanism to completely resolve the theme application delay issue for new windows/popups, achieving "instant opening and instant changing".
