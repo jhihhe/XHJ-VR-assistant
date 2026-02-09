@@ -14,20 +14,6 @@
 
 This is a Tampermonkey script developed specifically for the [Xiangshi Platform Backend](https://vr.xhj.com/houseadmin/). It's not just a simple skin change; it's a comprehensive upgrade for the backend management system. We have perfectly blended **ultimate UI beautification** with **automatic synchronization functions** to create a comprehensive assistant that combines visual enjoyment with efficient office work.
 
-## 📸 Preview
-
-<p align="center">
-  <img src="pic1.png" alt="Login Page" width="100%">
-</p>
-<p align="center">
-  <img src="pic2.png" alt="Dark Mode Home" width="48%">
-  <img src="pic3.png" alt="List Optimization" width="48%">
-</p>
-<p align="center">
-  <img src="pic4.png" alt="Settings Panel" width="48%">
-  <img src="pic5.png" alt="Feature Demo" width="48%">
-</p>
-
 ## ✨ Core Features
 
 ### 1. 🖥️ Ultimate macOS Style UI

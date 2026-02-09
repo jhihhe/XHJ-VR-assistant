@@ -14,20 +14,6 @@
 
 这是一个专为 [象视平台后台](https://vr.xhj.com/houseadmin/) 开发的 Tampermonkey (油猴) 脚本。它不仅仅是简单的换肤，更是一次对后台管理系统的全方位升级。我们将**极致 UI 美化**与**自动同步功能**完美融合，打造了一个集视觉享受与高效办公于一体的综合助手。
 
-## 📸 效果预览
-
-<p align="center">
-  <img src="pic1.png" alt="登录页美化" width="100%">
-</p>
-<p align="center">
-  <img src="pic2.png" alt="深色模式主页" width="48%">
-  <img src="pic3.png" alt="列表页优化" width="48%">
-</p>
-<p align="center">
-  <img src="pic4.png" alt="设置面板" width="48%">
-  <img src="pic5.png" alt="功能演示" width="48%">
-</p>
-
 ## ✨ 核心特性
 
 ### 1. 🖥️ 极致 macOS 风格 UI
