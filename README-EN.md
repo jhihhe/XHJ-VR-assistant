@@ -57,6 +57,11 @@ Built-in classic color schemes loved by programmers, switch with one click:
 *   **De-whitening**: Thoroughly removed intrusive white backgrounds remaining in Tab bars, paginators, button groups, etc.
 *   **Site-wide Sync**: Supports real-time seamless style synchronization between the main page and iframe sub-pages, effective immediately upon refresh.
 
+### 6. 🤖 Intelligent CAPTCHA Recognition (New in v2.0)
+*   **AutoVerify Engine**: Integrated lightweight ONNX Runtime for efficient local recognition of login CAPTCHAs.
+*   **Privacy & Security**: No image upload to third-party servers; all processing is done locally.
+*   **Zero Configuration**: Out-of-the-box usage, no need to apply for API Keys or complex configurations.
+
 ## 🚀 How to Use
 
 1.  Install the browser extension **Tampermonkey** (Chrome/Edge/Firefox).
