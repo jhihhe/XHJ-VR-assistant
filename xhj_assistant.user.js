@@ -1616,7 +1616,50 @@
        初始化 (Initialization)
        ========================================================================== */
 
+    const initThemeObserver = () => {
+        // 使用 MutationObserver 监听 DOM 变化，解决弹窗/新窗口主题应用延迟问题
+        const observer = new MutationObserver((mutations) => {
+            let hasAddedNodes = false;
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length > 0) {
+                    hasAddedNodes = true;
+                }
+            });
+
+            if (hasAddedNodes) {
+                // 1. 强力去白底 (针对新出现的弹窗内容)
+                const whiteElements = document.querySelectorAll('.layui-bg-white, [style*="background-color: white"], [style*="background-color: #fff"], [style*="background-color: rgb(255, 255, 255)"]');
+                whiteElements.forEach(el => {
+                    if (el.closest('.layui-layer-content') || el.classList.contains('layui-layer') || el.closest('.el-dialog')) {
+                        el.style.setProperty('background-color', 'transparent', 'important');
+                    }
+                });
+
+                // 2. 确保 iframe 内部背景正确
+                const iframes = document.querySelectorAll('iframe');
+                iframes.forEach(iframe => {
+                     try {
+                         const doc = iframe.contentDocument || iframe.contentWindow.document;
+                         if (doc && doc.body) {
+                              doc.body.style.backgroundColor = 'var(--xhj-bg)';
+                         }
+                     } catch(e) {}
+                });
+            }
+        });
+        
+        if (document.body) {
+            observer.observe(document.body, { childList: true, subtree: true });
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                observer.observe(document.body, { childList: true, subtree: true });
+            });
+        }
+    };
+
     const init = () => {
+        initThemeObserver();
+
         // 1. 加载主题
         const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
         applyTheme(currentTheme);
