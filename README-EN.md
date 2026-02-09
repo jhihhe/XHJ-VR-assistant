@@ -67,6 +67,11 @@ Built-in classic color schemes loved by programmers, switch with one click:
 
 ## 📝 Changelog
 
+### v2.0 (2025-02-09)
+- **Major Update**: Fully integrated **AutoVerify** intelligent CAPTCHA recognition engine, supporting automatic recognition and filling of login CAPTCHAs (running locally via ONNX Runtime, no external API needed).
+- **Safari/iOS Deep Adaptation**: Added exclusive optimizations for Safari (macOS) and iPhone/iPad, fixing Glassmorphism rendering issues and improving touch scrolling/mobile layout.
+- **Refactoring**: Introduced dynamic resource loading mechanism, significantly improving script loading speed and stability.
+
 ### v1.48 (2025-02-08)
 - **Project Homepage Integration**: Added `homepageURL` and `supportURL` to script metadata for easier access to updates and feedback on GitHub.
 - **Documentation Update**: Added GitHub project link to README and synced version number.
