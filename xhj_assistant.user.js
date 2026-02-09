@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.0
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.0: 重大更新！新增 Safari (macOS/iOS) 深度适配；集成 AutoVerify 实现登录验证码自动识别与填写。
+// @version      2.5.2
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.5.2: 移除房堪上传父级重复计数。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -10,8 +10,6 @@
 // @match        https://vr.xhj.com/houseadmin/*
 // @match        *://vr.xhj.com/*
 // @match        *://*.xhj.com/*
-// @require      https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/ort.min.js
-// @resource     ONNX_MODEL https://cdn.jsdelivr.net/gh/Bjorne1/AutoVerify@main/js/model.bin
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -242,6 +240,33 @@
             }
         }
     };
+
+    // [v2.2 优化] 立即注入关键 CSS，防止闪烁 (Anti-Flash)
+    const injectCriticalCSS = () => {
+        try {
+            const savedTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
+            if (savedTheme === 'default') return;
+
+            const theme = themes[savedTheme];
+            if (theme && theme.vars && theme.vars['--xhj-bg']) {
+                const style = document.createElement('style');
+                style.id = 'xhj-critical-style';
+                style.innerHTML = `
+                    html, body {
+                        background-color: ${theme.vars['--xhj-bg']} !important;
+                        color: ${theme.vars['--xhj-fg']} !important;
+                        transition: none !important; /* 禁用过渡，防止颜色缓慢变化 */
+                    }
+                    /* 预先隐藏可能的白色背景元素 */
+                    .layui-bg-white, [style*="background-color: white"], [style*="background-color: #fff"] {
+                        background-color: transparent !important;
+                    }
+                `;
+                (document.head || document.documentElement).appendChild(style);
+            }
+        } catch (e) { console.error('Critical CSS injection failed:', e); }
+    };
+    injectCriticalCSS();
 
     // 通用 CSS 模板 (Layui 覆盖)
     const getCssTemplate = (vars) => {
@@ -1617,48 +1642,169 @@
        ========================================================================== */
 
     const initThemeObserver = () => {
-        // 使用 MutationObserver 监听 DOM 变化，解决弹窗/新窗口主题应用延迟问题
+        // [v2.2 优化] MutationObserver 性能改进：仅处理新增节点，避免全局查询
         const observer = new MutationObserver((mutations) => {
-            let hasAddedNodes = false;
-            mutations.forEach((mutation) => {
+            const addedNodes = [];
+            
+            // 收集所有新增的元素节点
+            for (const mutation of mutations) {
                 if (mutation.addedNodes.length > 0) {
-                    hasAddedNodes = true;
+                    for (const node of mutation.addedNodes) {
+                        if (node.nodeType === 1) { // 仅处理 Element 节点
+                            addedNodes.push(node);
+                            // 如果添加的是容器，也收集其子元素（可选，视性能而定，这里暂只处理顶层和特定子级）
+                        }
+                    }
+                }
+            }
+
+            if (addedNodes.length === 0) return;
+
+            // 1. 处理新增的 iframe
+            addedNodes.forEach(node => {
+                if (node.tagName === 'IFRAME') {
+                    applyThemeToIframe(node);
+                } else if (node.querySelectorAll) {
+                    // 检查容器内部是否有 iframe
+                    const iframes = node.querySelectorAll('iframe');
+                    iframes.forEach(applyThemeToIframe);
                 }
             });
 
-            if (hasAddedNodes) {
-                // 1. 强力去白底 (针对新出现的弹窗内容)
-                const whiteElements = document.querySelectorAll('.layui-bg-white, [style*="background-color: white"], [style*="background-color: #fff"], [style*="background-color: rgb(255, 255, 255)"]');
-                whiteElements.forEach(el => {
-                    if (el.closest('.layui-layer-content') || el.classList.contains('layui-layer') || el.closest('.el-dialog')) {
-                        el.style.setProperty('background-color', 'transparent', 'important');
-                    }
-                });
-
-                // 2. 确保 iframe 内部背景正确
-                const iframes = document.querySelectorAll('iframe');
-                iframes.forEach(iframe => {
-                     try {
-                         const doc = iframe.contentDocument || iframe.contentWindow.document;
-                         if (doc && doc.body) {
-                              doc.body.style.backgroundColor = 'var(--xhj-bg)';
-                         }
-                     } catch(e) {}
-                });
-            }
+            // 2. 针对性去白底 (仅检查新增节点及其子树)
+            // 避免 document.querySelectorAll 全局扫描
+            addedNodes.forEach(node => {
+                // 检查节点本身
+                if (node.matches && (node.matches('.layui-bg-white') || node.style.backgroundColor === 'white' || node.style.backgroundColor === '#fff' || node.style.backgroundColor === 'rgb(255, 255, 255)')) {
+                    node.style.setProperty('background-color', 'transparent', 'important');
+                }
+                
+                // 仅在可能是弹窗或容器的元素内部查找
+                if (node.classList && (node.classList.contains('layui-layer') || node.classList.contains('el-dialog') || node.classList.contains('layui-layer-content'))) {
+                    const whiteElements = node.querySelectorAll('.layui-bg-white, [style*="background-color: white"], [style*="background-color: #fff"], [style*="background-color: rgb(255, 255, 255)"]');
+                    whiteElements.forEach(el => el.style.setProperty('background-color', 'transparent', 'important'));
+                }
+            });
         });
         
+        const config = { childList: true, subtree: true };
         if (document.body) {
-            observer.observe(document.body, { childList: true, subtree: true });
+            observer.observe(document.body, config);
         } else {
             document.addEventListener('DOMContentLoaded', () => {
-                observer.observe(document.body, { childList: true, subtree: true });
+                observer.observe(document.body, config);
+            });
+        }
+    };
+
+    const initImageCounter = () => {
+        // 监听房堪上传界面的图片数量
+        // [v2.5.2 优化] 
+        // 1. 仅保留 iframe 内部的计数 (子级)，移除父级弹窗的重复计数
+        // 2. 解决"两个正确计数"并存的问题，保持界面简洁
+        
+        const updateTitle = (titleEl, count) => {
+            if (!titleEl) return;
+            
+            // 匹配模式：(已上传: 0 张) 或 （已上传：0张）等
+            const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
+            let html = titleEl.innerHTML;
+
+            if (oldPattern.test(html)) {
+                // 原地替换
+                const newText = `(已上传: ${count} 张)`;
+                // 仅当数字变化时才更新 DOM
+                if (!html.includes(newText)) {
+                     titleEl.innerHTML = html.replace(oldPattern, newText);
+                }
+            } else {
+                // 追加显示
+                let counter = titleEl.querySelector('.xhj-img-counter');
+                if (!counter) {
+                    counter = document.createElement('span');
+                    counter.className = 'xhj-img-counter';
+                    counter.style.cssText = 'margin-left: 10px; font-size: 14px; color: #00f2ff; font-weight: bold;';
+                    titleEl.appendChild(counter);
+                }
+                counter.textContent = `(已上传: ${count} 张)`;
+            }
+        };
+
+        const removeTitleCounter = (titleEl) => {
+            if (!titleEl) return;
+            // 移除标题中的计数文本
+            const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
+            if (oldPattern.test(titleEl.innerHTML)) {
+                titleEl.innerHTML = titleEl.innerHTML.replace(oldPattern, '');
+            }
+            // 移除自定义添加的计数器
+            const counter = titleEl.querySelector('.xhj-img-counter');
+            if (counter) counter.remove();
+        };
+
+        const updateCounter = () => {
+            // --- 逻辑: 当前窗口内的弹窗/容器计数 ---
+            const containers = [
+                ...document.querySelectorAll('.layui-layer'),
+                ...document.querySelectorAll('.el-dialog')
+            ];
+
+            containers.forEach(container => {
+                // 1. 检查是否有标题
+                const titleEl = container.querySelector('.layui-layer-title') || container.querySelector('.el-dialog__title');
+                if (!titleEl) return;
+                
+                const titleText = titleEl.textContent;
+                // 宽松匹配标题
+                if (!titleText.includes('新增房堪图') && !titleText.includes('房堪上传') && !titleText.includes('房勘')) return;
+
+                // 2. 检查容器内是否有 iframe
+                const hasIframe = container.querySelector('iframe');
+                
+                // [v2.5.2] 策略变更：如果有 iframe，说明是父级弹窗
+                // 我们直接移除父级的计数，只保留 iframe 内部自己的计数 (由 iframe 内部脚本执行)
+                if (hasIframe) {
+                    removeTitleCounter(titleEl);
+                    return;
+                }
+
+                // 3. 统计图片 (仅统计有效图片)
+                // 没有 iframe，说明是直接内容容器 (或是 iframe 内部视角)
+                const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
+                const count = directImgs.length;
+                
+                // 4. 更新计数
+                updateTitle(titleEl, count);
+                
+                // 清理旧残留
+                const wrongCounters = container.querySelectorAll('.schoolTu_top .xhj-img-counter');
+                wrongCounters.forEach(el => el.remove());
+            });
+        };
+
+        // [v2.5 优化] 添加防抖，避免频繁 DOM 变动导致性能问题
+        let timer = null;
+        const observer = new MutationObserver(() => {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(updateCounter, 200);
+        });
+        
+        const config = { childList: true, subtree: true };
+        if (document.body) {
+            observer.observe(document.body, config);
+            // 初始执行一次
+            setTimeout(updateCounter, 500);
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                observer.observe(document.body, config);
+                setTimeout(updateCounter, 500);
             });
         }
     };
 
     const init = () => {
         initThemeObserver();
+        initImageCounter();
 
         // 1. 加载主题
         const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
@@ -2139,7 +2285,8 @@
     async function avRunModel(inputTensor) {
         try {
              if (!avOrtSession) {
-                 const modelUrl = GM_getResourceURL("ONNX_MODEL");
+                 // [v2.2 优化] 直接使用 CDN URL，移除 @resource 避免脚本启动阻塞
+                 const modelUrl = "https://cdn.jsdelivr.net/gh/Bjorne1/AutoVerify@main/js/model.bin";
                  ort.env.wasm.numThreads = 1;
                  ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/";
                  avOrtSession = await ort.InferenceSession.create(modelUrl);
@@ -2161,15 +2308,67 @@
     }
 
     async function avProcessCaptcha(img, input) {
-        if (img.dataset.avProcessed === "true") return; // Prevent loop
+        // 0. Check if it's a refresh (src changed)
+        if (img.dataset.lastSrc && img.dataset.lastSrc !== img.src) {
+            img.dataset.avProcessed = "false";
+        }
+        img.dataset.lastSrc = img.src;
+
+        if (img.dataset.avProcessed === "true") return; 
         
+        // 1. Add Status Indicator (UI)
+        let statusEl = null;
+        // 尝试查找现有的状态元素（可能在 input 旁或 img 旁）
+        if (input.nextElementSibling && input.nextElementSibling.classList.contains('av-status')) {
+             statusEl = input.nextElementSibling;
+        } else if (img.nextElementSibling && img.nextElementSibling.classList.contains('av-status')) {
+             statusEl = img.nextElementSibling;
+        }
+
+        if (!statusEl) {
+            statusEl = document.createElement('span');
+            statusEl.className = 'av-status';
+            // [v2.2 优化] 状态提示显示在验证码图片右侧，不遮挡图片
+            statusEl.style.cssText = 'margin-left: 10px; font-size: 12px; color: #aaa; vertical-align: middle; white-space: nowrap; display: inline-block;';
+            
+            // 优先插入到图片后面
+            if (img.parentNode) {
+                if (img.nextSibling) {
+                    img.parentNode.insertBefore(statusEl, img.nextSibling);
+                } else {
+                    img.parentNode.appendChild(statusEl);
+                }
+            } else {
+                // Fallback (unlikely)
+                input.parentNode.appendChild(statusEl);
+            }
+        }
+        statusEl.textContent = '识别中...';
+        statusEl.style.color = '#e67e22';
+
+        // 2. Add Click Listener for Manual Refresh (Once)
+        if (!img.dataset.hasClickListener) {
+            img.addEventListener('click', () => {
+                console.log("[AutoVerify] Image clicked, resetting state...");
+                img.dataset.avProcessed = "false";
+                statusEl.textContent = '等待刷新...';
+                // Reset call count to allow retries
+                avConfig.callCount = 0;
+            });
+            img.dataset.hasClickListener = "true";
+        }
+
         // Wait for image to load if needed
-        if (!img.complete) {
+        if (!img.complete || img.naturalWidth === 0) {
             await new Promise(r => img.onload = r);
         }
 
         const inputTensor = await avPreprocessImage(img);
-        if (!inputTensor) return;
+        if (!inputTensor) {
+            statusEl.textContent = '预处理失败';
+            statusEl.style.color = '#e74c3c';
+            return;
+        }
 
         const text = await avRunModel(inputTensor);
         if (text && text.length >= 4) {
@@ -2178,6 +2377,12 @@
              input.dispatchEvent(new Event('input', { bubbles: true }));
              input.dispatchEvent(new Event('change', { bubbles: true }));
              img.dataset.avProcessed = "true";
+             
+             statusEl.textContent = `识别成功: ${text}`;
+             statusEl.style.color = '#2ecc71';
+        } else {
+             statusEl.textContent = '识别失败';
+             statusEl.style.color = '#e74c3c';
         }
     }
 
@@ -2193,8 +2398,7 @@
         const imgs = Array.from(document.querySelectorAll('img')).filter(avIsPossibleCaptcha);
         if (imgs.length === 0) return;
 
-        // Simple pairing strategy: match first visible captcha input with first likely captcha image
-        // Or process all pairs
+        // Simple pairing strategy
         const pairCount = Math.min(keywordInputs.length, imgs.length);
         for (let i = 0; i < pairCount; i++) {
             avProcessCaptcha(imgs[i], keywordInputs[i]);
@@ -2314,7 +2518,39 @@
         }
     }
 
+    // [v2.2 优化] 动态加载 ONNX Runtime 库，避免阻塞脚本首屏执行 (Anti-Delay)
+    async function loadOnnxLibrary() {
+        if (typeof ort !== 'undefined') return true;
+        
+        return new Promise((resolve) => {
+            console.log("[AutoVerify] Dynamically loading ONNX Runtime...");
+            const script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/ort.min.js";
+            script.crossOrigin = "anonymous";
+            script.onload = () => {
+                console.log("[AutoVerify] ONNX Library Loaded.");
+                resolve(true);
+            };
+            script.onerror = () => {
+                console.error("[AutoVerify] ONNX Library Load Failed.");
+                resolve(false);
+            };
+            document.head.appendChild(script);
+        });
+    }
+
     async function initAutoVerify() {
+        // 限制仅在登录页面运行
+        if (!window.location.href.includes('houseadmin/login/index.html')) {
+            return;
+        }
+
+        // 延迟一小会儿再加载库，确保 UI 先渲染
+        await new Promise(r => setTimeout(r, 500));
+        
+        const loaded = await loadOnnxLibrary();
+        if (!loaded) return;
+
         await avLoadCharset();
         if (!avCharset || avCharset.length === 0) {
             console.error("[AutoVerify] Charset not loaded");

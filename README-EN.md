@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
-![Version](https://img.shields.io/badge/Version-v1.48-brightgreen)
+![Version](https://img.shields.io/badge/Version-v2.5.2-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub Homepage](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -66,6 +66,15 @@ Built-in classic color schemes loved by programmers, switch with one click:
 5.  **Sync**: On supported list pages (such as Housing Survey List), click the **🔄 Auto Sync** button at the top to start working.
 
 ## 📝 Changelog
+
+### v2.5.2 (2025-02-09)
+- **Counter Optimization**: Removed duplicate parent-level counter in the "New Housing Survey" modal header, keeping only the more accurate child-level counter in the content area for a cleaner interface.
+
+### v2.5.1 (2025-02-09)
+- **Logic Refactoring**: Housing survey upload counter now uses a "child-push" mechanism, fixing issues where iframe internal counter disappeared or parent count showed 0.
+
+### v2.5 (2025-02-09)
+- **Bug Fix**: Fixed the issue of duplicate image counters appearing in the housing survey upload modal.
 
 ### v2.0 (2025-02-09)
 - **Major Update**: Fully integrated **AutoVerify** intelligent CAPTCHA recognition engine, supporting automatic recognition and filling of login CAPTCHAs (running locally via ONNX Runtime, no external API needed).

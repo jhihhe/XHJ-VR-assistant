@@ -6,7 +6,7 @@
 ![语言](https://img.shields.io/badge/语言-JavaScript-yellow)
 ![许可](https://img.shields.io/badge/许可-MIT-green)
 ![版权](https://img.shields.io/badge/版权-%C2%A9%202026%20Xiangshi-lightgrey)
-![版本](https://img.shields.io/badge/版本-v1.48-brightgreen)
+![版本](https://img.shields.io/badge/版本-v2.5.2-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub 项目主页](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -65,6 +65,15 @@
 5.  **同步**：在支持的列表页（如房勘列表），点击顶部的 **🔄 自动同步** 按钮即可开始工作。
 
 ## 📝 更新日志
+
+### v2.5.2 (2025-02-09)
+- **计数器优化**: 移除了“新增房堪图”弹窗顶部的父级重复计数，仅保留内容区域更准确的子级计数，界面更加清爽。
+
+### v2.5.1 (2025-02-09)
+- **逻辑重构**: 房堪上传计数采用“子级推送”机制，修复了 iframe 内部计数消失及父级统计为 0 的问题。
+
+### v2.5 (2025-02-09)
+- **功能修复**: 修复了房堪上传弹窗中图片计数器重复显示的问题，并增强了 iframe 穿透统计能力。
 
 ### v2.0 (2025-02-09)
 - **重大更新**：全面集成 **AutoVerify** 智能验证码识别引擎，支持登录页图形验证码自动识别与填写（基于 ONNX Runtime 本地运行，无需外部 API）。
