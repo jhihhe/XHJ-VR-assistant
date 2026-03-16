@@ -1,4 +1,4 @@
-# 🎨 象视平台助手 (v2.6.0)
+# 🎨 象视平台助手 (v2.6.1)
 
 ![平台](https://img.shields.io/badge/平台-象视后台-blue)
 ![环境](https://img.shields.io/badge/环境-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![语言](https://img.shields.io/badge/语言-JavaScript-yellow)
 ![许可](https://img.shields.io/badge/许可-MIT-green)
 ![版权](https://img.shields.io/badge/版权-%C2%A9%202026%20Xiangshi-lightgrey)
-![版本](https://img.shields.io/badge/版本-v2.6.0-brightgreen)
+![版本](https://img.shields.io/badge/版本-v2.6.1-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub 项目主页](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -82,6 +82,10 @@
 5.  **同步**：在支持的列表页（如房勘列表），点击顶部的 **🔄 自动同步** 按钮即可开始工作。
 
 ## 📝 更新日志
+
+### v2.6.1 (2026-03-16)
+- **修复**: 修复新版全景图上传状态（上传中/上传成功）在部分按钮或徽章中颜色区分失效的问题。
+- **优化**: 增强 CSS 选择器，支持识别 `.layui-btn` 和 `.layui-badge` 等更多 UI 元素中的状态文本。
 
 ### v2.6.0 (2026-03-16)
 - **核心重构**: 移除全局 `setInterval` 高频轮询（原500ms），改用 `MutationObserver` + 防抖机制，大幅降低 CPU 占用。

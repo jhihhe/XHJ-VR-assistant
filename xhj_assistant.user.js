@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.6.0
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.6.0: 核心性能重构，移除高频轮询，大幅降低 CPU 占用。
+// @version      2.6.1
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.6.1: 修复新版全景图上传状态（上传中/上传成功）颜色区分失效的问题。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -1955,21 +1955,37 @@
             }
 
             // 2. VR上传状态颜色区分
-            const statusCells = document.querySelectorAll('.layui-table-cell, .layui-upload-list span, .status-text, td:not(:empty)');
+            // 扩展选择器以覆盖图二中的“上传中”、“上传成功”按钮/徽章
+            const statusCells = document.querySelectorAll('.layui-table-cell, .layui-upload-list span, .status-text, td:not(:empty), .layui-btn, .layui-badge, span');
             statusCells.forEach(cell => {
-                if (cell.childElementCount > 1 || ['SCRIPT', 'STYLE'].includes(cell.tagName)) return;
+                // 排除 script, style
+                if (['SCRIPT', 'STYLE'].includes(cell.tagName)) return;
                 
+                // 排除包含大量子元素的容器，但允许包含少量内联元素（如 icon）的按钮
+                if (cell.childElementCount > 2 && !cell.classList.contains('layui-btn')) return;
+
                 const text = cell.textContent.trim();
                 if (!text || text.length > 20) return;
                 
+                // 定义样式应用 helper
+                const applyStyle = (color, shadowColor) => {
+                    // 使用 !important 覆盖原有样式 (如 layui-btn 的默认白字/背景)
+                    cell.style.setProperty('color', color, 'important');
+                    cell.style.setProperty('font-weight', 'bold', 'important');
+                    // 如果是按钮或徽章，可能需要调整背景色或边框，这里暂只调整文字和发光
+                    if (cell.classList.contains('layui-btn') || cell.classList.contains('layui-badge') || cell.tagName === 'SPAN') {
+                        cell.style.setProperty('text-shadow', `0 0 5px ${shadowColor}`, 'important');
+                    }
+                };
+
                 if (text.includes('正在上传') || text.includes('上传中')) {
-                    cell.style.color = '#f1c40f'; cell.style.fontWeight = 'bold';
+                    applyStyle('#f1c40f', 'rgba(241, 196, 15, 0.4)'); // 橙黄色
                 } else if (text.includes('上传完成') || text.includes('上传成功')) {
-                    cell.style.color = '#00ff9d'; cell.style.fontWeight = 'bold';
+                    applyStyle('#00ff9d', 'rgba(0, 255, 157, 0.4)'); // 荧光绿
                 } else if (text.includes('上传失败')) {
-                    cell.style.color = '#ff5252'; cell.style.fontWeight = 'bold';
+                    applyStyle('#ff5252', 'rgba(255, 82, 82, 0.4)'); // 红色
                 } else if (text === '上传') {
-                    cell.style.color = '#3498db'; cell.style.fontWeight = 'bold';
+                    applyStyle('#3498db', 'rgba(52, 152, 219, 0.4)'); // 蓝色
                 }
             });
             
