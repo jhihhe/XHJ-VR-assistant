@@ -1,66 +1,78 @@
-# 🎨 Xiangshi Platform Assistant (v2.7.4)
+# 🚀 Xiangshi Platform Assistant · XHJ VR Assistant
 
-![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-1f6feb?style=for-the-badge)
-![Script](https://img.shields.io/badge/Type-Tampermonkey%20UserScript-8a2be2?style=for-the-badge)
-![Language](https://img.shields.io/badge/Language-JavaScript-f7df1e?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-v2.7.4-00c853?style=for-the-badge)
+[![GitHub Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=7bdff2)](https://github.com/jhihhe/XHJ-VR-assistant/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ff7aa2)](https://github.com/jhihhe/XHJ-VR-assistant/issues)
+[![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 
-![Themes](https://img.shields.io/badge/Themes-14+-ff9800?style=flat-square)
-![AutoSync](https://img.shields.io/badge/AutoSync-Enabled-7c4dff?style=flat-square)
-![AutoVerify](https://img.shields.io/badge/AutoVerify-ONNX_Local-009688?style=flat-square)
-![Counter](https://img.shields.io/badge/Counter-3D_Digital-ff5252?style=flat-square)
-![Layout](https://img.shields.io/badge/Layout-Smart_Table-blue?style=flat-square)
-![iFrame](https://img.shields.io/badge/iFrame-Style_Sync-5c6bc0?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey?style=flat-square)
+[![Platform](https://img.shields.io/badge/Platform-Xiangshi_Admin-223?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
+[![Type](https://img.shields.io/badge/Type-Tampermonkey_UserScript-8a2be2?style=for-the-badge&logo=tampermonkey&logoColor=white)](#)
+[![Language](https://img.shields.io/badge/Language-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111)](#)
+[![Version](https://img.shields.io/badge/Version-v2.7.5-00c853?style=for-the-badge)](#)
 
-[中文](README.md) | [English](README-EN.md) | [GitHub Homepage](https://github.com/jhihhe/XHJ-VR-assistant)
+[![Themes](https://img.shields.io/badge/Themes-15+-ff9800?style=flat-square)](#-built-in-themes)
+[![HUD UI](https://img.shields.io/badge/HUD-Display_Style-00bcd4?style=flat-square)](#-core-capabilities)
+[![AutoSync](https://img.shields.io/badge/AutoSync-Batch_Ready-7c4dff?style=flat-square)](#-core-capabilities)
+[![AutoVerify](https://img.shields.io/badge/AutoVerify-ONNX_Local-009688?style=flat-square)](#-core-capabilities)
+[![iFrame](https://img.shields.io/badge/iFrame-Style_Sync-5c6bc0?style=flat-square)](#-compatibility)
+[![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](#)
 
-> An all-in-one enhancement script for Xiangshi Admin: visual polish, workflow acceleration, and intelligent automation.
+> A production-focused enhancement userscript for Xiangshi Admin: **HUD-grade UI polish + workflow automation + intelligent table and upload UX**.
 
-## 🌟 Highlights
+---
 
-- 🎯 **Deep UI Enhancement**: macOS-style dark aesthetic, glassmorphism, refined shadows, smooth interactions.
-- ⚡ **Performance-Oriented**: Core dynamic handling based on MutationObserver + debounce (less wasteful polling).
-- 🤖 **Automation Ready**: Auto-sync tools, local CAPTCHA recognition, status highlighting, smart counters.
-- 🧩 **Cross-Context Support**: Works across main pages, popups, and iframe child pages.
+## 🌐 Navigation
+
+- [中文文档](README.md)
+- [English README](README-EN.md)
+- [GitHub Repository](https://github.com/jhihhe/XHJ-VR-assistant)
+
+## 🖼️ Preview
+
+![preview-1](pic1.png)
+![preview-2](pic2.png)
+![preview-3](pic3.png)
+![preview-4](pic4.png)
+![preview-5](pic5.png)
+
+## ✨ Highlights
+
+- **HUD Display Aesthetic**: Unified dark display layers, scanline texture, info grid, glowing text edges.
+- **Workflow Automation**: One-click auto-sync and upload feedback acceleration.
+- **Local Intelligence**: ONNX Runtime CAPTCHA recognition without external API keys.
+- **Performance First**: Heavy infinite effects and expensive blur chains are removed/tuned.
+- **Cross-Context Consistency**: Main pages, popups, and iframes share the same visual/behavioral language.
 
 ## 🧠 Core Capabilities
 
-### 1) Advanced UI Beautification
-- Unified dark visual language for pages, cards, tables, and modals.
-- Better interaction details: hover/click feedback and transition tuning.
-- De-whitening strategy for inconsistent legacy blocks.
-- Auto Scale for high-DPI and smaller display scenarios.
+### 1) HUD Visual Engine
+- Unified visual semantics across header/sidebar/card/table/modal/button.
+- Layered typography quality for high readability and terminal-like style.
+- Upload and popup components aligned to the same HUD material language.
 
-### 2) Intelligent Auto-Sync
-- One-click trigger for repetitive sync workflows.
-- Live progress/status visibility with skip logic for processed items.
-- Theme-consistent controls with no visual mismatch.
+### 2) Intelligent Auto-Sync Workflow
+- Batch-trigger sync actions with one click.
+- Live progress and status feedback.
+- Improves productivity without touching backend business logic.
 
-### 3) Smart Table Layout Engine
-- Pixel-level alignment improvements for Layui tables.
-- Business-aware width strategy (Survey List / Sales Panorama).
-- Better readability for long fields and dense content.
+### 3) Smart Table Layout & Readability
+- Pixel-level alignment enhancements.
+- Business-aware width strategies (Survey / Sales Panorama).
+- Better dense-content readability.
 
-### 4) Intelligent CAPTCHA Recognition (v2.0+)
-- Built-in AutoVerify with ONNX Runtime (local execution).
+### 4) Upload Counter & Status UX
+- Survey upload 3D digital-style counters.
+- Panorama success/completion status counting.
+- Automatic status color coding.
+
+### 5) Local CAPTCHA Recognition (AutoVerify)
+- ONNX local inference.
 - No third-party API dependency.
-- Better privacy with local processing.
-
-### 5) Upload Counters & Status UX
-- Survey Upload: 3D digital counter with spectrum color transition.
-- Panorama Upload: real-time count for “Upload Success / Upload Completed”.
-- Upload status text color coding for better progress visibility.
-
-### 6) Login Page Beautification (v2.5.3+)
-- Full theme sync for login page.
-- Enhanced glassmorphism card/control styling.
-- Preserves particle effects with readability tuning.
+- Better privacy and stability.
 
 ## 🎨 Built-in Themes
 
+- Star Wars HUD (Immersive)
 - Dracula (Official)
 - Monokai Pro
 - Solarized Dark (Pro)
@@ -76,38 +88,30 @@
 - GitHub Dark
 - Default (official baseline)
 
-## 🧰 Installation & Usage
+## 🧩 Installation
 
 1. Install **Tampermonkey** (Chrome / Edge / Firefox).
-2. Install `xhj_assistant.user.js` into Tampermonkey.
-3. Open `https://vr.xhj.com/houseadmin/`.
-4. Use the floating button to switch themes/features.
-5. Run auto-sync or upload enhancements on supported pages.
+2. Install `xhj_assistant.user.js`.
+3. Open Xiangshi Admin: `https://vr.xhj.com/houseadmin/`.
+4. Use the floating control to switch themes and features.
 
 ## ✅ Compatibility
 
-- Domains: `vr.xhj.com` and `*.xhj.com`
+- Domains: `vr.xhj.com`, `*.xhj.com`
 - Contexts: main pages, Layer popups, iframe child pages
-- Components: Layui + partial Element UI support
+- UI stack: Layui + partial Element UI support
 
-## 📝 Recent Changelog
+## 📜 Update Summary
 
-### v2.7.4 (2026-03-16)
-- Fixed panorama counter showing 0 in certain DOM structures by improving status text recognition.
+### v2.7.5
+- Multiple rounds of visual unification and performance tuning for upload popups and HUD style.
+- Fixed cursor jitter and click-latency feel by refining button interactions.
+- Enhanced display typography quality for terminal-grade readability.
 
-### v2.7.3 (2026-03-16)
-- Moved panorama counter to the right side of the “Type” selector area.
+### v2.7.4 ~ v2.7.0
+- Continuous improvements for panorama upload counters and 3D digital display logic.
 
-### v2.7.2 (2026-03-16)
-- Added 3D digital counter for panorama upload success counting.
+## ⚠️ Notes
 
-### v2.7.1 (2026-03-16)
-- Counter now shifts to light-green spectrum from 9 images and displays full text.
-
-### v2.7.0 (2026-03-16)
-- Survey counter upgraded to 3D digital style with gradient spectrum logic.
-
-## 📌 Notes
-
-- This script enhances client-side UI/interaction and does not alter backend core data structures.
-- If your business page has unique DOM structures, open an issue for fast adaptation.
+- This script enhances frontend UI/UX only and does not modify backend core data structures.
+- If your page uses a different DOM structure, please open an issue for adaptation.
