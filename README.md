@@ -1,4 +1,4 @@
-# 🎨 象视平台助手 (v2.7.0)
+# 🎨 象视平台助手 (v2.7.1)
 
 ![平台](https://img.shields.io/badge/平台-象视后台-blue)
 ![环境](https://img.shields.io/badge/环境-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![语言](https://img.shields.io/badge/语言-JavaScript-yellow)
 ![许可](https://img.shields.io/badge/许可-MIT-green)
 ![版权](https://img.shields.io/badge/版权-%C2%A9%202026%20Xiangshi-lightgrey)
-![版本](https://img.shields.io/badge/版本-v2.7.0-brightgreen)
+![版本](https://img.shields.io/badge/版本-v2.7.1-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub 项目主页](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -82,6 +82,9 @@
 5.  **同步**：在支持的列表页（如房勘列表），点击顶部的 **🔄 自动同步** 按钮即可开始工作。
 
 ## 📝 更新日志
+
+### v2.7.1 (2026-03-16)
+- **计数器优化**: 调整 3D 数码管计数器的变色逻辑，从 **9张** 起即显示浅绿色（Yellow-Green），并支持显示完整文本“已上传: XX 张”。
 
 ### v2.7.0 (2026-03-16)
 - **UI 升级**: 房堪上传计数器焕新为 **3D 数码管风格**，模拟真实电子显示屏效果（内阴影+荧光）。

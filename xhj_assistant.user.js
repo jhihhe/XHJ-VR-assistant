@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.7.0
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.0: 房堪上传计数器升级为 3D 数码管样式，支持红绿光谱渐变。
+// @version      2.7.1
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.1: 优化 3D 计数器逻辑，9张起显示浅绿，支持文本显示。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -1808,11 +1808,33 @@
             const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
             const count = directImgs.length;
             
-            // 计算颜色：1(红) -> 35(绿)
+            // 计算颜色：
+            // < 9 张: 红色 (0)
+            // >= 9 张: 开始渐变，直到 35 张变为绿色 (120)
+            const minGreenCount = 9;
             const maxCount = 35;
-            const progress = Math.min(count / maxCount, 1);
-            // HSL: Red=0, Green=120. 
-            const hue = Math.floor(progress * 120); 
+            
+            let hue = 0;
+            if (count >= minGreenCount) {
+                 // 归一化进度：(count - 9) / (35 - 9)
+                 const progress = Math.min((count - minGreenCount) / (maxCount - minGreenCount), 1);
+                 // HSL: Red=0 -> Green=120
+                 // 为了让“浅绿”更早出现，可以调整起始点，这里直接线性映射到 0-120
+                 // 或者，从 9 张开始直接给一个基础绿，然后越来越深？
+                 // 用户说“从9张就要开始浅绿了”，意味着 >=9 时 hue 应该已经脱离了纯红
+                 // 方案：0-8: 红色(0); 9: 浅绿(约40-50?); 9-35: 浅绿->纯绿(120)
+                 
+                 // 修正逻辑：
+                 // 0-8: 红色 (hue 0)
+                 // 9: 突变为浅绿 (hue 60, 黄绿色)
+                 // 9 -> 35: 渐变到纯绿 (hue 120)
+                 
+                 const greenProgress = Math.min((count - minGreenCount) / (maxCount - minGreenCount), 1);
+                 hue = 60 + Math.floor(greenProgress * 60); // 60(黄) -> 120(绿)
+            } else {
+                 hue = 0; // 红色
+            }
+
             const color = `hsl(${hue}, 100%, 50%)`;
             const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
 
@@ -1833,9 +1855,9 @@
                     border: 1px solid #333;
                     box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
                     font-family: 'Courier New', Courier, monospace; /* 模拟数码管字体 */
-                    font-size: 18px;
+                    font-size: 16px; /* 稍微调小一点以容纳更多文字 */
                     font-weight: bold;
-                    letter-spacing: 2px;
+                    letter-spacing: 1px;
                     position: relative;
                     top: -2px; /* 微调对齐 */
                     transition: all 0.3s ease;
@@ -1853,9 +1875,11 @@
 
             const textSpan = counter.querySelector('.xhj-counter-text');
             if (textSpan) {
-                // 仅当数字变化时更新，避免动画重置
-                if (textSpan.textContent !== `${count}`) {
-                     textSpan.textContent = count < 10 ? `0${count}` : count; // 补零
+                // 格式：已上传: XX 张
+                const displayText = `已上传: ${count} 张`;
+                // 仅当内容变化时更新
+                if (textSpan.textContent !== displayText) {
+                     textSpan.textContent = displayText;
                      textSpan.style.color = color;
                      textSpan.style.textShadow = `0 0 8px ${shadowColor}, 0 0 15px ${shadowColor}`;
                      counter.style.borderColor = `hsla(${hue}, 50%, 40%, 0.5)`;
