@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Xiangshi_Admin-223?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
 [![Type](https://img.shields.io/badge/Type-Tampermonkey_UserScript-8a2be2?style=for-the-badge&logo=tampermonkey&logoColor=white)](#)
 [![Language](https://img.shields.io/badge/Language-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111)](#)
-[![Version](https://img.shields.io/badge/Version-v2.7.5-00c853?style=for-the-badge)](#)
+[![Version](https://img.shields.io/badge/Version-v5.0-00c853?style=for-the-badge)](#)
 
 [![Themes](https://img.shields.io/badge/Themes-15+-ff9800?style=flat-square)](#-built-in-themes)
 [![HUD UI](https://img.shields.io/badge/HUD-Display_Style-00bcd4?style=flat-square)](#-core-capabilities)
@@ -91,7 +91,7 @@
 ## 🧩 Installation
 
 1. Install **Tampermonkey** (Chrome / Edge / Firefox).
-2. Install `xhj_assistant.user.js`.
+2. Install the script matching page ID: `xhj_assistant_534783.user.js` / `xhj_assistant_563982.user.js` / `xhj_assistant_563997.user.js`.
 3. Open Xiangshi Admin: `https://vr.xhj.com/houseadmin/`.
 4. Use the floating control to switch themes and features.
 
@@ -103,10 +103,10 @@
 
 ## 📜 Update Summary
 
-### v2.7.5
-- Multiple rounds of visual unification and performance tuning for upload popups and HUD style.
-- Fixed cursor jitter and click-latency feel by refining button interactions.
-- Enhanced display typography quality for terminal-grade readability.
+### v5.0
+- Switched to three-name same-code release with unified GitHub synchronization.
+- Locked three Greasy pages to independent specified names.
+- Unified script version and description to v5.0 to avoid update blocking.
 
 ### v2.7.4 ~ v2.7.0
 - Continuous improvements for panorama upload counters and 3D digital display logic.

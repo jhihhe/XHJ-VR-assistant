@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         象视平台助手（563997）
+// @name         象视自动同步助手（534783）
 // @namespace    http://tampermonkey.net/
 // @version      5.0
 // @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。

@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Xiangshi_Admin-223?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
 [![Type](https://img.shields.io/badge/Type-Tampermonkey_UserScript-8a2be2?style=for-the-badge&logo=tampermonkey&logoColor=white)](#)
 [![Language](https://img.shields.io/badge/Language-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111)](#)
-[![Version](https://img.shields.io/badge/Version-v2.7.5-00c853?style=for-the-badge)](#)
+[![Version](https://img.shields.io/badge/Version-v5.0-00c853?style=for-the-badge)](#)
 
 [![Themes](https://img.shields.io/badge/Themes-15+-ff9800?style=flat-square)](#-内置主题)
 [![HUD UI](https://img.shields.io/badge/HUD-Display_Style-00bcd4?style=flat-square)](#-核心能力)
@@ -90,7 +90,7 @@
 ## 🧩 安装方式
 
 1. 安装浏览器扩展 **Tampermonkey**（Chrome / Edge / Firefox）。
-2. 打开脚本文件并安装：`xhj_assistant.user.js`。
+2. 按脚本页 ID 安装对应文件：`xhj_assistant_534783.user.js` / `xhj_assistant_563982.user.js` / `xhj_assistant_563997.user.js`。
 3. 进入象视后台页面：`https://vr.xhj.com/houseadmin/`。
 4. 通过右下角悬浮入口切换主题并启用增强功能。
 
@@ -102,10 +102,10 @@
 
 ## 📜 更新摘要
 
-### v2.7.5
-- 针对上传弹窗和 HUD 风格进行了多轮视觉统一与性能优化。
-- 优化按钮交互，修复光标抖动与点击延迟体感问题。
-- 强化文字显示质感，提升终端显示器风格一致性。
+### v5.0
+- 三脚本改为分名同码发布，统一同步到 GitHub 仓库。
+- 三个 Greasy 页面名称固定为指定名称并保持独立。
+- 版本号与描述统一提升到 v5.0，避免低版本号阻塞更新。
 
 ### v2.7.4 ~ v2.7.0
 - 全景上传计数器定位、识别逻辑与 3D 数码管显示持续优化。
