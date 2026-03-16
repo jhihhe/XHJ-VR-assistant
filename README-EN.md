@@ -1,4 +1,4 @@
-# 🎨 Xiangshi Platform Assistant (v2.5.4)
+# 🎨 Xiangshi Platform Assistant (v2.6.0)
 
 ![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
 ![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
-![Version](https://img.shields.io/badge/Version-v2.5.4-brightgreen)
+![Version](https://img.shields.io/badge/Version-v2.6.0-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub Homepage](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -82,6 +82,11 @@ Built-in classic color schemes loved by programmers, switch with one click:
 5.  **Sync**: On supported list pages (such as Housing Survey List), click the **🔄 Auto Sync** button at the top to start working.
 
 ## 📝 Changelog
+
+### v2.6.0 (2026-03-16)
+- **Core Refactoring**: Replaced high-frequency `setInterval` polling (previously 500ms) with `MutationObserver` + Debounce mechanism, significantly reducing CPU usage.
+- **Optimization**: Merged multiple DOM listeners to reduce memory overhead; optimized image counting logic.
+- **Stability**: Fixed duplicate click event binding issues, improving long-running stability.
 
 ### v2.5.4 (2026-02-09)
 - **New Theme**: Added **Bauhaus** theme, featuring classic red/yellow/blue primary colors and geometric background patterns, combined with sharp right-angle designs to pay homage to modernism.

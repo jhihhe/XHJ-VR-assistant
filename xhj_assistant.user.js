@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.5.4
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.5.4: 新增包豪斯(Bauhaus)风格主题。
+// @version      2.6.0
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.6.0: 核心性能重构，移除高频轮询，大幅降低 CPU 占用。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -1768,9 +1768,255 @@
        初始化 (Initialization)
        ========================================================================== */
 
+    // 工具函数：防抖
+    const debounce = (fn, delay) => {
+        let timer = null;
+        return function(...args) {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => fn.apply(this, args), delay);
+        };
+    };
+
+    // [v2.5.2] 图片计数逻辑 (Helper)
+    const updateImageCounter = () => {
+        const containers = [
+            ...document.querySelectorAll('.layui-layer'),
+            ...document.querySelectorAll('.el-dialog')
+        ];
+
+        containers.forEach(container => {
+            const titleEl = container.querySelector('.layui-layer-title') || container.querySelector('.el-dialog__title');
+            if (!titleEl) return;
+            
+            const titleText = titleEl.textContent;
+            if (!titleText.includes('新增房堪图') && !titleText.includes('房堪上传') && !titleText.includes('房勘')) return;
+
+            const hasIframe = container.querySelector('iframe');
+            
+            // 移除标题中的计数文本 helper
+            const removeTitleCounter = (el) => {
+                 const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
+                 if (oldPattern.test(el.innerHTML)) el.innerHTML = el.innerHTML.replace(oldPattern, '');
+                 const c = el.querySelector('.xhj-img-counter');
+                 if (c) c.remove();
+            };
+
+            if (hasIframe) {
+                removeTitleCounter(titleEl);
+                return;
+            }
+
+            const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
+            const count = directImgs.length;
+            
+            // 更新计数
+            const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
+            let html = titleEl.innerHTML;
+            const newText = `(已上传: ${count} 张)`;
+
+            if (oldPattern.test(html)) {
+                if (!html.includes(newText)) titleEl.innerHTML = html.replace(oldPattern, newText);
+            } else {
+                let counter = titleEl.querySelector('.xhj-img-counter');
+                if (!counter) {
+                    counter = document.createElement('span');
+                    counter.className = 'xhj-img-counter';
+                    counter.style.cssText = 'margin-left: 10px; font-size: 14px; color: #00f2ff; font-weight: bold;';
+                    titleEl.appendChild(counter);
+                }
+                counter.textContent = newText;
+            }
+            
+            // 清理旧残留
+            container.querySelectorAll('.schoolTu_top .xhj-img-counter').forEach(el => el.remove());
+        });
+    };
+
+    // [v2.6 优化] 核心动态内容处理 (统一管理 DOM 变动响应)
+    const handleDynamicContent = () => {
+        requestAnimationFrame(() => {
+            updateImageCounter(); // 6. 图片计数更新
+
+            // 1. 识别表格类型 & 注入列宽样式
+            const headers = document.querySelectorAll('.layui-table-header th');
+            if (headers.length > 0) {
+                const headerTexts = Array.from(headers).map(th => th.textContent.trim());
+                const body = document.body;
+                
+                // 房堪列表
+                if (headerTexts.some(t => t.includes('申请门店')) && (headerTexts.some(t => t.includes('房勘状态')) || headerTexts.some(t => t.includes('房堪状态')))) {
+                    if (!body.classList.contains('xhj-table-survey')) {
+                        body.classList.add('xhj-table-survey');
+                        body.classList.remove('xhj-table-sales');
+                    }
+                } 
+                // 售房全景
+                else if (headerTexts.some(t => t.includes('全景状态')) && headerTexts.some(t => t.includes('户型图'))) {
+                    if (!body.classList.contains('xhj-table-sales')) {
+                        body.classList.add('xhj-table-sales');
+                        body.classList.remove('xhj-table-survey');
+                    }
+                    
+                    // 动态注入列样式 helper
+                    const injectColStyle = (headerName, width, suffix, whiteSpace = 'normal') => {
+                         const idx = headerTexts.findIndex(t => t.includes(headerName));
+                         if (idx === -1) return;
+                         const cssIdx = idx + 1;
+                         const styleId = `xhj-sales-${suffix}-col`;
+                         if (document.getElementById(styleId)) return;
+                         
+                         const style = document.createElement('style');
+                         style.id = styleId;
+                         style.textContent = `
+                             body.xhj-table-sales .layui-table tr td:nth-child(${cssIdx}) .layui-table-cell,
+                             body.xhj-table-sales .layui-table th:nth-child(${cssIdx}) .layui-table-cell {
+                                 min-width: ${width}px !important; width: ${width}px !important;
+                                 white-space: ${whiteSpace} !important;
+                                 text-align: center !important;
+                             }
+                         `;
+                         document.head.appendChild(style);
+                    };
+
+                    injectColStyle('全景状态', 84, 'status');
+                    injectColStyle('设计师', 80, 'designer');
+                    injectColStyle('上传人', 72, 'uploader');
+                    injectColStyle('户型图', 80, 'floorplan');
+                    injectColStyle('城市', 70, 'city');
+                    injectColStyle('朝向', 60, 'orientation');
+                    injectColStyle('卧室', 84, 'bedroom');
+                    injectColStyle('全景时间', 90, 'pano-time', 'nowrap');
+                    injectColStyle('同步时间', 90, 'sync-time', 'nowrap');
+                    
+                    // 操作列特殊处理
+                    const actionIndex = headerTexts.findIndex(t => t === '操作');
+                    if (actionIndex !== -1) {
+                        const cssIndex = actionIndex + 1; 
+                        const styleId = 'xhj-sales-action-col';
+                        if (!document.getElementById(styleId)) {
+                             const style = document.createElement('style');
+                             style.id = styleId;
+                             style.textContent = `
+                                 body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-table-cell,
+                                 body.xhj-table-sales .layui-table th:nth-child(${cssIndex}) .layui-table-cell {
+                                     min-width: 228px !important; width: 228px !important;
+                                     padding: 0 4px !important;
+                                     text-align: center !important;
+                                 }
+                                 body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-btn {
+                                     padding: 0 5px !important; height: 22px !important; line-height: 22px !important;
+                                     font-size: 12px !important; margin: 2px !important; min-width: unset !important;
+                                 }
+                                 body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-btn i {
+                                     margin-right: 0 !important; font-size: 14px !important;
+                                 }
+                             `;
+                             document.head.appendChild(style);
+                        }
+                    }
+
+                    // 调整搜索和刷新按钮位置
+                    const inputs = document.querySelectorAll('input[placeholder*="项目名称"], input[placeholder*="项目ID"]');
+                    if (inputs.length > 0) {
+                        const targetInput = inputs[0];
+                        const inputContainer = targetInput.closest('.layui-inline');
+                        
+                        if (inputContainer && !inputContainer.closest('[data-xhj-wrapper="true"]')) {
+                            const form = inputContainer.closest('.layui-form') || document.body;
+                            const allBtns = Array.from(form.querySelectorAll('.layui-btn'));
+                            const searchBtn = allBtns.find(b => b.textContent.includes('搜索') || b.querySelector('.layui-icon-search'));
+                            const refreshBtn = allBtns.find(b => b.textContent.includes('刷新') || b.querySelector('.layui-icon-refresh'));
+                            
+                            if (searchBtn && refreshBtn) {
+                                const wrapper = document.createElement('div');
+                                wrapper.className = inputContainer.className;
+                                wrapper.style.cssText = 'display: inline-block; vertical-align: top; margin-right: 10px;';
+                                wrapper.setAttribute('data-xhj-wrapper', 'true');
+                                
+                                inputContainer.parentNode.insertBefore(wrapper, inputContainer);
+                                wrapper.appendChild(inputContainer);
+                                
+                                inputContainer.style.cssText = 'display: block; margin-bottom: 4px; margin-top: 0; vertical-align: top;';
+                                inputContainer.classList.remove('layui-inline');
+
+                                const btnContainer = document.createElement('div');
+                                btnContainer.className = 'xhj-btn-container';
+                                btnContainer.appendChild(searchBtn);
+                                btnContainer.appendChild(refreshBtn);
+                                searchBtn.style.marginRight = '10px';
+                                wrapper.appendChild(btnContainer);
+                                
+                                // 统一对齐
+                                wrapper.parentNode.querySelectorAll('.layui-inline').forEach(sib => sib.style.verticalAlign = 'top');
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2. VR上传状态颜色区分
+            const statusCells = document.querySelectorAll('.layui-table-cell, .layui-upload-list span, .status-text, td:not(:empty)');
+            statusCells.forEach(cell => {
+                if (cell.childElementCount > 1 || ['SCRIPT', 'STYLE'].includes(cell.tagName)) return;
+                
+                const text = cell.textContent.trim();
+                if (!text || text.length > 20) return;
+                
+                if (text.includes('正在上传') || text.includes('上传中')) {
+                    cell.style.color = '#f1c40f'; cell.style.fontWeight = 'bold';
+                } else if (text.includes('上传完成') || text.includes('上传成功')) {
+                    cell.style.color = '#00ff9d'; cell.style.fontWeight = 'bold';
+                } else if (text.includes('上传失败')) {
+                    cell.style.color = '#ff5252'; cell.style.fontWeight = 'bold';
+                } else if (text === '上传') {
+                    cell.style.color = '#3498db'; cell.style.fontWeight = 'bold';
+                }
+            });
+            
+            // 3. 修复“新增房堪图”弹窗高度
+            document.querySelectorAll('.layui-layer-title').forEach(title => {
+                if (title.textContent.includes('新增房堪图') || title.textContent.includes('房堪上传')) {
+                    const layer = title.closest('.layui-layer');
+                    if (layer && !layer.dataset.xhjResized) {
+                        const h = parseInt(layer.style.height || 0);
+                        const w = parseInt(layer.style.width || 0);
+                        if (h) layer.style.height = (h + 60) + 'px';
+                        if (w) {
+                            layer.style.width = (w + 100) + 'px';
+                            if (layer.style.left) layer.style.left = (parseInt(layer.style.left) - 50) + 'px';
+                        }
+                        const content = layer.querySelector('.layui-layer-content');
+                        if (content && content.style.height) content.style.height = (parseInt(content.style.height) + 60) + 'px';
+                        const iframe = layer.querySelector('iframe');
+                        if (iframe && iframe.style.height) iframe.style.height = (parseInt(iframe.style.height) + 60) + 'px';
+                        layer.dataset.xhjResized = 'true';
+                    }
+                }
+            });
+            
+            // 4. 强力去白底 (仅针对模态框内容和 iframe)
+            document.querySelectorAll('.layui-layer-content .layui-bg-white, .layui-layer-content [style*="background-color: white"]').forEach(el => {
+                el.style.setProperty('background-color', 'transparent', 'important');
+            });
+            
+            // 5. Iframe 背景强制
+            if (window.top !== window.self && document.body) {
+                document.body.style.setProperty('background-color', 'var(--xhj-bg)', 'important');
+                document.querySelectorAll('.layui-fluid, .admin-main, #app').forEach(c => 
+                    c.style.setProperty('background-color', 'transparent', 'important')
+                );
+            }
+        });
+    };
+
     const initThemeObserver = () => {
+        // [v2.6] 使用防抖调用动态内容处理
+        const debouncedHandleDynamic = debounce(handleDynamicContent, 200);
+
         // [v2.2 优化] MutationObserver 性能改进：仅处理新增节点，避免全局查询
         const observer = new MutationObserver((mutations) => {
+            debouncedHandleDynamic(); // 触发动态内容检查
+
             const addedNodes = [];
             
             // 收集所有新增的元素节点
@@ -1824,114 +2070,10 @@
         }
     };
 
-    const initImageCounter = () => {
-        // 监听房堪上传界面的图片数量
-        // [v2.5.2 优化] 
-        // 1. 仅保留 iframe 内部的计数 (子级)，移除父级弹窗的重复计数
-        // 2. 解决"两个正确计数"并存的问题，保持界面简洁
-        
-        const updateTitle = (titleEl, count) => {
-            if (!titleEl) return;
-            
-            // 匹配模式：(已上传: 0 张) 或 （已上传：0张）等
-            const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
-            let html = titleEl.innerHTML;
 
-            if (oldPattern.test(html)) {
-                // 原地替换
-                const newText = `(已上传: ${count} 张)`;
-                // 仅当数字变化时才更新 DOM
-                if (!html.includes(newText)) {
-                     titleEl.innerHTML = html.replace(oldPattern, newText);
-                }
-            } else {
-                // 追加显示
-                let counter = titleEl.querySelector('.xhj-img-counter');
-                if (!counter) {
-                    counter = document.createElement('span');
-                    counter.className = 'xhj-img-counter';
-                    counter.style.cssText = 'margin-left: 10px; font-size: 14px; color: #00f2ff; font-weight: bold;';
-                    titleEl.appendChild(counter);
-                }
-                counter.textContent = `(已上传: ${count} 张)`;
-            }
-        };
-
-        const removeTitleCounter = (titleEl) => {
-            if (!titleEl) return;
-            // 移除标题中的计数文本
-            const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
-            if (oldPattern.test(titleEl.innerHTML)) {
-                titleEl.innerHTML = titleEl.innerHTML.replace(oldPattern, '');
-            }
-            // 移除自定义添加的计数器
-            const counter = titleEl.querySelector('.xhj-img-counter');
-            if (counter) counter.remove();
-        };
-
-        const updateCounter = () => {
-            // --- 逻辑: 当前窗口内的弹窗/容器计数 ---
-            const containers = [
-                ...document.querySelectorAll('.layui-layer'),
-                ...document.querySelectorAll('.el-dialog')
-            ];
-
-            containers.forEach(container => {
-                // 1. 检查是否有标题
-                const titleEl = container.querySelector('.layui-layer-title') || container.querySelector('.el-dialog__title');
-                if (!titleEl) return;
-                
-                const titleText = titleEl.textContent;
-                // 宽松匹配标题
-                if (!titleText.includes('新增房堪图') && !titleText.includes('房堪上传') && !titleText.includes('房勘')) return;
-
-                // 2. 检查容器内是否有 iframe
-                const hasIframe = container.querySelector('iframe');
-                
-                // [v2.5.2] 策略变更：如果有 iframe，说明是父级弹窗
-                // 我们直接移除父级的计数，只保留 iframe 内部自己的计数 (由 iframe 内部脚本执行)
-                if (hasIframe) {
-                    removeTitleCounter(titleEl);
-                    return;
-                }
-
-                // 3. 统计图片 (仅统计有效图片)
-                // 没有 iframe，说明是直接内容容器 (或是 iframe 内部视角)
-                const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
-                const count = directImgs.length;
-                
-                // 4. 更新计数
-                updateTitle(titleEl, count);
-                
-                // 清理旧残留
-                const wrongCounters = container.querySelectorAll('.schoolTu_top .xhj-img-counter');
-                wrongCounters.forEach(el => el.remove());
-            });
-        };
-
-        // [v2.5 优化] 添加防抖，避免频繁 DOM 变动导致性能问题
-        let timer = null;
-        const observer = new MutationObserver(() => {
-            if (timer) clearTimeout(timer);
-            timer = setTimeout(updateCounter, 200);
-        });
-        
-        const config = { childList: true, subtree: true };
-        if (document.body) {
-            observer.observe(document.body, config);
-            // 初始执行一次
-            setTimeout(updateCounter, 500);
-        } else {
-            document.addEventListener('DOMContentLoaded', () => {
-                observer.observe(document.body, config);
-                setTimeout(updateCounter, 500);
-            });
-        }
-    };
 
     const init = () => {
         initThemeObserver();
-        initImageCounter();
 
         // 1. 加载主题
         const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
@@ -1942,357 +2084,14 @@
             document.body.classList.add('xhj-iframe-body');
         }
         
-        // 注册全局点击特效事件
-        document.addEventListener('click', (e) => {
-            // 简单防抖或限制，避免过于频繁
-            const ripple = document.createElement('div');
-            ripple.className = 'xhj-click-ripple';
-            ripple.style.left = `${e.clientX}px`;
-            ripple.style.top = `${e.clientY}px`;
-            document.body.appendChild(ripple);
-            
-            // 动画结束后移除
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
+        // (已移除重复的全局点击特效事件，由 CSS 或上方统一处理)
 
-        // 2. 识别表格类型 & 强力去白底
-        setInterval(() => {
-            const headers = document.querySelectorAll('.layui-table-header th');
-            if (headers.length > 0) {
-                const headerTexts = Array.from(headers).map(th => th.textContent.trim());
-                const body = document.body;
-                
-                if (headerTexts.some(t => t.includes('申请门店')) && (headerTexts.some(t => t.includes('房勘状态')) || headerTexts.some(t => t.includes('房堪状态')))) {
-                    if (!body.classList.contains('xhj-table-survey')) {
-                        body.classList.add('xhj-table-survey');
-                        body.classList.remove('xhj-table-sales');
-                    }
-                } else if (headerTexts.some(t => t.includes('全景状态')) && headerTexts.some(t => t.includes('户型图'))) {
-                    if (!body.classList.contains('xhj-table-sales')) {
-                        body.classList.add('xhj-table-sales');
-                        body.classList.remove('xhj-table-survey');
-                    }
-                    // 动态查找“操作”列并注入样式
-                    const updateColumnWidth = (headerName, newWidth, styleIdSuffix, whiteSpace = 'normal') => {
-                         const idx = headerTexts.findIndex(t => t.trim().includes(headerName));
-                         if (idx !== -1) {
-                             const cssIdx = idx + 1;
-                             const styleId = `xhj-sales-${styleIdSuffix}-col`;
-                             if (!document.getElementById(styleId)) {
-                                 const style = document.createElement('style');
-                                 style.id = styleId;
-                                 style.textContent = `
-                                     body.xhj-table-sales .layui-table tr td:nth-child(${cssIdx}) .layui-table-cell,
-                                     body.xhj-table-sales .layui-table th:nth-child(${cssIdx}) .layui-table-cell {
-                                         min-width: ${newWidth}px !important; width: ${newWidth}px !important;
-                                         white-space: ${whiteSpace} !important;
-                                         text-align: center !important;
-                                     }
-                                 `;
-                                 document.head.appendChild(style);
-                             }
-                         }
-                    };
-
-                    // 1. 操作列 (原125px * 1.4 * 1.3 ≈ 228px)
-                    const actionIndex = headerTexts.findIndex(t => t.trim() === '操作');
-                    if (actionIndex !== -1) {
-                        const cssIndex = actionIndex + 1; 
-                        const styleId = 'xhj-sales-action-col';
-                        if (!document.getElementById(styleId)) {
-                             const style = document.createElement('style');
-                             style.id = styleId;
-                             style.textContent = `
-                                 body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-table-cell,
-                                 body.xhj-table-sales .layui-table th:nth-child(${cssIndex}) .layui-table-cell {
-                                     min-width: 228px !important; width: 228px !important;
-                                     padding: 0 4px !important;
-                                     text-align: center !important;
-                                 }
-                                 body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-btn {
-                                     padding: 0 5px !important;
-                                     height: 22px !important;
-                                     line-height: 22px !important;
-                                     font-size: 12px !important;
-                                     margin: 2px !important;
-                                     min-width: unset !important;
-                                 }
-                                 body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-btn i {
-                                     margin-right: 0 !important;
-                                     font-size: 14px !important;
-                                 }
-                             `;
-                             document.head.appendChild(style);
-                        }
-                    }
-
-                    // 2. 全景状态 (原60px * 1.4 ≈ 84px)
-                    updateColumnWidth('全景状态', 84, 'status');
-
-                    // 3. 设计师 (原40px * 2 = 80px)
-                    updateColumnWidth('设计师', 80, 'designer');
-
-                    // 4. 上传人 (原60px * 1.2 = 72px)
-                    updateColumnWidth('上传人', 72, 'uploader');
-
-                    // 5. 户型图 (原估100px * 0.8 = 80px)
-                    updateColumnWidth('户型图', 80, 'floorplan');
-
-                    // 6. 城市 (原估100px * 0.7 = 70px)
-                    updateColumnWidth('城市', 70, 'city');
-                    
-                    // 7. 朝向 (增加宽度)
-                    updateColumnWidth('朝向', 60, 'orientation');
-
-                    // 8. 卧室 (原60px * 1.4 ≈ 84px)
-                    updateColumnWidth('卧室', 84, 'bedroom');
-
-                    // 9. 全景时间 (90px, 单行)
-                    updateColumnWidth('全景时间', 90, 'pano-time', 'nowrap');
-
-                    // 10. 同步时间 (90px, 单行)
-                    updateColumnWidth('同步时间', 90, 'sync-time', 'nowrap');
-
-                    // 11. 调整搜索和刷新按钮位置 (v1.37)
-                    const inputs = document.querySelectorAll('input[placeholder*="项目名称"], input[placeholder*="项目ID"]');
-                    if (inputs.length > 0) {
-                        const targetInput = inputs[0];
-                        // 向上找 layui-inline
-                        const inputContainer = targetInput.closest('.layui-inline');
-                        
-                        // 检查是否已经处理过 (v1.37: 使用新的标识 xhjWrapper)
-                        if (inputContainer && !inputContainer.closest('[data-xhj-wrapper="true"]')) {
-                            // 查找搜索和刷新按钮 (通常在同一个 form-item 或相邻的 inline 中)
-                            // 我们在整个 document 中找（或者在 inputContainer 的父级 form 中找更安全）
-                            const form = inputContainer.closest('.layui-form') || document.body;
-                            
-                            // 搜索按钮：通常有 icon-search 或 文本包含搜索
-                            const allBtns = Array.from(form.querySelectorAll('.layui-btn'));
-                            const searchBtn = allBtns.find(b => b.textContent.trim().includes('搜索') || b.querySelector('.layui-icon-search'));
-                            const refreshBtn = allBtns.find(b => b.textContent.trim().includes('刷新') || b.querySelector('.layui-icon-refresh'));
-                            
-                            // 参考按钮：待处理/全部
-                            const refBtn = allBtns.find(b => b.textContent.trim() === '待处理' || b.textContent.trim() === '全部');
-                            
-                            if (searchBtn && refreshBtn) {
-                                // v1.39 深度对齐修复：
-                                // 1. 创建 wrapper 并复制原始 container 的所有类名
-                                // 2. 强制 wrapper 和所有兄弟元素 vertical-align: top
-                                
-                                const wrapper = document.createElement('div');
-                                
-                                // 复制原始类名 (保留 layui-inline 等布局类)
-                                wrapper.className = inputContainer.className;
-                                
-                                // 强制样式覆盖
-                                wrapper.style.display = 'inline-block'; 
-                                wrapper.style.verticalAlign = 'top'; // 关键：顶部对齐
-                                wrapper.style.marginRight = '10px'; 
-                                wrapper.setAttribute('data-xhj-wrapper', 'true');
-                                
-                                // 插入 wrapper 到 inputContainer 前面
-                                inputContainer.parentNode.insertBefore(wrapper, inputContainer);
-
-                                // 将 inputContainer 移动到 wrapper 内部
-                                wrapper.appendChild(inputContainer);
-                                
-                                // 重置 inputContainer 样式，防止内部偏移
-                                inputContainer.style.display = 'block';
-                                inputContainer.style.marginBottom = '4px'; 
-                                inputContainer.style.marginTop = '0'; // 防止内部下沉
-                                inputContainer.style.verticalAlign = 'top';
-                                inputContainer.classList.remove('layui-inline'); // 移除内部的布局类，避免双重影响
-
-                                // 创建按钮容器
-                                const btnContainer = document.createElement('div');
-                                btnContainer.className = 'xhj-btn-container';
-                                btnContainer.style.display = 'block'; 
-                                btnContainer.style.marginTop = '0px'; 
-
-                                // 移动按钮到新容器
-                                btnContainer.appendChild(searchBtn);
-                                btnContainer.appendChild(refreshBtn);
-                                
-                                // 确保按钮之间有间距
-                                searchBtn.style.marginRight = '10px';
-                                
-                                wrapper.appendChild(btnContainer);
-                                
-                                // v1.39: 强制统一整行兄弟元素的垂直对齐
-                                // 找到父容器下的所有 layui-inline 元素 (如下拉框、时间选择器)
-                                const siblings = wrapper.parentNode.querySelectorAll('.layui-inline');
-                                siblings.forEach(sib => {
-                                    sib.style.verticalAlign = 'top';
-                                });
-                                
-                                // 调整按钮样式 (参考 refBtn)
-                                
-                                // 调整按钮样式 (参考 refBtn)
-                                if (refBtn) {
-                                    // 获取 refBtn 的高度/padding/字体大小
-                                    const computedStyle = window.getComputedStyle(refBtn);
-                                    const height = computedStyle.height;
-                                    const lineHeight = computedStyle.lineHeight;
-                                    const padding = computedStyle.padding;
-                                    const fontSize = computedStyle.fontSize;
-                                    
-                                    [searchBtn, refreshBtn].forEach(btn => {
-                                        btn.style.setProperty('height', height, 'important');
-                                        btn.style.setProperty('line-height', lineHeight, 'important');
-                                        btn.style.setProperty('padding', padding, 'important');
-                                        btn.style.setProperty('font-size', fontSize, 'important');
-                                        
-                                        // 移除可能导致大小不一致的类 (如 layui-btn-xs)
-                                        btn.classList.remove('layui-btn-xs', 'layui-btn-sm', 'layui-btn-lg');
-                                        // 添加与 refBtn 相同的大小类 (如果有)
-                                        refBtn.classList.forEach(cls => {
-                                            if (['layui-btn-xs', 'layui-btn-sm', 'layui-btn-lg'].includes(cls)) {
-                                                btn.classList.add(cls);
-                                            }
-                                        });
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 3. VR上传状态颜色区分 (新增)
-            // 扩展选择器以覆盖更多可能的元素（如按钮文本）
-            const statusCells = document.querySelectorAll('.layui-table-cell, .layui-upload-list span, .status-text, td, .layui-btn, div, span');
-            statusCells.forEach(cell => {
-                // 仅针对包含特定状态文字的单元格，且文本长度较短（避免误伤长文本）
-                // 排除 script 和 style 标签
-                if (['SCRIPT', 'STYLE'].includes(cell.tagName)) return;
-                
-                // 仅处理直接包含文本的节点，避免父容器被错误着色
-                if (cell.children.length > 0 && cell.tagName !== 'TD' && !cell.classList.contains('layui-btn')) {
-                    // 如果是容器但没有直接文本，跳过 (除非是特定类名)
-                     // 这里简化逻辑：只检查 textContent
-                }
-
-                const text = cell.textContent.trim();
-                if (!text || text.length > 20) return; // 忽略长文本
-                
-                if (text === '正在上传' || text.includes('正在上传') || text.includes('上传中')) {
-                    cell.style.setProperty('color', '#f1c40f', 'important'); // 橙黄色
-                    cell.style.fontWeight = 'bold';
-                    cell.style.textShadow = '0 0 8px rgba(241, 196, 15, 0.4)';
-                } else if (text === '上传完成' || text.includes('上传完成') || text.includes('上传成功')) {
-                    cell.style.setProperty('color', '#00ff9d', 'important'); // 荧光绿
-                    cell.style.fontWeight = 'bold';
-                    cell.style.textShadow = '0 0 8px rgba(0, 255, 157, 0.4)';
-                } else if (text === '上传失败' || text.includes('上传失败')) {
-                    cell.style.setProperty('color', '#ff5252', 'important'); // 红色
-                    cell.style.fontWeight = 'bold';
-                    cell.style.textShadow = '0 0 8px rgba(255, 82, 82, 0.4)';
-                } else if (text === '等待上传' || text.includes('等待上传')) {
-                    cell.style.setProperty('color', '#a0a0a0', 'important'); // 灰色
-                } else if (text === '上传') {
-                    // "上传" 可能是按钮，给一个醒目的蓝色
-                    cell.style.setProperty('color', '#3498db', 'important'); // 蓝色
-                    // 如果是按钮，可能还需要加粗
-                    cell.style.fontWeight = 'bold';
-                }
-            });
-            
-            // 修复“新增房堪图”弹窗高度不足导致按钮被遮挡的问题
-            const layerTitles = document.querySelectorAll('.layui-layer-title');
-            layerTitles.forEach(title => {
-                if (title.textContent.trim().includes('新增房堪图') || title.textContent.trim().includes('房堪上传')) {
-                    const layer = title.closest('.layui-layer');
-                    if (layer && !layer.dataset.xhjResized) {
-                        const increase = 60; // 增加 60px 高度 (大幅减少，防止底部留黑)
-                        const increaseWidth = 100; // 增加 100px 宽度
-
-                        // 1. 调整外层高度
-                        if (layer.style.height) {
-                            const h = parseInt(layer.style.height);
-                            layer.style.height = (h + increase) + 'px';
-                        }
-                        
-                        // 2. 调整 Top (保持居中)
-                        if (layer.style.top) {
-                            const t = parseInt(layer.style.top);
-                            // 简单的居中调整，防止溢出顶部
-                            let newTop = t - increase / 2;
-                            if (newTop < 5) newTop = 5;
-                            layer.style.top = newTop + 'px';
-                        }
-
-                        // 3. 调整宽度 (防止左右贴边)
-                        if (layer.style.width) {
-                             const w = parseInt(layer.style.width);
-                             layer.style.width = (w + increaseWidth) + 'px';
-                             if (layer.style.left) {
-                                 const l = parseInt(layer.style.left);
-                                 layer.style.left = (l - increaseWidth / 2) + 'px';
-                             }
-                        }
-
-                        // 4. 调整 content 区域
-                        const content = layer.querySelector('.layui-layer-content');
-                        if (content) {
-                             if (content.style.height) {
-                                const ch = parseInt(content.style.height);
-                                content.style.height = (ch + increase) + 'px';
-                             }
-                        }
-
-                        // 5. 调整 iframe 高度
-                        const iframe = layer.querySelector('iframe');
-                        if (iframe) {
-                            if (iframe.style.height) {
-                                const ih = parseInt(iframe.style.height);
-                                iframe.style.height = (ih + increase) + 'px';
-                            }
-                        }
-
-                        layer.dataset.xhjResized = 'true';
-                    }
-                }
-            });
-            
-            // 强力去白底 (针对 iframe 或 动态加载的模态框内容)
-            const whiteElements = document.querySelectorAll('.layui-bg-white, [style*="background-color: white"], [style*="background-color: #fff"], [style*="background-color: rgb(255, 255, 255)"]');
-            whiteElements.forEach(el => {
-                 // 排除某些可能需要保留的元素，但模态框内容一般都要去白
-                 if (el.closest('.layui-layer-content')) {
-                     el.style.setProperty('background-color', 'transparent', 'important');
-                 }
-            });
-            
-            // 确保 iframe 内部也应用透明背景
-             const iframes = document.querySelectorAll('iframe');
-             iframes.forEach(iframe => {
-                 try {
-                     const doc = iframe.contentDocument || iframe.contentWindow.document;
-                     if (doc && doc.body) {
-                          doc.body.style.backgroundColor = 'var(--xhj-bg)';
-                          // 递归去白
-                          const innerWhite = doc.querySelectorAll('.layui-bg-white, .admin-main, .layui-fluid');
-                          innerWhite.forEach(el => el.style.setProperty('background-color', 'transparent', 'important'));
-                     }
-                 } catch(e) {
-                     // 跨域无法操作，忽略
-                 }
-             });
-             
-             // 如果当前是 iframe 环境，强制自身背景
-             if (window.top !== window.self) {
-                 if (document.body) {
-                      document.body.style.backgroundColor = 'var(--xhj-bg)';
-                      document.body.style.setProperty('background-color', 'var(--xhj-bg)', 'important');
-                 }
-                 // 针对可能的容器 div
-                 const containers = document.querySelectorAll('.layui-fluid, .admin-main, #app');
-                 containers.forEach(c => c.style.setProperty('background-color', 'transparent', 'important'));
-             }
-             
-         }, 500);
+        // 2. 动态内容处理 (核心优化)
+        // 逻辑已移至 handleDynamicContent，此处仅做初始调用和定时检查（低频）
+        handleDynamicContent();
+        
+        // 保留一个低频定时器作为兜底 (每 2 秒)，防止 MutationObserver 漏掉某些无 DOM 变动但样式需更新的情况
+        setInterval(handleDynamicContent, 2000);
 
         // 3. 监听跨窗口同步
         window.addEventListener('storage', (e) => {
