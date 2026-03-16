@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.7.3
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.3: 优化全景图计数器位置，将其无缝集成到类型选择栏右侧。
+// @version      2.7.4
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.4: 修复全景图上传计数器在部分场景下统计为0的问题。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -1876,17 +1876,23 @@
                 // 查找容器内所有包含“上传成功”或“上传完成”的文本节点/元素
                 // 更好的策略：根据图示，每个全景图条目右侧有一个状态按钮
                 // 直接统计包含“上传成功”字样的 .layui-btn 或 .layui-badge
-                const successBtns = Array.from(container.querySelectorAll('.layui-btn, .layui-badge, span')).filter(el => {
+                // [v2.7.4 修复] 扩大搜索范围，防止因 DOM 结构差异导致统计为 0
+                // 某些情况下，状态文本可能直接在 span 或 div 中，而非 btn
+                const successBtns = Array.from(container.querySelectorAll('.layui-btn, .layui-badge, span, div')).filter(el => {
+                     // 排除 script, style
+                     if (['SCRIPT', 'STYLE'].includes(el.tagName)) return false;
                      // 排除不可见元素
                      if (el.offsetParent === null) return false;
+                     
+                     // 仅统计末端节点，避免父子重复
+                     if (el.childElementCount > 0) return false;
+
                      const t = el.textContent.trim();
-                     return t.includes('上传成功') || t.includes('上传完成');
+                     return t === '上传成功' || t === '上传完成';
                 });
                 
-                // 去重：如果父子元素都被选中，只算一个
-                const validSuccessBtns = successBtns.filter(el => el.childElementCount === 0 || (el.childElementCount > 0 && el.innerText.trim() === el.textContent.trim()));
-                
-                const successCount = validSuccessBtns.length;
+                // 无需再去重，因为我们只取了无子元素的末端节点
+                const successCount = successBtns.length;
                 
                 // [v2.7.3] 调整全景图计数器位置
                 // 目标位置：单选框区域 (全景图/全景视频/3D模型) 的右侧

@@ -1,4 +1,4 @@
-# 🎨 象视平台助手 (v2.7.3)
+# 🎨 象视平台助手 (v2.7.4)
 
 ![平台](https://img.shields.io/badge/平台-象视后台-blue)
 ![环境](https://img.shields.io/badge/环境-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![语言](https://img.shields.io/badge/语言-JavaScript-yellow)
 ![许可](https://img.shields.io/badge/许可-MIT-green)
 ![版权](https://img.shields.io/badge/版权-%C2%A9%202026%20Xiangshi-lightgrey)
-![版本](https://img.shields.io/badge/版本-v2.7.3-brightgreen)
+![版本](https://img.shields.io/badge/版本-v2.7.4-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub 项目主页](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -82,6 +82,9 @@
 5.  **同步**：在支持的列表页（如房勘列表），点击顶部的 **🔄 自动同步** 按钮即可开始工作。
 
 ## 📝 更新日志
+
+### v2.7.4 (2026-03-16)
+- **修复**: 修复全景图上传计数器在某些场景下因 DOM 结构差异导致统计结果为 0 的问题。增强了对 `div` 和 `span` 容器内状态文本的识别。
 
 ### v2.7.3 (2026-03-16)
 - **UI 调整**: 优化全景图上传计数器的显示位置，将其移动到“类型”选择栏右侧（单选框旁），布局更紧凑合理。
