@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.7.2
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.2: 新增全景图上传 3D 计数器，支持统计上传成功张数。
+// @version      2.7.3
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.3: 优化全景图计数器位置，将其无缝集成到类型选择栏右侧。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -1871,14 +1871,9 @@
             // 2. 新增全景图 (Panorama Upload) - [v2.7.2 新增]
             else if (titleText.includes('新增全景图') || titleText.includes('全景图上传')) {
                 // 统计逻辑：统计文本包含“上传成功”或“上传完成”的元素
-                // 注意：这里需要遍历容器内的所有可能的状态文本
                 // 观察图示，状态通常在 .layui-btn 或 .layui-badge 或 span 中
-                // 我们在之前已经有一个颜色区分逻辑，可以复用类似的查找方式
                 
                 // 查找容器内所有包含“上传成功”或“上传完成”的文本节点/元素
-                // 简单起见，遍历所有可能的文本容器
-                // const all potentialElements = container.querySelectorAll('.layui-btn, .layui-badge, span, div, td'); // 修正语法错误
-                
                 // 更好的策略：根据图示，每个全景图条目右侧有一个状态按钮
                 // 直接统计包含“上传成功”字样的 .layui-btn 或 .layui-badge
                 const successBtns = Array.from(container.querySelectorAll('.layui-btn, .layui-badge, span')).filter(el => {
@@ -1888,14 +1883,124 @@
                      return t.includes('上传成功') || t.includes('上传完成');
                 });
                 
-                // 去重：如果父子元素都被选中，只算一个 (简单的去重逻辑：按位置/包含关系)
-                // 实际上，通常每个条目只有一个状态按钮，直接 count 应该问题不大
-                // 但为了严谨，可以过滤掉包含子元素的容器，只保留末端节点
+                // 去重：如果父子元素都被选中，只算一个
                 const validSuccessBtns = successBtns.filter(el => el.childElementCount === 0 || (el.childElementCount > 0 && el.innerText.trim() === el.textContent.trim()));
                 
-                successCount = validSuccessBtns.length;
+                const successCount = validSuccessBtns.length;
                 
-                render3DCounter(titleEl, successCount);
+                // [v2.7.3] 调整全景图计数器位置
+                // 目标位置：单选框区域 (全景图/全景视频/3D模型) 的右侧
+                // 通常结构：.layui-form-item > .layui-input-block > radio group
+                
+                // 1. 找到“类型”标签
+                const formLabels = Array.from(container.querySelectorAll('.layui-form-label'));
+                const typeLabel = formLabels.find(l => l.textContent.includes('类型'));
+                
+                let targetContainer = null;
+                if (typeLabel) {
+                    // 找到对应的 input-block
+                    const inputBlock = typeLabel.nextElementSibling;
+                    if (inputBlock && inputBlock.classList.contains('layui-input-block')) {
+                        targetContainer = inputBlock;
+                    }
+                }
+                
+                if (targetContainer) {
+                    // 渲染计数器到 targetContainer 末尾
+                    // 需要确保 targetContainer 是相对定位，以便放置绝对定位的计数器，或者直接 append 进去
+                    
+                    // 检查是否已经存在计数器
+                    let counter = targetContainer.querySelector('.xhj-3d-counter');
+                    if (!counter) {
+                        // 如果没有，创建一个新的容器来包裹计数器，或者直接插入
+                        // 为了不破坏布局，我们可以创建一个 inline-block 的容器
+                        
+                        // 先渲染到 titleEl 获取 DOM 结构 (利用现有 helper)
+                        // 但 helper 是往 titleEl 插入的，我们需要修改 helper 或手动移动
+                        
+                        // 手动调用 render3DCounter 但指定不同的父容器
+                        // 为了复用 render3DCounter，我们稍作修改，让它支持传入 parentElement
+                        
+                        // 这里直接手动创建/更新，逻辑与 render3DCounter 类似但位置不同
+                         const minGreenCount = 9;
+                         const maxCount = 35;
+                         let hue = 0;
+                         if (successCount >= minGreenCount) {
+                              const greenProgress = Math.min((successCount - minGreenCount) / (maxCount - minGreenCount), 1);
+                              hue = 60 + Math.floor(greenProgress * 60); 
+                         } else {
+                              hue = 0; 
+                         }
+                
+                         const color = `hsl(${hue}, 100%, 50%)`;
+                         const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
+                         
+                         counter = document.createElement('div');
+                         counter.className = 'xhj-3d-counter';
+                         counter.style.cssText = `
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-left: 30px; /* 与单选框保持距离 */
+                            padding: 0 12px;
+                            height: 28px;
+                            background: #1a1a1a;
+                            border-radius: 4px;
+                            border: 1px solid #333;
+                            box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
+                            font-family: 'Courier New', Courier, monospace;
+                            font-size: 16px;
+                            font-weight: bold;
+                            letter-spacing: 1px;
+                            position: absolute; /* 绝对定位 */
+                            right: 20px; /* 靠右显示 */
+                            top: 50%;
+                            transform: translateY(-50%);
+                            transition: all 0.3s ease;
+                            z-index: 10;
+                        `;
+                        
+                        // 确保父容器相对定位
+                        if (getComputedStyle(targetContainer).position === 'static') {
+                            targetContainer.style.position = 'relative';
+                        }
+                        
+                        const textSpan = document.createElement('span');
+                        textSpan.className = 'xhj-counter-text';
+                        textSpan.style.cssText = `
+                            text-shadow: 0 0 10px currentColor;
+                            transition: color 0.5s ease, text-shadow 0.5s ease;
+                        `;
+                        counter.appendChild(textSpan);
+                        targetContainer.appendChild(counter);
+                    }
+                    
+                    // 更新数据
+                    const textSpan = counter.querySelector('.xhj-counter-text');
+                    if (textSpan) {
+                         // 重新计算颜色 (因为是局部变量)
+                         const minGreenCount = 9;
+                         const maxCount = 35;
+                         let hue = 0;
+                         if (successCount >= minGreenCount) {
+                              const greenProgress = Math.min((successCount - minGreenCount) / (maxCount - minGreenCount), 1);
+                              hue = 60 + Math.floor(greenProgress * 60); 
+                         }
+                         const color = `hsl(${hue}, 100%, 50%)`;
+                         const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
+                        
+                        const displayText = `已上传: ${successCount} 张`;
+                        if (textSpan.textContent !== displayText) {
+                             textSpan.textContent = displayText;
+                             textSpan.style.color = color;
+                             textSpan.style.textShadow = `0 0 8px ${shadowColor}, 0 0 15px ${shadowColor}`;
+                             counter.style.borderColor = `hsla(${hue}, 50%, 40%, 0.5)`;
+                        }
+                    }
+                } else {
+                    // 如果找不到目标位置，回退到标题栏 (Fallback)
+                    render3DCounter(titleEl, successCount);
+                }
             }
         });
     };

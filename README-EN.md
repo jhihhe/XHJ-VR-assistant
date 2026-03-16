@@ -1,4 +1,4 @@
-# 🎨 Xiangshi Platform Assistant (v2.7.2)
+# 🎨 Xiangshi Platform Assistant (v2.7.3)
 
 ![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
 ![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
-![Version](https://img.shields.io/badge/Version-v2.7.2-brightgreen)
+![Version](https://img.shields.io/badge/Version-v2.7.3-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub Homepage](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -82,6 +82,9 @@ Built-in classic color schemes loved by programmers, switch with one click:
 5.  **Sync**: On supported list pages (such as Housing Survey List), click the **🔄 Auto Sync** button at the top to start working.
 
 ## 📝 Changelog
+
+### v2.7.3 (2026-03-16)
+- **UI Adjustment**: Optimized the position of the panorama upload counter, moving it to the right side of the "Type" selection bar (next to radio buttons) for a more compact layout.
 
 ### v2.7.2 (2026-03-16)
 - **New Feature**: Added 3D digital counter for "Panorama Upload" dialog, counting images marked as "Upload Success".
