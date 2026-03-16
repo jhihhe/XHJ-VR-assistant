@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.7.4
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.4: 修复全景图上传计数器在部分场景下统计为0的问题。
+// @version      2.7.6
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.6: 优化HUD显示器质感、文字渲染层级与交互稳定性，进一步降低高负载场景卡顿。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -27,6 +27,27 @@
 
     const SKIN_STORAGE_KEY = 'xhj_skin_theme';
     const STYLE_ID = 'xhj-custom-skin-style';
+    const ENABLE_CLICK_RIPPLE = false;
+
+    const parseColorChannels = (value, fallback = '22, 27, 34') => {
+        if (typeof value !== 'string') return fallback;
+        const color = value.trim();
+        const hexMatch = color.match(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
+        if (hexMatch) {
+            const hex = hexMatch[1].length === 3
+                ? hexMatch[1].split('').map(c => c + c).join('')
+                : hexMatch[1];
+            const r = parseInt(hex.slice(0, 2), 16);
+            const g = parseInt(hex.slice(2, 4), 16);
+            const b = parseInt(hex.slice(4, 6), 16);
+            return `${r}, ${g}, ${b}`;
+        }
+        const rgbMatch = color.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
+        if (rgbMatch) {
+            return `${rgbMatch[1]}, ${rgbMatch[2]}, ${rgbMatch[3]}`;
+        }
+        return fallback;
+    };
 
     // 定义主题配置
     const themes = {
@@ -50,6 +71,23 @@
         'default': {
             name: '默认 (Default)',
             vars: {} // 空对象表示移除样式
+        },
+        'star-wars-hud': {
+            name: 'Star Wars HUD (Immersive)',
+            vars: {
+                '--xhj-bg': '#02060d',
+                '--xhj-fg': '#b7e8ff',
+                '--xhj-header-bg': '#081320',
+                '--xhj-side-bg': '#040b16',
+                '--xhj-active-bg': '#52d8ff',
+                '--xhj-active-fg': '#02121b',
+                '--xhj-border': '#1c4962',
+                '--xhj-hover-bg': 'rgba(82, 216, 255, 0.16)',
+                '--xhj-input-bg': '#07111d',
+                '--xhj-table-head': '#0a1b2d',
+                '--xhj-glow-color': 'rgba(82, 216, 255, 0.55)',
+                '--xhj-shadow-color': 'rgba(3, 10, 20, 0.85)'
+            }
         },
         'dracula': {
             name: 'Dracula (Official)',
@@ -292,6 +330,11 @@
         const varDeclarations = Object.entries(vars)
             .map(([k, v]) => `${k}: ${v};`)
             .join('\n');
+        const headerBgRgb = parseColorChannels(vars['--xhj-header-bg'] || vars['--xhj-bg'], '22, 27, 34');
+        const activeBgRgb = parseColorChannels(vars['--xhj-active-bg'], '189, 147, 249');
+        const shadowColor = vars['--xhj-shadow-color'] || 'rgba(0, 0, 0, 0.3)';
+        const commentColor = vars['--xhj-comment'] || 'rgba(185, 210, 230, 0.72)';
+        const selectionColor = vars['--xhj-selection'] || `rgba(${activeBgRgb}, 0.25)`;
             
         // Future Tech 专属网格背景
         let extraCss = '';
@@ -414,7 +457,6 @@
                 background-color: var(--xhj-side-bg) !important;
                 border: 1px solid var(--xhj-border) !important;
                 box-shadow: 0 10px 40px var(--xhj-shadow-color) !important;
-                backdrop-filter: blur(12px) !important;
                 border-radius: 16px !important;
                 color: var(--xhj-fg) !important;
             }
@@ -448,12 +490,11 @@
                 border: none !important;
                 border-radius: 8px !important;
                 font-weight: 600;
-                transition: all 0.3s;
+                transition: box-shadow 0.2s ease, filter 0.2s ease;
                 height: 40px;
                 line-height: 40px;
             }
             .beg-login-box .layui-btn-primary:hover {
-                transform: translateY(-2px);
                 box-shadow: 0 5px 15px var(--xhj-glow-color) !important;
                 filter: brightness(1.1);
             }
@@ -470,7 +511,11 @@
             ${extraCss}
             :root {
                 ${varDeclarations}
-                --xhj-shadow-color: rgba(0, 0, 0, 0.3);
+                --xhj-header-bg-rgb: ${headerBgRgb};
+                --xhj-active-bg-rgb: ${activeBgRgb};
+                --xhj-comment: ${commentColor};
+                --xhj-selection: ${selectionColor};
+                --xhj-shadow-color: ${shadowColor};
                 --xhj-shadow: 0 10px 30px -10px var(--xhj-shadow-color);
                 --xhj-shadow-hover: 0 20px 40px -12px var(--xhj-shadow-color);
                 --xhj-radius: 8px;
@@ -479,6 +524,21 @@
                 --xhj-sidebar-bg: rgba(33, 34, 44, 0.95);
                 --xhj-glow: 0 0 15px var(--xhj-glow-color, rgba(189, 147, 249, 0.4));
                 --xhj-glass-border: 1px solid rgba(255, 255, 255, 0.1);
+                --xhj-hud-line: rgba(var(--xhj-active-bg-rgb), 0.45);
+                --xhj-hud-core: rgba(var(--xhj-active-bg-rgb), 0.18);
+                --xhj-hud-dim: rgba(var(--xhj-active-bg-rgb), 0.08);
+                --xhj-surface-strong: linear-gradient(155deg, rgba(var(--xhj-header-bg-rgb), 0.94), rgba(var(--xhj-header-bg-rgb), 0.78));
+                --xhj-surface-soft: linear-gradient(155deg, rgba(var(--xhj-header-bg-rgb), 0.9), rgba(var(--xhj-header-bg-rgb), 0.72));
+                --xhj-unified-radius: 12px;
+                --xhj-display-scanline: rgba(var(--xhj-active-bg-rgb), 0.055);
+                --xhj-display-grid: rgba(var(--xhj-active-bg-rgb), 0.045);
+                --xhj-display-glint: rgba(var(--xhj-active-bg-rgb), 0.24);
+                --xhj-text-main: #9fe7ff;
+                --xhj-text-soft: #6fc9e6;
+                --xhj-text-glow: rgba(var(--xhj-active-bg-rgb), 0.42);
+                --xhj-text-stroke: rgba(var(--xhj-active-bg-rgb), 0.2);
+                --xhj-text-ghost-cyan: rgba(90, 255, 255, 0.22);
+                --xhj-text-ghost-magenta: rgba(205, 120, 255, 0.16);
             }
 
             @keyframes float {
@@ -496,6 +556,17 @@
             @keyframes ripple-effect {
                 0% { transform: scale(0); opacity: 0.8; }
                 100% { transform: scale(4); opacity: 0; }
+            }
+
+            @keyframes xhj-hud-sweep {
+                0% { transform: translateX(-120%) skewX(-20deg); opacity: 0; }
+                30% { opacity: 0.3; }
+                100% { transform: translateX(120vw) skewX(-20deg); opacity: 0; }
+            }
+
+            @keyframes xhj-hud-flicker {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.96; }
             }
             
             /* --- 视觉净化与去噪 (Cleanup) --- */
@@ -528,10 +599,21 @@
             
             /* 4. 顶部导航栏毛玻璃悬浮感 (Enhanced) */
             .layui-header {
-                background-color: rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.8) !important;
-                backdrop-filter: blur(20px) saturate(180%);
-                -webkit-backdrop-filter: blur(20px) saturate(180%);
-                border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+                background: var(--xhj-surface-strong) !important;
+                border-bottom: 1px solid rgba(var(--xhj-active-bg-rgb), 0.24) !important;
+                box-shadow: 0 8px 18px rgba(0,0,0,0.28) !important;
+                position: relative;
+                overflow: hidden;
+            }
+            .layui-header::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, var(--xhj-display-glint), transparent);
+                pointer-events: none;
             }
 
             /* 5. 滚动条美化 (全局) */
@@ -561,6 +643,54 @@
                 -webkit-font-smoothing: antialiased;
                 /* Polish Style Font Stack + Inter */
                 font-family: 'Inter', ui-rounded, 'SF Pro Rounded', 'SF Pro Text', 'Helvetica Neue', -apple-system, system-ui, BlinkMacSystemFont, Roboto, sans-serif !important;
+                animation: none !important;
+                background-image:
+                    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0) 18%),
+                    repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, var(--xhj-display-scanline) 2px 3px),
+                    repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 28px, var(--xhj-display-grid) 28px 29px),
+                    linear-gradient(180deg, rgba(var(--xhj-active-bg-rgb), 0.04), transparent 34%);
+            }
+
+            html::before, html::after {
+                content: none !important;
+            }
+
+            body > * {
+                position: relative;
+                z-index: 1;
+            }
+            .layui-card-header, .layui-layer-title, .layui-form-label, .el-form-item__label, .el-dialog__title, .topbox_item {
+                color: var(--xhj-text-main) !important;
+                letter-spacing: 0.1em;
+                text-shadow: 0 0 1px rgba(0,0,0,0.9), 0 0 10px var(--xhj-text-glow), -0.4px 0 0 var(--xhj-text-ghost-cyan), 0.4px 0 0 var(--xhj-text-ghost-magenta);
+                -webkit-text-stroke: 0.32px var(--xhj-text-stroke);
+                font-weight: 650;
+                font-family: 'SF Pro Text', 'DIN Alternate', 'Helvetica Neue', -apple-system, sans-serif !important;
+                text-rendering: geometricPrecision;
+            }
+            .layui-nav-tree .layui-nav-item a, .layui-tab-title li, .layui-laypage a, .layui-laypage span {
+                color: var(--xhj-text-soft) !important;
+                letter-spacing: 0.08em;
+                text-shadow: 0 0 7px rgba(var(--xhj-active-bg-rgb), 0.24), -0.35px 0 0 rgba(90, 255, 255, 0.14);
+                -webkit-text-stroke: 0.24px rgba(var(--xhj-active-bg-rgb), 0.2);
+                font-family: 'SF Pro Text', 'DIN Alternate', 'Helvetica Neue', -apple-system, sans-serif !important;
+            }
+            .layui-input, .layui-select, .layui-textarea, .el-input__inner, .el-textarea__inner, .layui-table-cell, input[type="text"], input[type="password"], input[type="number"] {
+                color: var(--xhj-text-main) !important;
+                text-shadow: 0 0 6px rgba(var(--xhj-active-bg-rgb), 0.18), 0 0 1px rgba(0,0,0,0.8);
+                -webkit-text-stroke: 0.22px rgba(var(--xhj-active-bg-rgb), 0.15);
+            }
+            .layui-input::placeholder, .layui-textarea::placeholder, .el-input__inner::placeholder, .el-textarea__inner::placeholder, input::placeholder {
+                color: rgba(111, 201, 230, 0.62) !important;
+                letter-spacing: 0.05em;
+                text-shadow: none;
+                -webkit-text-stroke: 0;
+            }
+            .layui-btn, .el-button, .layui-layer-btn a {
+                font-weight: 700 !important;
+                letter-spacing: 0.1em;
+                text-shadow: 0 0 12px rgba(var(--xhj-active-bg-rgb), 0.3), -0.35px 0 0 rgba(90, 255, 255, 0.14), 0 0 1px rgba(0,0,0,0.95);
+                -webkit-text-stroke: 0.28px rgba(var(--xhj-active-bg-rgb), 0.2);
             }
             
             /* Accessibility: Focus States */
@@ -603,18 +733,13 @@
             
             /* 7.1 Element UI 组件适配 (3D Enhanced v1.45) */
             .el-dialog {
-                background: var(--xhj-side-bg) !important;
-                /* 3D Surface Gradient */
-                background-image: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%) !important;
+                background: var(--xhj-surface-strong) !important;
                 color: var(--xhj-fg) !important;
-                /* Rim Light & Deep Shadow */
-                border: 1px solid rgba(255,255,255,0.1) !important;
+                border: 1px solid rgba(var(--xhj-active-bg-rgb), 0.26) !important;
                 box-shadow: 
-                    0 25px 50px -12px rgba(0,0,0,0.5), 
-                    0 0 0 1px rgba(255,255,255,0.1) inset,
-                    0 10px 30px rgba(0,0,0,0.2) inset !important;
-                border-radius: 16px !important;
-                backdrop-filter: blur(25px) saturate(180%);
+                    0 16px 30px -14px rgba(0,0,0,0.65),
+                    0 0 0 1px rgba(255,255,255,0.08) inset !important;
+                border-radius: var(--xhj-unified-radius) !important;
             }
             .el-dialog__title { 
                 color: var(--xhj-active-bg) !important; 
@@ -633,7 +758,7 @@
                 border-bottom: 1px solid rgba(255,255,255,0.1) !important; /* Bottom Highlight */
                 border-radius: 10px !important;
                 box-shadow: inset 0 2px 5px rgba(0,0,0,0.4) !important; /* Inner Shadow */
-                transition: all 0.3s ease;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
             }
             .el-input__inner:focus, .el-textarea__inner:focus {
                 border-color: var(--xhj-active-bg) !important;
@@ -649,7 +774,7 @@
                 border: 2px dashed rgba(255,255,255,0.2) !important;
                 border-radius: 12px !important;
                 box-shadow: inset 0 0 15px rgba(0,0,0,0.3) !important;
-                transition: all 0.3s !important;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
             }
             .el-upload--picture-card:hover, .picture-add:hover, .avatar-uploader .el-upload:hover {
                 border-color: var(--xhj-active-bg) !important;
@@ -677,13 +802,11 @@
             }
             .el-button--primary:hover {
                 filter: brightness(1.1);
-                transform: translateY(-1px);
                 box-shadow: 
                     0 6px 20px -4px var(--xhj-active-bg),
                     0 1px 0 rgba(255,255,255,0.2) inset !important;
             }
             .el-button--primary:active {
-                transform: translateY(1px) scale(0.98);
                 box-shadow: inset 0 3px 5px rgba(0,0,0,0.3) !important;
             }
 
@@ -693,16 +816,14 @@
                 border: 1px solid var(--xhj-border) !important;
                 box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 1px 2px rgba(255,255,255,0.05) !important;
                 border-radius: 30px !important;
-                backdrop-filter: blur(10px);
             }
-            .topbox_item { color: var(--xhj-fg) !important; transition: all 0.3s !important; }
+            .topbox_item { color: var(--xhj-fg) !important; transition: color 0.2s ease, background-color 0.2s ease !important; }
             
             .isAction {
                 background-color: var(--xhj-active-bg) !important;
                 color: var(--xhj-active-fg) !important;
                 box-shadow: 0 2px 10px var(--xhj-glow-color) !important;
                 background-image: var(--xhj-btn-gradient) !important;
-                transform: scale(1.05);
                 font-weight: bold;
             }
             
@@ -748,6 +869,7 @@
                 margin-left: -10px;
                 margin-top: -10px;
                 box-shadow: 0 0 10px var(--xhj-active-bg);
+                display: none !important;
             }
 
             /* --- Polish Style UI 深度优化 (V2EX Polish 风格移植) --- */
@@ -766,7 +888,6 @@
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.1) inset !important;
             }
             .layui-btn:hover {
-                transform: translateY(-1px) !important;
                 box-shadow: 0 4px 8px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.1) inset !important;
             }
             
@@ -787,6 +908,10 @@
                 border-radius: 14px !important;
                 overflow: hidden !important;
                 border: 1px solid rgba(255,255,255,0.05) !important;
+                background-image:
+                    linear-gradient(0deg, transparent calc(100% - 1px), rgba(var(--xhj-active-bg-rgb), 0.16) calc(100% - 1px)),
+                    linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb), 0.04) 1px, transparent 1px);
+                background-size: 100% 100%, 22px 100%;
             }
             
             /* 6. 弹窗头部圆角 */
@@ -802,15 +927,14 @@
             
             /* 过渡动画 */
             .layui-btn, .layui-input, .layui-nav-item a, .layui-table-cell, .layui-tab-title li {
-                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+                transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
             }
 
             /* 侧边栏 macOS 风格 */
             .layui-side, .layui-side-scroll, .layui-bg-black {
-                background-color: var(--xhj-side-bg) !important;
-                border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-                box-shadow: 5px 0 15px rgba(0,0,0,0.2);
-                backdrop-filter: blur(10px);
+                background: var(--xhj-surface-soft) !important;
+                border-right: 1px solid rgba(var(--xhj-active-bg-rgb), 0.2) !important;
+                box-shadow: 4px 0 12px rgba(0,0,0,0.18);
             }
             .layui-nav-tree .layui-nav-item a {
                 color: var(--xhj-fg) !important;
@@ -819,8 +943,8 @@
             }
             .layui-nav-tree .layui-nav-item a:hover {
                 background-color: rgba(255, 255, 255, 0.1) !important;
-                transform: translateX(4px);
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                transform: none;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             }
             .layui-nav-tree .layui-this {
                 background-color: transparent !important;
@@ -833,7 +957,7 @@
                 border-radius: 12px !important; /* Updated to 12px */
                 margin: 0 10px !important;
                 width: auto !important;
-                transform: translateY(-1px) scale(1.02) !important;
+                transform: none !important;
                 text-shadow: none !important;
                 border: 1px solid rgba(255,255,255,0.2) !important;
             }
@@ -854,7 +978,7 @@
             .layui-tab-title li {
                 color: var(--xhj-fg) !important;
                 background-color: rgba(255, 255, 255, 0.05) !important;
-                border-color: transparent !important;
+                border-color: rgba(var(--xhj-active-bg-rgb), 0.14) !important;
                 margin-right: 2px;
                 border-radius: 8px 8px 0 0 !important; /* Polish Style */
             }
@@ -911,21 +1035,35 @@
 
             /* 卡片与容器 */
             .layui-card {
-                background-color: var(--xhj-side-bg) !important;
-                background-image: var(--xhj-card-gradient) !important;
+                background: var(--xhj-surface-soft) !important;
                 color: var(--xhj-fg) !important;
-                border: 1px solid var(--xhj-border) !important;
-                border-top: 1px solid rgba(255,255,255,0.1) !important;
+                border: 1px solid rgba(var(--xhj-active-bg-rgb), 0.22) !important;
                 /* Radius moved to Polish section */
-                box-shadow: var(--xhj-shadow) !important;
-                backdrop-filter: blur(16px) saturate(180%);
+                box-shadow: 0 8px 18px rgba(0,0,0,0.24) !important;
                 transition: transform 0.3s, box-shadow 0.3s !important;
+                overflow: hidden;
+            }
+            .layui-card::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background:
+                    linear-gradient(90deg, transparent calc(100% - 18px), var(--xhj-display-grid) calc(100% - 18px), var(--xhj-display-grid) calc(100% - 17px), transparent calc(100% - 17px)),
+                    linear-gradient(0deg, transparent calc(100% - 18px), var(--xhj-display-grid) calc(100% - 18px), var(--xhj-display-grid) calc(100% - 17px), transparent calc(100% - 17px));
+                pointer-events: none;
+            }
+            .layui-card::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border: 1px solid var(--xhj-hud-dim);
+                border-radius: inherit;
+                pointer-events: none;
             }
             /* 6. 卡片高级悬浮效果 (Glass + Lift) */
             .layui-card:hover {
-                transform: translateY(-4px) scale(1.002);
-                box-shadow: var(--xhj-shadow-hover), 0 0 0 1px var(--xhj-active-bg) !important;
-                backdrop-filter: blur(10px) saturate(150%);
+                transform: translateY(-1px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.26), 0 0 0 1px rgba(var(--xhj-active-bg-rgb), 0.2) !important;
                 border-color: var(--xhj-active-bg) !important;
                 z-index: 10;
             }
@@ -945,9 +1083,10 @@
                 /* Box shadow overridden */
                 background-image: var(--xhj-btn-gradient) !important;
                 box-shadow: 0 4px 15px var(--xhj-glow-color), 0 1px 0 rgba(255,255,255,0.2) inset !important;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
             }
             .layui-btn:hover {
-                transform: translateY(-2px);
                 opacity: 1;
             }
             .layui-btn-primary {
@@ -969,6 +1108,7 @@
                 border: 1px solid var(--xhj-border) !important;
                 /* Radius overridden */
                 box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
+                border-image: linear-gradient(90deg, var(--xhj-hud-line), transparent) 1 !important;
             }
             /* 7. 输入框聚焦动效 (Glow) */
             .layui-input:focus, .layui-select:focus, .layui-textarea:focus {
@@ -980,8 +1120,11 @@
 
             /* 8. 按钮点击涟漪效果模拟 */
             .layui-btn:active {
-                transform: scale(0.96) !important;
                 filter: brightness(0.9);
+            }
+
+            .layui-btn, .layui-btn *, .el-button, .el-button *, .layui-layer-btn a, .layui-layer-btn a *, button, button *, [role="button"], [role="button"] * {
+                cursor: pointer !important;
             }
 
             /* 9. 表格行悬浮高亮 */
@@ -1000,22 +1143,22 @@
             .layui-table-hover, .layui-table-click, .layui-table tbody tr:hover, 
             .layui-table-hover > td, .layui-table-click > td, .layui-table tbody tr:hover > td {
                 background-color: rgba(98, 114, 164, 0.2) !important;
-                backdrop-filter: blur(4px);
             }
             /* 表格行悬浮 3D 效果 */
             .layui-table tbody tr {
                 transition: transform 0.2s, background-color 0.2s !important;
             }
             .layui-table tbody tr:hover {
-                transform: scale(1.002) translateY(-1px);
+                transform: none;
                 z-index: 10;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.14);
                 background-color: rgba(255,255,255,0.03) !important;
             }
 
             .layui-table thead tr, .layui-table-header {
                 background-color: var(--xhj-table-head) !important;
                 color: var(--xhj-fg) !important;
+                box-shadow: inset 0 -1px 0 var(--xhj-hud-line);
             }
             .layui-table td {
                 padding: 0 !important;
@@ -1035,6 +1178,10 @@
                 text-align: center !important;
                 line-height: 24px !important;
                 display: block !important;
+                font-variant-numeric: tabular-nums;
+                letter-spacing: 0.04em;
+                text-shadow: 0 0 7px rgba(var(--xhj-active-bg-rgb), 0.22), -0.25px 0 0 rgba(90, 255, 255, 0.14), 0 0 1px rgba(0,0,0,0.9);
+                -webkit-text-stroke: 0.2px rgba(var(--xhj-active-bg-rgb), 0.16);
             }
 
             /* 列表表头对齐修正 */
@@ -1200,40 +1347,86 @@
             
             /* 弹窗层 - 强制背景色 (Glassmorphism Upgrade) */
             .layui-layer, .layui-layer-page, .layui-layer-iframe, .layui-layer-dialog {
-                background-color: var(--xhj-header-bg) !important; /* 使用半透明背景 */
-                backdrop-filter: blur(20px) saturate(180%) !important;
-                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1) !important;
-                border-radius: 12px !important; /* 统一圆角 */
-                border: 1px solid rgba(255,255,255,0.1) !important;
+                background: var(--xhj-surface-strong) !important;
+                box-shadow: 0 14px 28px rgba(0,0,0,0.32), 0 0 0 1px rgba(255,255,255,0.08) inset !important;
+                border-radius: var(--xhj-unified-radius) !important;
+                border: 1px solid rgba(var(--xhj-active-bg-rgb), 0.26) !important;
+                position: relative;
+                overflow: hidden;
+            }
+            .layui-layer::after, .layui-layer-page::after, .layui-layer-iframe::after, .layui-layer-dialog::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background:
+                    linear-gradient(160deg, rgba(255,255,255,0.1), rgba(255,255,255,0) 28%),
+                    repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, rgba(var(--xhj-active-bg-rgb), 0.035) 2px 3px),
+                    linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb), 0.08), rgba(0,0,0,0) 36%);
+                opacity: 0.32;
+                pointer-events: none;
             }
 
             /* --- 消息提示 (Toast) 专项美化 (MacOS Capsule Style) --- */
             .layui-layer-msg {
-                border-radius: 50px !important; /* 胶囊圆角 */
-                background-color: var(--xhj-header-bg) !important;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1) !important;
-                border: 1px solid rgba(255,255,255,0.2) !important;
-                min-width: 120px !important;
+                border-radius: 14px !important;
+                background: linear-gradient(160deg, rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.96), rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.72)) !important;
+                box-shadow: 0 16px 36px rgba(0,0,0,0.42), inset 0 0 0 1px rgba(255,255,255,0.08) !important;
+                border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.45) !important;
+                min-width: 190px !important;
+                overflow: hidden !important;
+            }
+            .layui-layer-msg::before {
+                content: "";
+                position: absolute;
+                inset: 0 auto auto 0;
+                width: 100%;
+                height: 1px;
+                background: linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.8), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0));
+                pointer-events: none;
             }
             .layui-layer-msg .layui-layer-content {
-                padding: 12px 24px !important;
+                padding: 13px 18px !important;
                 color: var(--xhj-fg) !important;
-                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
-                font-size: 14px !important;
-                font-weight: 500 !important;
+                font-family: 'Inter', 'SF Pro Text', sans-serif !important;
+                font-size: 15px !important;
+                font-weight: 600 !important;
+                letter-spacing: 0.08em;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+                gap: 10px;
+                text-shadow: 0 0 12px rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.32);
+            }
+            .layui-layer-msg .layui-layer-content.layui-layer-padding {
+                padding-left: 18px !important;
             }
             .layui-layer-msg .layui-layer-ico {
                 position: relative !important;
-                top: 0 !important;
-                left: 0 !important;
-                margin-right: 8px !important;
-                margin-top: 0 !important;
-                transform: scale(0.9);
+                top: auto !important;
+                left: auto !important;
+                margin: 0 !important;
+                width: 22px !important;
+                height: 22px !important;
+                min-width: 22px;
+                border-radius: 50%;
+                border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.65);
+                background: rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.16) !important;
+                background-image: none !important;
+                color: #9fe8ff;
+                box-shadow: 0 0 14px rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.42), inset 0 0 10px rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.18);
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
+            .layui-layer-msg .layui-layer-ico::before {
+                content: "✓";
+                font-size: 14px;
+                font-weight: 800;
+                line-height: 1;
+            }
+            .layui-layer-msg .layui-layer-ico0::before { content: "i"; }
+            .layui-layer-msg .layui-layer-ico2::before { content: "!"; }
+            .layui-layer-msg .layui-layer-ico3::before { content: "×"; }
             
             /* 弹窗标题 */
             .layui-layer-title {
@@ -1352,6 +1545,43 @@
                 color: var(--xhj-fg) !important;
                 border: 1px solid var(--xhj-border) !important;
             }
+            #xhj-theme-dock .xhj-theme-option,
+            #xhj-theme-dock .xhj-scale-option,
+            #auto-sync-button-v3,
+            #auto-sync-settings-v3 {
+                font-family: 'Inter', 'SF Pro Text', sans-serif !important;
+                letter-spacing: 0.04em;
+            }
+
+            /* --- [v2.7.5] 性能优化：针对特定窗口禁用高消耗特效 --- */
+            .xhj-perf-optimized,
+            .xhj-perf-optimized .layui-layer-content,
+            .xhj-perf-optimized iframe {
+                /* 禁用背景模糊，这是掉帧的主要元凶 */
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                /* 简化阴影 */
+                box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;
+                /* 禁用 3D 变换和过渡，减少重排重绘 */
+                transform: none !important;
+                transition: none !important;
+                /* 硬件加速滚动 */
+                will-change: scroll-position;
+            }
+            /* 禁用容器内元素的悬浮特效 */
+            .xhj-perf-optimized .layui-card:hover,
+            .xhj-perf-optimized .upimg:hover,
+            .xhj-perf-optimized .imgstyle:hover {
+                transform: none !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+            }
+            /* 针对大量图片的列表，启用硬件加速 */
+            .xhj-perf-optimized .upimg,
+            .xhj-perf-optimized .imgstyle {
+                will-change: transform;
+                backface-visibility: hidden;
+            }
         `;
     };
 
@@ -1394,6 +1624,7 @@
 
     // 全局点击波纹特效逻辑
     document.addEventListener('click', function(e) {
+        if (!ENABLE_CLICK_RIPPLE) return;
         const ripple = document.createElement('div');
         ripple.classList.add('xhj-click-ripple');
         document.body.appendChild(ripple);
@@ -1410,56 +1641,56 @@
         if (window.top !== window.self) return;
 
         const container = document.createElement('div');
-        container.style.cssText = `position: fixed; bottom: 20px; right: 20px; z-index: 99999; font-family: sans-serif;`;
+        container.id = 'xhj-theme-dock';
+        container.style.cssText = `position: fixed; bottom: 24px; right: 24px; z-index: 99999; font-family: 'Inter', sans-serif;`;
 
         const toggleBtn = document.createElement('button');
-        toggleBtn.textContent = '🎨';
+        toggleBtn.textContent = '◉';
         toggleBtn.style.cssText = `
-            width: 56px; height: 56px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--xhj-active-bg), var(--xhj-glow-color));
-            color: var(--xhj-active-fg); border: 2px solid rgba(255,255,255,0.5);
-            font-size: 24px; cursor: pointer; box-shadow: 0 0 20px var(--xhj-glow-color);
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            width: 60px; height: 60px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 45%), linear-gradient(145deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.92), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.42));
+            color: var(--xhj-active-fg); border: 1px solid rgba(255,255,255,0.35);
+            font-size: 22px; cursor: pointer; box-shadow: 0 0 28px var(--xhj-glow-color), inset 0 0 20px rgba(255,255,255,0.12);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
             z-index: 100000;
-            backdrop-filter: blur(5px);
         `;
         
         const menu = document.createElement('div');
         menu.style.cssText = `
             position: absolute; bottom: 80px; right: 0;
-            background: rgba(10, 10, 20, 0.85); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
-            padding: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05);
-            display: none; width: 200px; transform-origin: bottom right;
-            opacity: 0; transform: scale(0.8) translateY(20px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(160deg, rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.94), rgba(5, 12, 22, 0.9));
+            border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.38); border-radius: 14px;
+            padding: 12px; box-shadow: 0 18px 45px rgba(0,0,0,0.68), inset 0 0 0 1px rgba(255,255,255,0.08);
+            display: none; width: 240px; transform-origin: bottom right;
+            opacity: 0; transform: scale(0.86) translateY(22px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
         `;
 
         Object.keys(themes).forEach(key => {
             const btn = document.createElement('button');
+            btn.className = 'xhj-theme-option';
             btn.textContent = themes[key].name;
             btn.style.cssText = `
-                display: block; width: 100%; padding: 12px 16px; margin-bottom: 8px;
-                border: 1px solid rgba(255,255,255,0.05); background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
-                cursor: pointer; text-align: left; border-radius: 8px; color: #eee;
-                transition: all 0.3s; font-size: 14px; font-weight: 500;
+                display: block; width: 100%; padding: 10px 14px; margin-bottom: 8px;
+                border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25);
+                background: linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.12), transparent);
+                cursor: pointer; text-align: left; border-radius: 10px; color: #d4f0ff;
+                transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease; font-size: 14px; font-weight: 500;
                 position: relative; overflow: hidden;
             `;
             
             // 按钮悬停特效
             btn.onmouseenter = () => {
-                btn.style.background = 'linear-gradient(90deg, var(--xhj-active-bg, #00dbde), transparent)';
+                btn.style.background = 'linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.36), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.12))';
                 btn.style.color = '#fff';
-                btn.style.transform = 'translateX(5px)';
-                btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-                btn.style.borderColor = 'rgba(255,255,255,0.3)';
+                btn.style.boxShadow = '0 10px 20px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.12) inset';
+                btn.style.borderColor = 'rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.58)';
             };
             btn.onmouseleave = () => {
-                btn.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.05), transparent)';
-                btn.style.color = '#eee';
-                btn.style.transform = 'translateX(0)';
+                btn.style.background = 'linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.12), transparent)';
+                btn.style.color = '#d4f0ff';
                 btn.style.boxShadow = 'none';
-                btn.style.borderColor = 'rgba(255,255,255,0.05)';
+                btn.style.borderColor = 'rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25)';
             };
 
             btn.onclick = () => { switchTheme(key); toggleMenu(false); };
@@ -1468,23 +1699,24 @@
 
         // --- 分割线 ---
         const divider = document.createElement('div');
-        divider.style.cssText = 'height: 1px; background: rgba(255,255,255,0.1); margin: 8px 0;';
+        divider.style.cssText = 'height: 1px; background: linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.05), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.5), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.05)); margin: 10px 0;';
         menu.appendChild(divider);
 
         // --- 自动缩放开关 ---
         const scaleBtn = document.createElement('button');
+        scaleBtn.className = 'xhj-scale-option';
         const updateScaleBtnText = () => {
-            scaleBtn.textContent = isScaleEnabled() ? '🖥️ 关闭自动缩放' : '🖥️ 开启自动缩放';
+            scaleBtn.textContent = isScaleEnabled() ? '关闭自动缩放' : '开启自动缩放';
             scaleBtn.style.background = isScaleEnabled() 
-                ? 'linear-gradient(90deg, rgba(76, 175, 80, 0.2), transparent)' 
-                : 'linear-gradient(90deg, rgba(255,255,255,0.05), transparent)';
+                ? 'linear-gradient(90deg, rgba(66, 239, 175, 0.24), rgba(66, 239, 175, 0.1))' 
+                : 'linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.1), transparent)';
         };
         updateScaleBtnText();
         scaleBtn.style.cssText = `
-            display: block; width: 100%; padding: 12px 16px; margin-bottom: 8px;
-            border: 1px solid rgba(255,255,255,0.05); 
-            cursor: pointer; text-align: left; border-radius: 8px; color: #eee;
-            transition: all 0.3s; font-size: 14px; font-weight: 500;
+            display: block; width: 100%; padding: 10px 14px; margin-bottom: 6px;
+            border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25); 
+            cursor: pointer; text-align: left; border-radius: 10px; color: #d4f0ff;
+            transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease; font-size: 14px; font-weight: 500;
         `;
         scaleBtn.onclick = () => {
             toggleScale(!isScaleEnabled());
@@ -1492,12 +1724,12 @@
             // 不关闭菜单，方便查看效果
         };
         scaleBtn.onmouseenter = () => {
-             scaleBtn.style.transform = 'translateX(5px)';
              scaleBtn.style.color = '#fff';
+             scaleBtn.style.borderColor = 'rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.58)';
         };
         scaleBtn.onmouseleave = () => {
-             scaleBtn.style.transform = 'translateX(0)';
-             scaleBtn.style.color = '#eee';
+             scaleBtn.style.color = '#d4f0ff';
+             scaleBtn.style.borderColor = 'rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25)';
         };
         menu.appendChild(scaleBtn);
 
@@ -1525,11 +1757,11 @@
         // 鼠标悬停旋转特效
         toggleBtn.onmouseenter = () => {
             toggleBtn.style.transform = 'rotate(180deg) scale(1.1)';
-            toggleBtn.style.boxShadow = '0 0 30px var(--xhj-glow-color)';
+            toggleBtn.style.boxShadow = '0 0 36px var(--xhj-glow-color), inset 0 0 24px rgba(255,255,255,0.2)';
         };
         toggleBtn.onmouseleave = () => {
             toggleBtn.style.transform = 'rotate(0deg) scale(1)';
-            toggleBtn.style.boxShadow = '0 0 20px var(--xhj-glow-color)';
+            toggleBtn.style.boxShadow = '0 0 28px var(--xhj-glow-color), inset 0 0 18px rgba(255,255,255,0.12)';
         };
 
         container.appendChild(menu);
@@ -1566,11 +1798,14 @@
         triggerButton.textContent = '开始自动同步';
         triggerButton.style.cssText = `
             position: fixed; top: 10px; right: 10px; z-index: 999999;
-            padding: 8px 16px; border: none; border-radius: 4px;
-            cursor: pointer; font-size: 14px; min-width: 140px;
+            padding: 10px 18px; border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.42); border-radius: 10px;
+            cursor: pointer; font-size: 13px; min-width: 146px;
             transition: all 0.3s;
-            /* 默认样式，会被 CSS 变量覆盖 */
-            background: #4CAF50; color: white;
+            background: linear-gradient(135deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.76), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.3));
+            color: var(--xhj-active-fg, #fff);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.12);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         `;
         triggerButton.addEventListener('click', clickSyncButtons);
         document.body.appendChild(triggerButton);
@@ -1581,10 +1816,13 @@
         settingsButton.textContent = '跳转并指定90';
         settingsButton.style.cssText = `
             position: fixed; top: 50px; right: 10px; z-index: 999999;
-            padding: 8px 16px; border: none; border-radius: 4px;
-            cursor: pointer; font-size: 14px; min-width: 60px;
+            padding: 10px 16px; border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.34); border-radius: 10px;
+            cursor: pointer; font-size: 13px; min-width: 92px;
             transition: all 0.3s;
-            background: #2196F3; color: white;
+            background: linear-gradient(135deg, rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.95), rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.68));
+            color: var(--xhj-fg, #fff);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.08);
+            letter-spacing: 0.06em;
         `;
         settingsButton.addEventListener('click', openSettings);
         document.body.appendChild(settingsButton);
@@ -1749,9 +1987,12 @@
         toast.textContent = msg;
         toast.style.cssText = `
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8); color: #fff; padding: 10px 20px;
-            border-radius: 20px; z-index: 9999999; font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3); pointer-events: none;
+            background: linear-gradient(140deg, rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.96), rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.72));
+            color: var(--xhj-fg, #fff); padding: 12px 22px;
+            border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.48);
+            border-radius: 999px; z-index: 9999999; font-size: 13px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.34), inset 0 0 0 1px rgba(255,255,255,0.09); pointer-events: none;
+            letter-spacing: 0.06em; text-transform: uppercase;
             opacity: 0; transition: opacity 0.3s;
         `;
         document.body.appendChild(toast);
@@ -1802,10 +2043,10 @@
                 margin-left: 15px;
                 padding: 0 12px;
                 height: 28px;
-                background: #1a1a1a;
-                border-radius: 4px;
-                border: 1px solid #333;
-                box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
+                background: linear-gradient(140deg, rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.95), rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.7));
+                border-radius: 8px;
+                border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.34);
+                box-shadow: inset 0 2px 5px rgba(0,0,0,0.65), 0 6px 12px rgba(0,0,0,0.25);
                 font-family: 'Courier New', Courier, monospace;
                 font-size: 16px;
                 font-weight: bold;
@@ -1842,15 +2083,21 @@
             ...document.querySelectorAll('.layui-layer'),
             ...document.querySelectorAll('.el-dialog')
         ];
+        if (containers.length === 0 && document.querySelector('#uploader-list')) {
+            containers.push(document.body);
+        }
 
         containers.forEach(container => {
             const titleEl = container.querySelector('.layui-layer-title') || container.querySelector('.el-dialog__title');
-            if (!titleEl) return;
-            
-            const titleText = titleEl.textContent;
+            const titleText = titleEl ? titleEl.textContent : '';
             
             // 1. 房堪上传 (Survey Upload)
             if (titleText.includes('新增房堪图') || titleText.includes('房堪上传') || titleText.includes('房勘')) {
+                // [v2.7.5 优化] 添加性能优化标识类，解决滚动掉帧卡顿问题
+                if (!container.classList.contains('xhj-perf-optimized')) {
+                    container.classList.add('xhj-perf-optimized');
+                }
+
                 const hasIframe = container.querySelector('iframe');
                 // 移除旧版文本计数
                 const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
@@ -1869,30 +2116,33 @@
                 container.querySelectorAll('.schoolTu_top .xhj-img-counter, .xhj-img-counter').forEach(el => el.remove());
             }
             // 2. 新增全景图 (Panorama Upload) - [v2.7.2 新增]
-            else if (titleText.includes('新增全景图') || titleText.includes('全景图上传')) {
-                // 统计逻辑：统计文本包含“上传成功”或“上传完成”的元素
-                // 观察图示，状态通常在 .layui-btn 或 .layui-badge 或 span 中
-                
-                // 查找容器内所有包含“上传成功”或“上传完成”的文本节点/元素
-                // 更好的策略：根据图示，每个全景图条目右侧有一个状态按钮
-                // 直接统计包含“上传成功”字样的 .layui-btn 或 .layui-badge
-                // [v2.7.4 修复] 扩大搜索范围，防止因 DOM 结构差异导致统计为 0
-                // 某些情况下，状态文本可能直接在 span 或 div 中，而非 btn
-                const successBtns = Array.from(container.querySelectorAll('.layui-btn, .layui-badge, span, div')).filter(el => {
-                     // 排除 script, style
-                     if (['SCRIPT', 'STYLE'].includes(el.tagName)) return false;
-                     // 排除不可见元素
-                     if (el.offsetParent === null) return false;
-                     
-                     // 仅统计末端节点，避免父子重复
-                     if (el.childElementCount > 0) return false;
+            else if (
+                titleText.includes('新增全景图') ||
+                titleText.includes('全景图上传') ||
+                (container.querySelector('#uploader-list') && container.querySelector('label.layui-form-label'))
+            ) {
+                const hasIframe = !!container.querySelector('iframe');
+                if (hasIframe && !container.querySelector('#uploader-list')) {
+                    if (titleEl) {
+                        titleEl.querySelectorAll('.xhj-3d-counter').forEach(el => el.remove());
+                    }
+                    return;
+                }
 
-                     const t = el.textContent.trim();
-                     return t === '上传成功' || t === '上传完成';
+                const successBtns = Array.from(
+                    container.querySelectorAll('#uploader-list .layui-upload-list a, #uploader-list .layui-upload-list .layui-btn, #uploader-list .layui-upload-list span')
+                ).filter(el => {
+                    const rawText = (el.innerText || el.textContent || '').replace(/\s+/g, '');
+                    return rawText.includes('上传成功') || rawText.includes('上传完成');
                 });
-                
-                // 无需再去重，因为我们只取了无子元素的末端节点
-                const successCount = successBtns.length;
+
+                let successCount = successBtns.length;
+                if (successCount === 0) {
+                    const uploaderList = container.querySelector('#uploader-list');
+                    const fallbackText = uploaderList ? (uploaderList.innerText || '').replace(/\s+/g, '') : '';
+                    const matches = fallbackText.match(/上传成功|上传完成/g);
+                    successCount = matches ? matches.length : 0;
+                }
                 
                 // [v2.7.3] 调整全景图计数器位置
                 // 目标位置：单选框区域 (全景图/全景视频/3D模型) 的右侧
@@ -1912,6 +2162,13 @@
                 }
                 
                 if (targetContainer) {
+                    if (titleEl) {
+                        const staleTitleCounter = titleEl.querySelector('.xhj-3d-counter');
+                        if (staleTitleCounter) staleTitleCounter.remove();
+                    }
+                    container.querySelectorAll('.xhj-3d-counter').forEach(counterEl => {
+                        if (!targetContainer.contains(counterEl)) counterEl.remove();
+                    });
                     // 渲染计数器到 targetContainer 末尾
                     // 需要确保 targetContainer 是相对定位，以便放置绝对定位的计数器，或者直接 append 进去
                     
@@ -2003,8 +2260,7 @@
                              counter.style.borderColor = `hsla(${hue}, 50%, 40%, 0.5)`;
                         }
                     }
-                } else {
-                    // 如果找不到目标位置，回退到标题栏 (Fallback)
+                } else if (titleEl) {
                     render3DCounter(titleEl, successCount);
                 }
             }
@@ -2582,7 +2838,8 @@
                 
                 /* 2. Enhanced Glassmorphism for Safari */
                 .layui-layer, .layui-side, .glass-panel {
-                    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+                    -webkit-backdrop-filter: none !important;
+                    backdrop-filter: none !important;
                 }
                 
                 /* 3. Mobile Layout Adjustments */
