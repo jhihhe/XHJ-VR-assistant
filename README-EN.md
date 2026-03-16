@@ -1,4 +1,4 @@
-# 🎨 Xiangshi Platform Assistant (v2.6.1)
+# 🎨 Xiangshi Platform Assistant (v2.7.0)
 
 ![Platform](https://img.shields.io/badge/Platform-Xiangshi%20Admin-blue)
 ![Environment](https://img.shields.io/badge/Environment-Tampermonkey-orange)
@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/Language-JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Copyright](https://img.shields.io/badge/Copyright-%C2%A9%202026%20Xiangshi-lightgrey)
-![Version](https://img.shields.io/badge/Version-v2.6.1-brightgreen)
+![Version](https://img.shields.io/badge/Version-v2.7.0-brightgreen)
 
 [中文](README.md) | [English](README-EN.md) | [GitHub Homepage](https://github.com/jhihhe/XHJ-VR-assistant)
 
@@ -82,6 +82,10 @@ Built-in classic color schemes loved by programmers, switch with one click:
 5.  **Sync**: On supported list pages (such as Housing Survey List), click the **🔄 Auto Sync** button at the top to start working.
 
 ## 📝 Changelog
+
+### v2.7.0 (2026-03-16)
+- **UI Upgrade**: Revamped the survey upload counter with a **3D digital tube style**, simulating a real electronic display effect (inner shadow + glow).
+- **Smart Interaction**: Added color gradient logic; the number color automatically transitions from **Red** to **Green** as the upload count increases (0 → 35), providing intuitive progress feedback.
 
 ### v2.6.1 (2026-03-16)
 - **Fix**: Resolved issue where new panorama upload statuses (Uploading/Success) were not color-coded correctly on certain buttons or badges.

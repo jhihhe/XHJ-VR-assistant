@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.6.1
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.6.1: 修复新版全景图上传状态（上传中/上传成功）颜色区分失效的问题。
+// @version      2.7.0
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.0: 房堪上传计数器升级为 3D 数码管样式，支持红绿光谱渐变。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -1777,7 +1777,7 @@
         };
     };
 
-    // [v2.5.2] 图片计数逻辑 (Helper)
+    // [v2.7.0] 3D 数码管计数器逻辑
     const updateImageCounter = () => {
         const containers = [
             ...document.querySelectorAll('.layui-layer'),
@@ -1793,42 +1793,77 @@
 
             const hasIframe = container.querySelector('iframe');
             
-            // 移除标题中的计数文本 helper
-            const removeTitleCounter = (el) => {
-                 const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
-                 if (oldPattern.test(el.innerHTML)) el.innerHTML = el.innerHTML.replace(oldPattern, '');
-                 const c = el.querySelector('.xhj-img-counter');
-                 if (c) c.remove();
-            };
+            // 移除旧版文本计数
+            const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
+            if (oldPattern.test(titleEl.innerHTML)) {
+                titleEl.innerHTML = titleEl.innerHTML.replace(oldPattern, '');
+            }
 
             if (hasIframe) {
-                removeTitleCounter(titleEl);
+                const c = titleEl.querySelector('.xhj-3d-counter');
+                if (c) c.remove();
                 return;
             }
 
             const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
             const count = directImgs.length;
             
-            // 更新计数
-            const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
-            let html = titleEl.innerHTML;
-            const newText = `(已上传: ${count} 张)`;
+            // 计算颜色：1(红) -> 35(绿)
+            const maxCount = 35;
+            const progress = Math.min(count / maxCount, 1);
+            // HSL: Red=0, Green=120. 
+            const hue = Math.floor(progress * 120); 
+            const color = `hsl(${hue}, 100%, 50%)`;
+            const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
 
-            if (oldPattern.test(html)) {
-                if (!html.includes(newText)) titleEl.innerHTML = html.replace(oldPattern, newText);
-            } else {
-                let counter = titleEl.querySelector('.xhj-img-counter');
-                if (!counter) {
-                    counter = document.createElement('span');
-                    counter.className = 'xhj-img-counter';
-                    counter.style.cssText = 'margin-left: 10px; font-size: 14px; color: #00f2ff; font-weight: bold;';
-                    titleEl.appendChild(counter);
+            let counter = titleEl.querySelector('.xhj-3d-counter');
+            if (!counter) {
+                counter = document.createElement('div');
+                counter.className = 'xhj-3d-counter';
+                // 3D 数码管样式
+                counter.style.cssText = `
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: 15px;
+                    padding: 0 12px;
+                    height: 28px;
+                    background: #1a1a1a;
+                    border-radius: 4px;
+                    border: 1px solid #333;
+                    box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
+                    font-family: 'Courier New', Courier, monospace; /* 模拟数码管字体 */
+                    font-size: 18px;
+                    font-weight: bold;
+                    letter-spacing: 2px;
+                    position: relative;
+                    top: -2px; /* 微调对齐 */
+                    transition: all 0.3s ease;
+                `;
+                // 内部发光文字容器
+                const textSpan = document.createElement('span');
+                textSpan.className = 'xhj-counter-text';
+                textSpan.style.cssText = `
+                    text-shadow: 0 0 10px currentColor;
+                    transition: color 0.5s ease, text-shadow 0.5s ease;
+                `;
+                counter.appendChild(textSpan);
+                titleEl.appendChild(counter);
+            }
+
+            const textSpan = counter.querySelector('.xhj-counter-text');
+            if (textSpan) {
+                // 仅当数字变化时更新，避免动画重置
+                if (textSpan.textContent !== `${count}`) {
+                     textSpan.textContent = count < 10 ? `0${count}` : count; // 补零
+                     textSpan.style.color = color;
+                     textSpan.style.textShadow = `0 0 8px ${shadowColor}, 0 0 15px ${shadowColor}`;
+                     counter.style.borderColor = `hsla(${hue}, 50%, 40%, 0.5)`;
                 }
-                counter.textContent = newText;
             }
             
             // 清理旧残留
-            container.querySelectorAll('.schoolTu_top .xhj-img-counter').forEach(el => el.remove());
+            container.querySelectorAll('.schoolTu_top .xhj-img-counter, .xhj-img-counter').forEach(el => el.remove());
         });
     };
 
