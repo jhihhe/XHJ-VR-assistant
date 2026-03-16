@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手
 // @namespace    http://tampermonkey.net/
-// @version      2.7.1
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.1: 优化 3D 计数器逻辑，9张起显示浅绿，支持文本显示。
+// @version      2.7.2
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v2.7.2: 新增全景图上传 3D 计数器，支持统计上传成功张数。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -1777,7 +1777,66 @@
         };
     };
 
-    // [v2.7.0] 3D 数码管计数器逻辑
+    // [v2.7.2] 3D 数码管渲染 Helper
+    const render3DCounter = (titleEl, count, minGreenCount = 9, maxCount = 35) => {
+        let hue = 0;
+        if (count >= minGreenCount) {
+             const greenProgress = Math.min((count - minGreenCount) / (maxCount - minGreenCount), 1);
+             hue = 60 + Math.floor(greenProgress * 60); // 60(黄) -> 120(绿)
+        } else {
+             hue = 0; // 红色
+        }
+
+        const color = `hsl(${hue}, 100%, 50%)`;
+        const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
+
+        let counter = titleEl.querySelector('.xhj-3d-counter');
+        if (!counter) {
+            counter = document.createElement('div');
+            counter.className = 'xhj-3d-counter';
+            // 3D 数码管样式
+            counter.style.cssText = `
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 15px;
+                padding: 0 12px;
+                height: 28px;
+                background: #1a1a1a;
+                border-radius: 4px;
+                border: 1px solid #333;
+                box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 16px;
+                font-weight: bold;
+                letter-spacing: 1px;
+                position: relative;
+                top: -2px;
+                transition: all 0.3s ease;
+            `;
+            const textSpan = document.createElement('span');
+            textSpan.className = 'xhj-counter-text';
+            textSpan.style.cssText = `
+                text-shadow: 0 0 10px currentColor;
+                transition: color 0.5s ease, text-shadow 0.5s ease;
+            `;
+            counter.appendChild(textSpan);
+            titleEl.appendChild(counter);
+        }
+
+        const textSpan = counter.querySelector('.xhj-counter-text');
+        if (textSpan) {
+            const displayText = `已上传: ${count} 张`;
+            if (textSpan.textContent !== displayText) {
+                 textSpan.textContent = displayText;
+                 textSpan.style.color = color;
+                 textSpan.style.textShadow = `0 0 8px ${shadowColor}, 0 0 15px ${shadowColor}`;
+                 counter.style.borderColor = `hsla(${hue}, 50%, 40%, 0.5)`;
+            }
+        }
+    };
+
+    // [v2.7.2] 图片计数逻辑 (更新：支持房堪上传 + 新增全景图)
     const updateImageCounter = () => {
         const containers = [
             ...document.querySelectorAll('.layui-layer'),
@@ -1789,105 +1848,55 @@
             if (!titleEl) return;
             
             const titleText = titleEl.textContent;
-            if (!titleText.includes('新增房堪图') && !titleText.includes('房堪上传') && !titleText.includes('房勘')) return;
-
-            const hasIframe = container.querySelector('iframe');
             
-            // 移除旧版文本计数
-            const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
-            if (oldPattern.test(titleEl.innerHTML)) {
-                titleEl.innerHTML = titleEl.innerHTML.replace(oldPattern, '');
-            }
+            // 1. 房堪上传 (Survey Upload)
+            if (titleText.includes('新增房堪图') || titleText.includes('房堪上传') || titleText.includes('房勘')) {
+                const hasIframe = container.querySelector('iframe');
+                // 移除旧版文本计数
+                const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
+                if (oldPattern.test(titleEl.innerHTML)) titleEl.innerHTML = titleEl.innerHTML.replace(oldPattern, '');
 
-            if (hasIframe) {
-                const c = titleEl.querySelector('.xhj-3d-counter');
-                if (c) c.remove();
-                return;
-            }
-
-            const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
-            const count = directImgs.length;
-            
-            // 计算颜色：
-            // < 9 张: 红色 (0)
-            // >= 9 张: 开始渐变，直到 35 张变为绿色 (120)
-            const minGreenCount = 9;
-            const maxCount = 35;
-            
-            let hue = 0;
-            if (count >= minGreenCount) {
-                 // 归一化进度：(count - 9) / (35 - 9)
-                 const progress = Math.min((count - minGreenCount) / (maxCount - minGreenCount), 1);
-                 // HSL: Red=0 -> Green=120
-                 // 为了让“浅绿”更早出现，可以调整起始点，这里直接线性映射到 0-120
-                 // 或者，从 9 张开始直接给一个基础绿，然后越来越深？
-                 // 用户说“从9张就要开始浅绿了”，意味着 >=9 时 hue 应该已经脱离了纯红
-                 // 方案：0-8: 红色(0); 9: 浅绿(约40-50?); 9-35: 浅绿->纯绿(120)
-                 
-                 // 修正逻辑：
-                 // 0-8: 红色 (hue 0)
-                 // 9: 突变为浅绿 (hue 60, 黄绿色)
-                 // 9 -> 35: 渐变到纯绿 (hue 120)
-                 
-                 const greenProgress = Math.min((count - minGreenCount) / (maxCount - minGreenCount), 1);
-                 hue = 60 + Math.floor(greenProgress * 60); // 60(黄) -> 120(绿)
-            } else {
-                 hue = 0; // 红色
-            }
-
-            const color = `hsl(${hue}, 100%, 50%)`;
-            const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
-
-            let counter = titleEl.querySelector('.xhj-3d-counter');
-            if (!counter) {
-                counter = document.createElement('div');
-                counter.className = 'xhj-3d-counter';
-                // 3D 数码管样式
-                counter.style.cssText = `
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-left: 15px;
-                    padding: 0 12px;
-                    height: 28px;
-                    background: #1a1a1a;
-                    border-radius: 4px;
-                    border: 1px solid #333;
-                    box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
-                    font-family: 'Courier New', Courier, monospace; /* 模拟数码管字体 */
-                    font-size: 16px; /* 稍微调小一点以容纳更多文字 */
-                    font-weight: bold;
-                    letter-spacing: 1px;
-                    position: relative;
-                    top: -2px; /* 微调对齐 */
-                    transition: all 0.3s ease;
-                `;
-                // 内部发光文字容器
-                const textSpan = document.createElement('span');
-                textSpan.className = 'xhj-counter-text';
-                textSpan.style.cssText = `
-                    text-shadow: 0 0 10px currentColor;
-                    transition: color 0.5s ease, text-shadow 0.5s ease;
-                `;
-                counter.appendChild(textSpan);
-                titleEl.appendChild(counter);
-            }
-
-            const textSpan = counter.querySelector('.xhj-counter-text');
-            if (textSpan) {
-                // 格式：已上传: XX 张
-                const displayText = `已上传: ${count} 张`;
-                // 仅当内容变化时更新
-                if (textSpan.textContent !== displayText) {
-                     textSpan.textContent = displayText;
-                     textSpan.style.color = color;
-                     textSpan.style.textShadow = `0 0 8px ${shadowColor}, 0 0 15px ${shadowColor}`;
-                     counter.style.borderColor = `hsla(${hue}, 50%, 40%, 0.5)`;
+                if (hasIframe) {
+                    const c = titleEl.querySelector('.xhj-3d-counter');
+                    if (c) c.remove();
+                    return;
                 }
+
+                const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
+                render3DCounter(titleEl, directImgs.length);
+                
+                // 清理旧残留
+                container.querySelectorAll('.schoolTu_top .xhj-img-counter, .xhj-img-counter').forEach(el => el.remove());
             }
-            
-            // 清理旧残留
-            container.querySelectorAll('.schoolTu_top .xhj-img-counter, .xhj-img-counter').forEach(el => el.remove());
+            // 2. 新增全景图 (Panorama Upload) - [v2.7.2 新增]
+            else if (titleText.includes('新增全景图') || titleText.includes('全景图上传')) {
+                // 统计逻辑：统计文本包含“上传成功”或“上传完成”的元素
+                // 注意：这里需要遍历容器内的所有可能的状态文本
+                // 观察图示，状态通常在 .layui-btn 或 .layui-badge 或 span 中
+                // 我们在之前已经有一个颜色区分逻辑，可以复用类似的查找方式
+                
+                // 查找容器内所有包含“上传成功”或“上传完成”的文本节点/元素
+                // 简单起见，遍历所有可能的文本容器
+                // const all potentialElements = container.querySelectorAll('.layui-btn, .layui-badge, span, div, td'); // 修正语法错误
+                
+                // 更好的策略：根据图示，每个全景图条目右侧有一个状态按钮
+                // 直接统计包含“上传成功”字样的 .layui-btn 或 .layui-badge
+                const successBtns = Array.from(container.querySelectorAll('.layui-btn, .layui-badge, span')).filter(el => {
+                     // 排除不可见元素
+                     if (el.offsetParent === null) return false;
+                     const t = el.textContent.trim();
+                     return t.includes('上传成功') || t.includes('上传完成');
+                });
+                
+                // 去重：如果父子元素都被选中，只算一个 (简单的去重逻辑：按位置/包含关系)
+                // 实际上，通常每个条目只有一个状态按钮，直接 count 应该问题不大
+                // 但为了严谨，可以过滤掉包含子元素的容器，只保留末端节点
+                const validSuccessBtns = successBtns.filter(el => el.childElementCount === 0 || (el.childElementCount > 0 && el.innerText.trim() === el.textContent.trim()));
+                
+                successCount = validSuccessBtns.length;
+                
+                render3DCounter(titleEl, successCount);
+            }
         });
     };
 
