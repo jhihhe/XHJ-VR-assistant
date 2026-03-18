@@ -779,7 +779,7 @@
             .el-upload--picture-card:hover, .picture-add:hover, .avatar-uploader .el-upload:hover {
                 border-color: var(--xhj-active-bg) !important;
                 box-shadow: inset 0 0 20px var(--xhj-glow-color) !important;
-                transform: scale(0.98);
+                transform: none !important;
             }
             
             .el-button {
@@ -927,7 +927,7 @@
             
             /* 过渡动画 */
             .layui-btn, .layui-input, .layui-nav-item a, .layui-table-cell, .layui-tab-title li {
-                transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+                transition: color 0.14s ease, background-color 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease !important;
             }
 
             /* 侧边栏 macOS 风格 */
@@ -1125,6 +1125,18 @@
 
             .layui-btn, .layui-btn *, .el-button, .el-button *, .layui-layer-btn a, .layui-layer-btn a *, button, button *, [role="button"], [role="button"] * {
                 cursor: pointer !important;
+            }
+
+            .el-upload--picture-card, .picture-add, .avatar-uploader .el-upload,
+            .el-upload--picture-card *, .picture-add *, .avatar-uploader .el-upload * {
+                cursor: pointer !important;
+            }
+
+            .layui-btn::before, .layui-btn::after,
+            .el-button::before, .el-button::after,
+            .layui-layer-btn a::before, .layui-layer-btn a::after,
+            button::before, button::after {
+                pointer-events: none !important;
             }
 
             /* 9. 表格行悬浮高亮 */
@@ -1800,7 +1812,7 @@
             position: fixed; top: 10px; right: 10px; z-index: 999999;
             padding: 10px 18px; border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.42); border-radius: 10px;
             cursor: pointer; font-size: 13px; min-width: 146px;
-            transition: all 0.3s;
+            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
             background: linear-gradient(135deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.76), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.3));
             color: var(--xhj-active-fg, #fff);
             box-shadow: 0 8px 18px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.12);
@@ -1818,7 +1830,7 @@
             position: fixed; top: 50px; right: 10px; z-index: 999999;
             padding: 10px 16px; border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.34); border-radius: 10px;
             cursor: pointer; font-size: 13px; min-width: 92px;
-            transition: all 0.3s;
+            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
             background: linear-gradient(135deg, rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.95), rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.68));
             color: var(--xhj-fg, #fff);
             box-shadow: 0 6px 14px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.08);
