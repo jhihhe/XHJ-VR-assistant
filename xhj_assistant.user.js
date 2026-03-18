@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手（563997）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.11
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.11: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
+// @version      5.0.28
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.28: 修复新增房堪图弹窗初始位置偏下与上移受限问题，拖拽更顺畅。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -27,7 +27,15 @@
 
     const SKIN_STORAGE_KEY = 'xhj_skin_theme';
     const STYLE_ID = 'xhj-custom-skin-style';
+    const CRITICAL_STYLE_ID = 'xhj-critical-style';
+    const IFRAME_STYLE_ID = 'xhj-iframe-theme-style';
     const ENABLE_CLICK_RIPPLE = false;
+    const ENABLE_ADVANCED_CLICK_ANIMATION = false;
+    const CLICK_FEEDBACK_MIN_INTERVAL = 90;
+    const DYNAMIC_CONTENT_FALLBACK_INTERVAL = 5000;
+    const DYNAMIC_MIN_RUN_GAP = 120;
+    const STATUS_STYLE_SELECTOR = '.layui-table-cell, .layui-upload-list span, .status-text, .layui-btn, .layui-badge';
+    const DYNAMIC_OBSERVER_RELEVANT_SELECTOR = '.layui-layer, .el-dialog, .layui-table, .layui-table-view, .layui-upload-list, #uploader-list, iframe, .layui-layer-content';
 
     const parseColorChannels = (value, fallback = '22, 27, 34') => {
         if (typeof value !== 'string') return fallback;
@@ -305,7 +313,7 @@
             const theme = themes[savedTheme];
             if (theme && theme.vars && theme.vars['--xhj-bg']) {
                 const style = document.createElement('style');
-                style.id = 'xhj-critical-style';
+                style.id = CRITICAL_STYLE_ID;
                 style.innerHTML = `
                     html, body {
                         background-color: ${theme.vars['--xhj-bg']} !important;
@@ -342,7 +350,7 @@
              extraCss = `
                 body::before {
                     content: "";
-                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                     background-image: 
                         linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
                         linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
@@ -358,7 +366,7 @@
             extraCss += `
                 body::before {
                     content: "";
-                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                     background-image: 
                         radial-gradient(circle at 10% 20%, rgba(227, 28, 37, 0.05) 0%, transparent 20%),
                         radial-gradient(circle at 90% 80%, rgba(28, 77, 227, 0.05) 0%, transparent 20%),
@@ -708,6 +716,23 @@
             body.xhj-iframe-body {
                 padding-bottom: 0px !important;
             }
+            html.xhj-admin-top-root, body.xhj-admin-top-body {
+                height: 100% !important;
+                overflow: hidden !important;
+            }
+            body.xhj-admin-top-body .layui-layout-admin {
+                height: 100vh !important;
+                overflow: hidden !important;
+            }
+            body.xhj-admin-top-body .layui-layout-admin .layui-body {
+                overflow: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            body.xhj-admin-top-body .layui-layout-admin .layui-header {
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 1000 !important;
+            }
 
             /* --- 修复 Loading 等待框白色背景 --- */
             .layui-table-init, .layui-layer-loading .layui-layer-content {
@@ -872,55 +897,77 @@
                 display: none !important;
             }
 
-            /* --- Polish Style UI 深度优化 (V2EX Polish 风格移植) --- */
+            /* --- Polish Style UI 深度优化 (大师级设计移植) --- */
             
-            /* 1. 大圆角容器 (Polish Style: 18px) */
+            /* 1. 大圆角容器与高级玻璃态质感 (Glassmorphism) */
             .layui-card, .layui-panel, .layui-layer, .layui-layer-page {
-                border-radius: 18px !important;
+                border-radius: 20px !important;
+                background: rgba(var(--xhj-bg-rgb, 22, 27, 34), 0.75) !important;
+                backdrop-filter: blur(10px) saturate(140%) !important;
+                -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                box-shadow: 0 16px 40px rgba(0,0,0,0.2) !important;
             }
             
-            /* 2. 按钮优化 (Polish Style: 6px-10px, subtle shadow) */
+            /* 2. 按钮优化 (Premium Buttons) */
             .layui-btn {
-                border-radius: 10px !important;
+                border-radius: 12px !important;
                 font-weight: 600 !important;
                 letter-spacing: 0.5px;
-                /* 模拟 V2EX Polish 按钮阴影 */
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.1) inset !important;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+                transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease, background-color 0.2s ease !important;
+                border: 1px solid rgba(255,255,255,0.05) !important;
             }
             .layui-btn:hover {
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.1) inset !important;
+                box-shadow: 0 6px 16px rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.3), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+                filter: brightness(1.1);
             }
             
-            /* 3. 输入框优化 (Polish Style) */
+            /* 3. 输入框优化 (Neumorphism inputs) */
             .layui-input, .layui-select, .layui-textarea {
-                border-radius: 10px !important;
-                padding-left: 12px !important;
+                border-radius: 12px !important;
+                padding-left: 14px !important;
+                background: rgba(var(--xhj-bg-rgb, 0,0,0), 0.2) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.1) !important;
+            }
+            .layui-input:focus, .layui-select:focus, .layui-textarea:focus {
+                background: rgba(var(--xhj-bg-rgb, 0,0,0), 0.4) !important;
+                border-color: var(--xhj-active-bg) !important;
+                box-shadow: 0 0 0 4px rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.15), inset 0 2px 4px rgba(0,0,0,0.1) !important;
             }
             
-            /* 4. 侧边栏与导航 (Polish Style: Capsule Tabs) */
+            /* 4. 侧边栏与导航 (Capsule Tabs) */
             .layui-nav-tree .layui-nav-item a {
                 border-radius: 12px !important;
-                margin: 4px 10px !important;
+                margin: 4px 12px !important;
+                padding-left: 18px !important;
+                transition: all 0.2s ease !important;
             }
             
-            /* 5. 表格圆角化 */
+            /* 5. 表格圆角化与高级边框 */
             .layui-table-view {
-                border-radius: 14px !important;
-                overflow: hidden !important;
-                border: 1px solid rgba(255,255,255,0.05) !important;
-                background-image:
-                    linear-gradient(0deg, transparent calc(100% - 1px), rgba(var(--xhj-active-bg-rgb), 0.16) calc(100% - 1px)),
-                    linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb), 0.04) 1px, transparent 1px);
-                background-size: 100% 100%, 22px 100%;
+                border-radius: 16px !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                background: rgba(var(--xhj-bg-rgb, 22, 27, 34), 0.4) !important;
+                backdrop-filter: blur(6px) !important;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
             }
             
             /* 6. 弹窗头部圆角 */
             .layui-layer-title {
-                border-radius: 18px 18px 0 0 !important;
+                border-radius: 20px 20px 0 0 !important;
                 padding-left: 25px !important;
+                background: transparent !important;
+                border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+                color: var(--xhj-fg) !important;
+                font-weight: 600 !important;
             }
             .layui-layer-btn {
-                border-radius: 0 0 18px 18px !important;
+                border-radius: 0 0 20px 20px !important;
+                background: transparent !important;
+                border-top: 1px solid rgba(255,255,255,0.05) !important;
             }
 
             /* --- 全局组件优化 (保留原有) --- */
@@ -943,7 +990,6 @@
             }
             .layui-nav-tree .layui-nav-item a:hover {
                 background-color: rgba(255, 255, 255, 0.1) !important;
-                transform: none;
                 box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             }
             .layui-nav-tree .layui-this {
@@ -968,7 +1014,7 @@
                 background-color: var(--xhj-header-bg) !important;
                 border-bottom: 1px solid var(--xhj-border);
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-                z-index: 1000;
+                z-index: 1000 !important;
             }
             .layui-tab { background-color: transparent !important; }
             .layui-tab-title {
@@ -1040,7 +1086,7 @@
                 border: 1px solid rgba(var(--xhj-active-bg-rgb), 0.22) !important;
                 /* Radius moved to Polish section */
                 box-shadow: 0 8px 18px rgba(0,0,0,0.24) !important;
-                transition: transform 0.3s, box-shadow 0.3s !important;
+                transition: box-shadow 0.3s !important;
                 overflow: hidden;
             }
             .layui-card::before {
@@ -1062,7 +1108,6 @@
             }
             /* 6. 卡片高级悬浮效果 (Glass + Lift) */
             .layui-card:hover {
-                transform: translateY(-1px);
                 box-shadow: 0 10px 20px rgba(0,0,0,0.26), 0 0 0 1px rgba(var(--xhj-active-bg-rgb), 0.2) !important;
                 border-color: var(--xhj-active-bg) !important;
                 z-index: 10;
@@ -1142,7 +1187,54 @@
             /* 9. 表格行悬浮高亮 */
             .layui-table tbody tr:hover {
                 background-color: var(--xhj-hover-bg) !important;
-                transform: scale(1); /* 修复可能的抖动 */
+            }
+
+            /* 表格与自定义工具栏 (大师级设计) */
+            .layui-table-tool {
+                background-color: transparent !important;
+                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+            }
+            .layui-table-tool-panel {
+                background: rgba(var(--xhj-bg-rgb, 22, 27, 34), 0.95) !important;
+                backdrop-filter: blur(8px) saturate(140%) !important;
+                -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+                border-radius: 12px !important;
+                color: var(--xhj-fg) !important;
+                pointer-events: auto !important; /* Fix for dragging */
+                z-index: 99999 !important;
+            }
+            .layui-table-tool-panel li {
+                color: var(--xhj-fg) !important;
+                transition: background-color 0.2s ease !important; /* Fixed transition for drag */
+                padding: 6px 12px !important;
+                margin: 4px 8px !important;
+                border-radius: 6px !important;
+                pointer-events: auto !important; /* Fix for dragging */
+                user-select: none; /* Prevent text selection while dragging */
+                -webkit-user-drag: element;
+            }
+            .layui-table-tool-panel li:hover {
+                background-color: rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.15) !important;
+            }
+            .layui-table-tool .layui-inline[lay-event] {
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                background-color: rgba(var(--xhj-bg-rgb, 22, 27, 34), 0.5) !important;
+                border-radius: 6px !important;
+                margin-left: 8px !important;
+                color: var(--xhj-fg) !important;
+                transition: all 0.2s ease !important;
+            }
+            .layui-table-tool .layui-inline[lay-event]:hover {
+                background-color: var(--xhj-active-bg) !important;
+                border-color: var(--xhj-active-bg) !important;
+                color: #fff !important;
+                box-shadow: 0 4px 12px rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.4) !important;
+            }
+            .layui-form-checkbox[lay-skin=primary] span {
+                color: var(--xhj-fg) !important;
+                pointer-events: none !important; /* Let clicks pass through to checkbox */
             }
 
             /* 表格 */
@@ -1601,19 +1693,22 @@
        模块 2: 核心逻辑 (Theme Logic)
        ========================================================================== */
 
+    const ensureMainStyleNode = () => {
+        let style = document.getElementById(STYLE_ID);
+        if (!style) {
+            style = document.createElement('style');
+            style.id = STYLE_ID;
+            (document.head || document.documentElement).appendChild(style);
+        }
+        return style;
+    };
+
     const applyTheme = (themeName) => {
         const theme = themes[themeName] || themes['default'];
         const css = getCssTemplate(theme.vars);
-        
-        const oldStyle = document.getElementById(STYLE_ID);
-        if (oldStyle) oldStyle.remove();
 
-        if (!css) return;
-
-        const style = document.createElement('style');
-        style.id = STYLE_ID;
+        const style = ensureMainStyleNode();
         style.textContent = css;
-        (document.head || document.documentElement).appendChild(style);
         
         // 强制给 body 加背景，防止闪烁
         const setBodyBg = () => {
@@ -1627,6 +1722,35 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', setBodyBg);
         }
+        const criticalStyle = document.getElementById(CRITICAL_STYLE_ID);
+        if (criticalStyle) criticalStyle.remove();
+    };
+
+    const applyThemeToIframe = (iframe) => {
+        if (!iframe || iframe.tagName !== 'IFRAME') return;
+        const sync = () => {
+            try {
+                const doc = iframe.contentDocument;
+                if (!doc) return;
+                const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
+                const theme = themes[currentTheme] || themes['default'];
+                const css = getCssTemplate(theme.vars);
+                const root = doc.head || doc.documentElement;
+                if (!root) return;
+                let style = doc.getElementById(IFRAME_STYLE_ID);
+                if (!style) {
+                    style = doc.createElement('style');
+                    style.id = IFRAME_STYLE_ID;
+                    root.appendChild(style);
+                }
+                style.textContent = css;
+                if (doc.body) {
+                    doc.body.style.setProperty('background-color', theme.vars['--xhj-bg'] || '', 'important');
+                }
+            } catch (e) {}
+        };
+        sync();
+        iframe.addEventListener('load', sync, { once: true });
     };
 
     const switchTheme = (themeName) => {
@@ -1992,16 +2116,24 @@
     // 设置缩放
     const applyScale = () => {
         // v1.40: 针对全景图管理-上传页面禁用自动缩放 (解决DPI异常问题)
-        // 识别策略：检查URL或标题是否包含"新增"、"上传"等关键词
+        // 识别策略：检查URL或标题是否包含"新增"、"上传"、"操作详情"等关键词
         if (window.location.href.includes('/add') || 
             window.location.href.includes('/upload') || 
             document.title.includes('新增') || 
-            document.title.includes('上传')) {
+            document.title.includes('上传') ||
+            document.title.includes('操作详情') ||
+            window.location.href.includes('/detail')) {
             document.body.style.zoom = '';
             return;
         }
 
         if (!isScaleEnabled()) {
+            document.body.style.zoom = '';
+            return;
+        }
+        
+        // 如果是 iframe 弹窗内的页面（通过 window.self !== window.top 判断），并且标题包含"详情"、"新增"等，也不缩放
+        if (window.self !== window.top && (document.title.includes('详情') || document.title.includes('新增'))) {
             document.body.style.zoom = '';
             return;
         }
@@ -2054,6 +2186,245 @@
     };
 
     /* ==========================================================================
+       模块 5: 页面与表格注入增强 (Page & Table Hooks)
+       ========================================================================== */
+    const injectTableHook = () => {
+        const script = document.createElement('script');
+        script.textContent = `
+            (function() {
+                // 监听 layui 对象加载
+                let _layui = window.layui;
+                Object.defineProperty(window, 'layui', {
+                    get: function() { return _layui; },
+                    set: function(val) {
+                        _layui = val;
+                        if (!_layui) return;
+                        
+                        // 拦截 layui.use 以捕获 table 模块
+                        const originalUse = _layui.use;
+                        _layui.use = function(apps, callback, exports) {
+                            return originalUse.call(this, apps, function(...args) {
+                                if (_layui.table && !_layui.table._xhj_hooked) {
+                                    _layui.table._xhj_hooked = true;
+                                    const originalRender = _layui.table.render;
+                                    
+                                    _layui.table.render = function(options) {
+                                        const path = window.location.pathname;
+                                        const storageKey = 'xhj_table_cols_' + path;
+                                        const filter = options.filter || options.id;
+                                        
+                                        // 1. 恢复保存的列排序与隐藏状态
+                                        const savedColsStr = localStorage.getItem(storageKey);
+                                        if (savedColsStr && options.cols && options.cols.length > 0) {
+                                            try {
+                                                const savedCols = JSON.parse(savedColsStr);
+                                                const originalRow = options.cols[0];
+                                                const newRow = [];
+                                                
+                                                savedCols.forEach(savedCol => {
+                                                    const foundIndex = originalRow.findIndex(c => (c.field && c.field === savedCol.field) || (c.title && c.title === savedCol.title));
+                                                    if (foundIndex !== -1) {
+                                                        const found = originalRow[foundIndex];
+                                                        if (savedCol.hide !== undefined) found.hide = savedCol.hide;
+                                                        newRow.push(found);
+                                                        originalRow.splice(foundIndex, 1);
+                                                    }
+                                                });
+                                                options.cols[0] = newRow.concat(originalRow);
+                                            } catch (e) {
+                                                console.error("解析自定义列配置失败:", e);
+                                            }
+                                        }
+                                        
+                                        // 2. 工具栏设置
+                                        if (!options.defaultToolbar || !Array.isArray(options.defaultToolbar)) {
+                                            options.defaultToolbar = ['filter', 'exports', 'print'];
+                                        }
+                                        
+                                        if (!options.defaultToolbar.some(t => typeof t === 'object' && t.name === 'saveCols')) {
+                                            options.defaultToolbar.push({
+                                                title: '保存当前表头状态 (支持拖拽排序后保存)',
+                                                layEvent: 'LAYTABLE_SAVE_COLS',
+                                                icon: 'layui-icon-set-fill',
+                                                name: 'saveCols'
+                                            });
+                                        }
+                                        
+                                        if (!options.toolbar) {
+                                            options.toolbar = '<div><span style="font-size:12px;color:#999;margin-left:10px;"><i class="layui-icon layui-icon-tips"></i> 提示：点击右上角齿轮，拖拽列表项可排序，点击齿轮旁按钮保存生效。双击表格行可复制房源编号。</span></div>';
+                                        }
+
+                                        // 3. 拦截 done 回调以注入智能状态高亮
+                                        const originalDone = options.done;
+                                        options.done = function(res, curr, count) {
+                                            if (res && res.data) {
+                                                res.data.forEach((item, index) => {
+                                                    let bgColor = '';
+                                                    // d.state: 2待接单(微红), 3已接单(微绿), 0无效/4取消(微灰)
+                                                    if (item.state == 2 || item.stateName === '待接单') {
+                                                        bgColor = 'rgba(255, 99, 71, 0.08)'; // 微红
+                                                    } else if (item.state == 3 || item.stateName === '已接单') {
+                                                        bgColor = 'rgba(46, 204, 113, 0.08)'; // 微绿
+                                                    } else if (item.state == 0 || item.state == 4 || ['无效', '取消'].includes(item.stateName)) {
+                                                        bgColor = 'rgba(149, 165, 166, 0.08)'; // 微灰
+                                                    }
+
+                                                    if (bgColor) {
+                                                        const trs = document.querySelectorAll('div[lay-id="' + options.id + '"] .layui-table-body tr[data-index="' + index + '"]');
+                                                        trs.forEach(tr => {
+                                                            tr.style.backgroundColor = bgColor;
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            if (originalDone) originalDone.call(this, res, curr, count);
+                                        };
+
+                                        const ins = originalRender.call(this, options);
+                                        
+                                        // 4. 事件监听
+                                        _layui.table.on('toolbar(' + filter + ')', function(obj) {
+                                            if (obj.event === 'LAYTABLE_SAVE_COLS') {
+                                                const panel = obj.config.elem.next().find('.layui-table-tool-panel');
+                                                let currentCols = [...obj.config.cols[0]];
+                                                
+                                                if (panel.length > 0) {
+                                                    const orderedTitles = Array.from(panel.find('li')).map(li => li.querySelector('span').innerText.trim());
+                                                    currentCols.sort((a, b) => {
+                                                        const idxA = orderedTitles.indexOf(a.title);
+                                                        const idxB = orderedTitles.indexOf(b.title);
+                                                        if(idxA === -1) return 1;
+                                                        if(idxB === -1) return -1;
+                                                        return idxA - idxB;
+                                                    });
+                                                }
+                                                
+                                                const savedData = currentCols.map(c => ({
+                                                    field: c.field,
+                                                    title: c.title,
+                                                    hide: c.hide === true
+                                                }));
+                                                
+                                                localStorage.setItem(storageKey, JSON.stringify(savedData));
+                                                _layui.layer.msg('表头排版及显示状态已保存！页面即将刷新...', {icon: 1, time: 1000}, () => {
+                                                    window.location.reload();
+                                                });
+                                            }
+                                        });
+
+                                        // 5. 双击复制功能
+                                        _layui.table.on('rowDouble(' + filter + ')', function(obj){
+                                            const data = obj.data;
+                                            const no = data.houseSourceNumber || data.house_nums || data.id;
+                                            if (no) {
+                                                // 兼容 http 和 https 环境的复制
+                                                const textArea = document.createElement("textarea");
+                                                textArea.value = no;
+                                                document.body.appendChild(textArea);
+                                                textArea.select();
+                                                try {
+                                                    document.execCommand('copy');
+                                                    _layui.layer.msg('已复制房源编号: ' + no, {icon: 1});
+                                                } catch (err) {
+                                                    console.error('复制失败', err);
+                                                }
+                                                document.body.removeChild(textArea);
+                                            }
+                                        });
+                                        
+                                        return ins;
+                                    };
+                                }
+                                if (callback) return callback.apply(this, args);
+                            }, exports);
+                        };
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+
+                // 监听筛选下拉框的打开，注入拖拽功能
+                document.addEventListener('mousedown', function(e) {
+                    const target = e.target;
+                    // layui 的工具栏按钮通常是带 lay-event="LAYTABLE_COLS" 的元素
+                    if (target.closest('[lay-event="LAYTABLE_COLS"]') || target.closest('.layui-table-tool-panel')) {
+                        setTimeout(() => {
+                            const panels = document.querySelectorAll('.layui-table-tool-panel');
+                            panels.forEach(panel => {
+                                if (!panel.dataset.dragInjected) {
+                                    panel.dataset.dragInjected = 'true';
+                                    const lis = panel.querySelectorAll('li');
+                                    let dragSrcEl = null;
+                                    
+                                    lis.forEach(li => {
+                                        li.setAttribute('draggable', 'true');
+                                        li.style.cursor = 'grab'; // Use grab cursor for better UX
+                                        
+                                        li.addEventListener('dragstart', function(e) {
+                                            dragSrcEl = this;
+                                            this.style.cursor = 'grabbing';
+                                            e.dataTransfer.effectAllowed = 'move';
+                                            e.dataTransfer.setData('text/plain', this.innerText); // Must set data for drag to work in all browsers
+                                            
+                                            // 修复指针和手型快速跳动的问题：
+                                            // 当透明度降低时，鼠标可能会穿透到下面的元素触发其他事件
+                                            // 使用一个非常短的延迟并添加特定的拖拽类
+                                            setTimeout(() => {
+                                                this.classList.add('xhj-dragging');
+                                                this.style.opacity = '0.5';
+                                            }, 10);
+                                        });
+                                        
+                                        li.addEventListener('dragover', function(e) {
+                                            if (e.preventDefault) e.preventDefault(); // Necessary. Allows us to drop.
+                                            e.dataTransfer.dropEffect = 'move';
+                                            return false;
+                                        });
+                                        
+                                        li.addEventListener('dragenter', function(e) {
+                                            if (this !== dragSrcEl) {
+                                                this.style.borderTop = '2px dashed var(--xhj-active-bg, #1E9FFF)';
+                                                this.style.paddingTop = '4px'; // Compensate for border to prevent layout shift
+                                            }
+                                        });
+                                        
+                                        li.addEventListener('dragleave', function(e) {
+                                            this.style.borderTop = '';
+                                            this.style.paddingTop = '6px'; // Restore original padding
+                                        });
+                                        
+                                        li.addEventListener('drop', function(e) {
+                                            if (e.stopPropagation) e.stopPropagation(); // Stops the browser from redirecting.
+                                            if (dragSrcEl !== this) {
+                                                // 拖拽排序核心逻辑，将被拖拽元素移动到目标元素之前
+                                                this.parentNode.insertBefore(dragSrcEl, this);
+                                            }
+                                            this.style.borderTop = '';
+                                            this.style.paddingTop = '6px';
+                                            return false;
+                                        });
+                                        
+                                        li.addEventListener('dragend', function(e) {
+                                            this.style.opacity = '1';
+                                            this.style.cursor = 'grab';
+                                            this.classList.remove('xhj-dragging');
+                                            lis.forEach(l => {
+                                                l.style.borderTop = '';
+                                                l.style.paddingTop = '6px';
+                                            });
+                                        });
+                                    });
+                                }
+                            });
+                        }, 100); // 降低延迟，提高响应速度
+                    }
+                });
+            })();
+        `;
+        (document.head || document.documentElement).appendChild(script);
+    };
+
+    /* ==========================================================================
        初始化 (Initialization)
        ========================================================================== */
 
@@ -2064,6 +2435,12 @@
             if (timer) clearTimeout(timer);
             timer = setTimeout(() => fn.apply(this, args), delay);
         };
+    };
+
+    const dynamicFlags = {
+        framePending: false,
+        lastRunAt: 0,
+        lastStatusStamp: ''
     };
 
     // [v2.7.2] 3D 数码管渲染 Helper
@@ -2389,8 +2766,14 @@
     };
 
     // [v2.6 优化] 核心动态内容处理 (统一管理 DOM 变动响应)
-    const handleDynamicContent = () => {
+    const handleDynamicContent = (force = false) => {
+        const now = performance.now();
+        if (!force && (document.hidden || (now - dynamicFlags.lastRunAt < DYNAMIC_MIN_RUN_GAP))) return;
+        if (dynamicFlags.framePending && !force) return;
+        dynamicFlags.framePending = true;
         requestAnimationFrame(() => {
+            dynamicFlags.framePending = false;
+            dynamicFlags.lastRunAt = performance.now();
             updateImageCounter(); // 6. 图片计数更新
 
             // 1. 识别表格类型 & 注入列宽样式
@@ -2512,8 +2895,12 @@
 
             // 2. VR上传状态颜色区分
             // 扩展选择器以覆盖图二中的“上传中”、“上传成功”按钮/徽章
-            const statusCells = document.querySelectorAll('.layui-table-cell, .layui-upload-list span, .status-text, td:not(:empty), .layui-btn, .layui-badge, span');
-            statusCells.forEach(cell => {
+            const statusRoot = document.querySelector('.layui-table-view, .layui-layer-content, .layui-upload-list, .el-dialog') || document.body;
+            const statusStamp = `${statusRoot.childElementCount}|${statusRoot.querySelectorAll('.layui-upload-list tr').length}|${statusRoot.querySelectorAll('.layui-btn, .layui-badge, .status-text').length}`;
+            if (force || statusStamp !== dynamicFlags.lastStatusStamp) {
+                dynamicFlags.lastStatusStamp = statusStamp;
+                const statusCells = statusRoot.querySelectorAll(STATUS_STYLE_SELECTOR);
+                statusCells.forEach(cell => {
                 // 排除 script, style
                 if (['SCRIPT', 'STYLE'].includes(cell.tagName)) return;
                 
@@ -2525,6 +2912,9 @@
                 
                 // 定义样式应用 helper
                 const applyStyle = (color, shadowColor) => {
+                    const signature = `${text}|${color}|${shadowColor}`;
+                    if (cell.dataset.xhjStatusStyled === signature) return;
+                    cell.dataset.xhjStatusStyled = signature;
                     // 使用 !important 覆盖原有样式 (如 layui-btn 的默认白字/背景)
                     cell.style.setProperty('color', color, 'important');
                     cell.style.setProperty('font-weight', 'bold', 'important');
@@ -2543,16 +2933,23 @@
                 } else if (text === '上传') {
                     applyStyle('#3498db', 'rgba(52, 152, 219, 0.4)'); // 蓝色
                 }
-            });
+                });
+            }
             
-            // 3. 修复“新增房堪图”弹窗高度 及 移动按钮
+            // 3. 修复“新增房堪图”弹窗高度、初始位置 及 移动按钮
             document.querySelectorAll('.layui-layer-title').forEach(title => {
                 if (title.textContent.includes('新增房堪图') || title.textContent.includes('房堪上传')) {
                     const layer = title.closest('.layui-layer');
                     if (layer && !layer.dataset.xhjResized) {
                         const h = parseInt(layer.style.height || 0);
                         const w = parseInt(layer.style.width || 0);
+                        const top = parseInt(layer.style.top || window.getComputedStyle(layer).top || 0);
+                        layer.style.position = 'fixed';
                         if (h) layer.style.height = (h + 60) + 'px';
+                        if (!Number.isNaN(top)) {
+                            const shiftedTop = Math.max(8, top - 120);
+                            layer.style.top = shiftedTop + 'px';
+                        }
                         if (w) {
                             layer.style.width = (w + 100) + 'px';
                             if (layer.style.left) layer.style.left = (parseInt(layer.style.left) - 50) + 'px';
@@ -2665,7 +3062,14 @@
                         };
 
                         if (!layer._xhjBtnHeaderTimer) {
-                            layer._xhjBtnHeaderTimer = setInterval(moveRealButtonsToHeader, 500);
+                            layer._xhjBtnHeaderStartedAt = Date.now();
+                            layer._xhjBtnHeaderTimer = setInterval(() => {
+                                moveRealButtonsToHeader();
+                                if (Date.now() - layer._xhjBtnHeaderStartedAt > 15000 && layer._xhjBtnHeaderTimer) {
+                                    clearInterval(layer._xhjBtnHeaderTimer);
+                                    layer._xhjBtnHeaderTimer = null;
+                                }
+                            }, 1000);
                         }
                     }
                 }
@@ -2688,11 +3092,11 @@
 
     const initThemeObserver = () => {
         // [v2.6] 使用防抖调用动态内容处理
-        const debouncedHandleDynamic = debounce(handleDynamicContent, 200);
+        const debouncedHandleDynamic = debounce(() => handleDynamicContent(), 120);
 
         // [v2.2 优化] MutationObserver 性能改进：仅处理新增节点，避免全局查询
         const observer = new MutationObserver((mutations) => {
-            debouncedHandleDynamic(); // 触发动态内容检查
+            let hasRelevantMutation = false;
 
             const addedNodes = [];
             
@@ -2702,6 +3106,11 @@
                     for (const node of mutation.addedNodes) {
                         if (node.nodeType === 1) { // 仅处理 Element 节点
                             addedNodes.push(node);
+                            if (!hasRelevantMutation && node.matches && node.matches(DYNAMIC_OBSERVER_RELEVANT_SELECTOR)) {
+                                hasRelevantMutation = true;
+                            } else if (!hasRelevantMutation && node.querySelector && node.querySelector(DYNAMIC_OBSERVER_RELEVANT_SELECTOR)) {
+                                hasRelevantMutation = true;
+                            }
                             // 如果添加的是容器，也收集其子元素（可选，视性能而定，这里暂只处理顶层和特定子级）
                         }
                     }
@@ -2709,6 +3118,9 @@
             }
 
             if (addedNodes.length === 0) return;
+            if (hasRelevantMutation) {
+                debouncedHandleDynamic();
+            }
 
             // 1. 处理新增的 iframe
             addedNodes.forEach(node => {
@@ -2764,45 +3176,54 @@
                 background: radial-gradient(circle, rgba(130,220,255,0.95) 0%, rgba(130,220,255,0.2) 55%, rgba(130,220,255,0) 100%);
                 box-shadow: 0 0 10px rgba(130,220,255,0.9), 0 0 24px rgba(130,220,255,0.45);
                 transform: translate(-50%, -50%) scale(0.7);
-                animation: xhj-click-pop 520ms ease-out forwards;
+                animation: xhj-click-pop 380ms ease-out forwards;
             }
             @keyframes xhj-click-pop {
                 0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.7); }
-                100% { opacity: 0; transform: translate(-50%, -50%) scale(4.2); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(3.2); }
             }
         `;
         document.head.appendChild(style);
+        let lastFeedbackTs = 0;
         document.addEventListener('pointerdown', (e) => {
+            if (e.button !== 0) return;
+            const now = performance.now();
+            if (now - lastFeedbackTs < CLICK_FEEDBACK_MIN_INTERVAL) return;
+            lastFeedbackTs = now;
             const dot = document.createElement('span');
             dot.className = 'xhj-click-feedback';
             dot.style.left = `${e.clientX}px`;
             dot.style.top = `${e.clientY}px`;
             document.body.appendChild(dot);
-            setTimeout(() => dot.remove(), 560);
+            setTimeout(() => dot.remove(), 420);
         }, true);
     };
 
     const init = () => {
-        initThemeObserver();
-        initClickFeedback();
-
-        // 1. 加载主题
         const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
         applyTheme(currentTheme);
+        initThemeObserver();
+        initClickFeedback();
 
         // 识别 iframe 并添加标识类 (用于 CSS 底部填充)
         if (window.top !== window.self) {
             document.body.classList.add('xhj-iframe-body');
+        } else if (document.querySelector('.layui-layout-admin')) {
+            document.body.classList.add('xhj-admin-top-body');
+            document.documentElement.classList.add('xhj-admin-top-root');
         }
         
         // (已移除重复的全局点击特效事件，由 CSS 或上方统一处理)
 
         // 2. 动态内容处理 (核心优化)
         // 逻辑已移至 handleDynamicContent，此处仅做初始调用和定时检查（低频）
-        handleDynamicContent();
+        requestAnimationFrame(() => handleDynamicContent(true));
         
         // 保留一个低频定时器作为兜底 (每 2 秒)，防止 MutationObserver 漏掉某些无 DOM 变动但样式需更新的情况
-        setInterval(handleDynamicContent, 2000);
+        setInterval(() => {
+            if (document.hidden) return;
+            handleDynamicContent(true);
+        }, DYNAMIC_CONTENT_FALLBACK_INTERVAL);
 
         // 3. 监听跨窗口同步
         window.addEventListener('storage', (e) => {
@@ -2814,6 +3235,9 @@
             applyScale();
             window.addEventListener('resize', applyScale);
         }
+        
+        // 4.5 注入表格钩子
+        injectTableHook();
 
         // 5. 初始化 UI 和 自动同步按钮
         const initDOM = () => {
@@ -3131,6 +3555,36 @@
                     .layui-layout-admin .layui-header .layui-layout-left {
                         left: 0 !important;
                     }
+                    #auto-sync-button-v3,
+                    #auto-sync-settings-v3 {
+                        right: max(8px, env(safe-area-inset-right)) !important;
+                        max-width: calc(100vw - 16px - env(safe-area-inset-right)) !important;
+                        min-width: 0 !important;
+                        padding: 8px 12px !important;
+                        font-size: 12px !important;
+                        white-space: nowrap !important;
+                        overflow: hidden !important;
+                        text-overflow: ellipsis !important;
+                    }
+                    #auto-sync-button-v3 {
+                        top: max(8px, env(safe-area-inset-top)) !important;
+                    }
+                    #auto-sync-settings-v3 {
+                        top: calc(max(8px, env(safe-area-inset-top)) + 42px) !important;
+                    }
+                    #xhj-theme-dock {
+                        right: max(10px, env(safe-area-inset-right)) !important;
+                        bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+                    }
+                    #xhj-theme-dock > button {
+                        width: 52px !important;
+                        height: 52px !important;
+                    }
+                    #xhj-theme-dock > div {
+                        width: min(86vw, 240px) !important;
+                        max-height: 60vh !important;
+                        overflow-y: auto !important;
+                    }
                 }
                 
                 /* 4. Safe Area Insets (iPhone X+) */
@@ -3208,13 +3662,14 @@
 
     // [v2.7.4] 鼠标点击炫酷动画
     const initClickAnimation = () => {
+        if (!ENABLE_ADVANCED_CLICK_ANIMATION) return;
         const style = document.createElement('style');
         style.textContent = `
             .xhj-click-ripple {
                 position: fixed;
                 border-radius: 50%;
                 transform: scale(0);
-                animation: xhj-ripple-anim 0.6s linear;
+                animation: xhj-ripple-anim 0.45s ease-out;
                 background: rgba(64, 158, 255, 0.4);
                 pointer-events: none;
                 z-index: 999999;
@@ -3238,7 +3693,7 @@
                 background-color: #ffeb3b;
                 pointer-events: none;
                 z-index: 999999;
-                animation: xhj-spark-anim 0.8s ease-out forwards;
+                animation: xhj-spark-anim 0.45s ease-out forwards;
             }
             @keyframes xhj-spark-anim {
                 0% { transform: scale(1); opacity: 1; }
@@ -3257,7 +3712,7 @@
             
             // Sparks
             const colors = ['#ff3b30', '#4cd964', '#007aff', '#ff9500', '#5ac8fa'];
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 2; i++) {
                 const spark = document.createElement('div');
                 spark.className = 'xhj-click-spark';
                 spark.style.left = (e.clientX - 3) + 'px';
@@ -3271,10 +3726,10 @@
                 
                 document.body.appendChild(spark);
                 
-                setTimeout(() => spark.remove(), 800);
+                setTimeout(() => spark.remove(), 460);
             }
             
-            setTimeout(() => ripple.remove(), 600);
+            setTimeout(() => ripple.remove(), 460);
         });
     };
 

@@ -1,174 +1,169 @@
-# 🚀 Xiangshi Platform Assistant · XHJ VR Assistant
+# 🌌 Xiangshi Platform Assistant · XHJ VR Assistant
 
-[![GitHub Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=7bdff2)](https://github.com/jhihhe/XHJ-VR-assistant/network/members)
-[![GitHub Issues](https://img.shields.io/github/issues/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ff7aa2)](https://github.com/jhihhe/XHJ-VR-assistant/issues)
+[![Version](https://img.shields.io/badge/Version-v5.0.28-00c853?style=for-the-badge)](#versioning-policy)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
+[![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
+[![Repo Forks](https://img.shields.io/github/forks/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=7bdff2)](https://github.com/jhihhe/XHJ-VR-assistant/network/members)
+[![Open Issues](https://img.shields.io/github/issues/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ff7aa2)](https://github.com/jhihhe/XHJ-VR-assistant/issues)
 
-[![Platform](https://img.shields.io/badge/Platform-Xiangshi_Admin-223?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
-[![Type](https://img.shields.io/badge/Type-Tampermonkey_UserScript-8a2be2?style=for-the-badge&logo=tampermonkey&logoColor=white)](#)
-[![Language](https://img.shields.io/badge/Language-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111)](#)
-[![Version](https://img.shields.io/badge/Version-v5.0.11-00c853?style=for-the-badge)](#)
-[![Release Train](https://img.shields.io/badge/Release-SemVer_x.x.x-00b4d8?style=for-the-badge)](#versioning-policy)
-
-[![Themes](https://img.shields.io/badge/Themes-15+-ff9800?style=flat-square)](#-theme-system)
-[![HUD UI](https://img.shields.io/badge/HUD-Display_Style-00bcd4?style=flat-square)](#-visual-system)
-[![AutoSync](https://img.shields.io/badge/AutoSync-Batch_Ready-7c4dff?style=flat-square)](#-automation-capabilities)
-[![AutoVerify](https://img.shields.io/badge/AutoVerify-ONNX_Local-009688?style=flat-square)](#-automation-capabilities)
-[![Upload UX](https://img.shields.io/badge/Upload-Enhanced-4caf50?style=flat-square)](#-upload-enhancements)
-[![iFrame](https://img.shields.io/badge/iFrame-Style_Sync-5c6bc0?style=flat-square)](#-compatibility--adaptation)
+[![Tampermonkey](https://img.shields.io/badge/Tampermonkey-UserScript-1e88e5?style=flat-square&logo=tampermonkey&logoColor=white)](#installation--deployment)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-f7df1e?style=flat-square&logo=javascript&logoColor=111)](#technical-overview)
+[![Themes](https://img.shields.io/badge/Themes-15-ff9800?style=flat-square)](#theme-matrix)
+[![Auto Sync](https://img.shields.io/badge/AutoSync-Batch-7c4dff?style=flat-square)](#feature-panorama)
+[![Auto Verify](https://img.shields.io/badge/AutoVerify-ONNX_Local-00897b?style=flat-square)](#feature-panorama)
+[![Layout Safe](https://img.shields.io/badge/Layout-TopBar_Stable-455a64?style=flat-square)](#latest-update-v5028)
+[![GreasyFork x3](https://img.shields.io/badge/GreasyFork-3_scripts-d32f2f?style=flat-square)](#installation--deployment)
 [![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](#)
 
-> A production-grade enhancement userscript for Xiangshi Admin: **deep visual polish + workflow automation + upload pipeline acceleration + cross-iframe consistency**.
+> A production-grade enhancement suite for Xiangshi Admin: **premium theming + table productivity + workflow automation + upload pipeline optimization + local intelligence**.
 
 ---
 
-## 📚 Contents
+## 📌 Contents
 
-- [Project Positioning](#-project-positioning)
-- [Capability Overview](#-capability-overview)
-- [Detailed Feature Guide](#-detailed-feature-guide)
-- [Theme System](#-theme-system)
-- [Install & Update](#-install--update)
-- [Versioning Policy](#-versioning-policy)
-- [Compatibility & Adaptation](#-compatibility--adaptation)
-- [Previews](#-previews)
-- [FAQ](#-faq)
-- [Disclaimer](#-disclaimer)
+- [Highlights](#highlights)
+- [Latest Update v5.0.28](#latest-update-v5028)
+- [Feature Panorama](#feature-panorama)
+- [Theme Matrix](#theme-matrix)
+- [Charts & Diagrams](#charts--diagrams)
+- [Installation & Deployment](#installation--deployment)
+- [Technical Overview](#technical-overview)
+- [Versioning Policy](#versioning-policy)
+- [Screenshots](#screenshots)
+- [FAQ](#faq)
+- [Disclaimer](#disclaimer)
 
-## 🎯 Project Positioning
+## Highlights
 
-This project is not just a skin pack. It is a complete enhancement layer for high-frequency admin workflows:
+- Rebuilt visual hierarchy for dense admin pages with consistent HUD aesthetics.
+- Table-first productivity: column persistence, row double-click copy, status highlights.
+- Automation toolkit: auto-sync, smart scaling, upload retry, dynamic observers.
+- Local intelligence: ONNX-based CAPTCHA workflow without external API keys.
+- Cross-context consistency: main pages, modal layers, and iframes stay aligned.
 
-- **UI layer**: unified HUD style and stronger visual hierarchy.
-- **Interaction layer**: batch sync, status coloring, action button realignment.
-- **Workflow layer**: fewer repeated clicks, shorter operation path.
-- **Stability layer**: non-invasive enhancement without changing backend API contracts.
+## Latest Update v5.0.28
 
-## 🧠 Capability Overview
+- Fixed the "Add Survey Images" modal opening too low on screen.
+- Switched the modal to fixed positioning so upward dragging remains stable after page scroll.
+- Published as `v5.0.28` with synchronized Git and all Greasy metadata headers.
 
-### 1) Visual System
-- Unified HUD-like style for header/sidebar/table/modal/button/input.
-- Better contrast and typography layering for dense operational screens.
-- Consistent light, border, and shadow language across contexts.
-
-### 2) Automation Capabilities
-- One-click auto-sync workflow with visible status feedback.
-- Reduced repetitive operations in routine management pages.
-- Error-prone steps are converted into guided, visible actions.
-
-### 3) Upload Enhancements
-- Survey upload counting and status recognition improvements.
-- Panorama upload success/failure/uploading state tracking.
-- Timeout policy for stuck uploads with quick retry entrance.
-
-### 4) Local Intelligence
-- ONNX Runtime local CAPTCHA recognition.
-- No third-party API key dependency.
-- Better privacy and operational stability.
-
-### 5) Cross-Context Consistency
-- Main page, popup layer, and iframe pages stay visually aligned.
-- Dialog action controls are repositioned and normalized for usability.
-
-## 🔍 Detailed Feature Guide
+## Feature Panorama
 
 ### 🎨 Visual System
+- 15 built-in themes (dark / neon / glass / cyber / bauhaus styles).
+- Unified design language for table, button, input, modal, and pager.
+- Semantic color boost for faster visual scanning and action priority.
 
-#### Global HUD Transformation
-- Converts mixed page styles into a coherent futuristic HUD language.
-- Reduces “native + patched” style mismatch in enterprise pages.
-- Improves readability in low-light, long-session usage scenarios.
+### 📊 Table Productivity
+- `layui.table` render hook enhancements.
+- Persistent header config (column order + visible/hidden states).
+- Double-click row to copy house source number.
+- Light status highlighting by business state.
+- Scenario-specific layout tuning for survey list and panorama management.
 
-#### Text & Status Semantics
-- Strong color semantics for primary/secondary/risk states.
-- Better hover/active/focus consistency for precise operations.
+### ⚡ Automation
+- Batch auto-sync to reduce repetitive clicks.
+- Toggleable smart scaling with per-page guard strategy.
+- Failed upload detection and quick retry entrance.
+- MutationObserver + fallback polling to keep enhancements alive on dynamic pages.
 
-### ⚙️ Automation Capabilities
+### 🧠 Local Intelligence
+- AutoVerify powered by ONNX Runtime (local inference).
+- Auto-locate CAPTCHA image and input field, then fill recognition result.
+- Better privacy and lower external dependency risk.
 
-#### One-Click Auto Sync
-- Batch-triggers sync behaviors from operational pages.
-- Adds clearer progress and result feedback.
-- Keeps backend logic untouched while improving throughput.
+## Theme Matrix
 
-#### Interaction Efficiency
-- Moves high-frequency controls to more natural positions.
-- Cuts down pointer travel distance and accidental misses.
+| Category | Themes |
+|---|---|
+| Dark Stack | Dracula, Monokai Pro, Solarized Dark, GitHub Dark, Modern Dark, Midnight Blue |
+| Neon Stack | Cyberpunk 2077, Synthwave '84', Star Wars HUD, Future Tech |
+| Material Stack | Glass Morphism, Bauhaus |
+| Nature Stack | Emerald Forest |
+| Light Stack | MacOS Light |
+| Baseline | Default |
 
-### 📤 Upload Enhancements
+## Charts & Diagrams
 
-#### Survey Upload Improvements
-- Better counting stability and duplicate counter cleanup.
-- Improved action button alignment and size consistency in dialog headers.
+### 1) Capability Distribution
 
-#### Panorama Upload Improvements
-- Recognizes `uploaded`, `failed`, and `uploading` states continuously.
-- Shows a visible `Retry Failed (X)` control when failure exists.
-- Stuck `uploading` state is force-marked as failure after timeout (current threshold: 150s).
+```mermaid
+pie title Feature Capability Distribution
+    "Visual System" : 28
+    "Table Productivity" : 24
+    "Automation" : 24
+    "Upload Pipeline" : 14
+    "Local Intelligence" : 10
+```
 
-### 🧩 Table and Layout Intelligence
-- Business-aware column width tuning for survey and panorama pages.
-- Better density handling for long-value columns.
-- Faster scan-and-click rhythm in crowded data tables.
+### 2) Runtime Flow
 
-### 🔐 Local Verification (AutoVerify)
-- Local ONNX inference pipeline.
-- Reduced dependency on external verification services.
-- Suitable for stable automation prerequisites in enterprise environments.
+```mermaid
+flowchart LR
+    A[User Enters Admin] --> B[Theme & Style Engine]
+    B --> C[Table Enhancement Engine]
+    B --> D[Automation Engine]
+    D --> E[Upload Status Engine]
+    D --> F[AutoVerify Local Inference]
+    C --> G[Interactive Feedback Layer]
+    E --> G
+    F --> G
+```
 
-## 🌈 Theme System
+### 3) Release Timeline
 
-Built-in themes include:
+```mermaid
+timeline
+    title XHJ Assistant Release Line
+    5.0.19 : Content visibility fix after menu switching
+    5.0.20 : Rollback of high-risk layout overrides
+    5.0.21 : Top-bar scroll jitter fix on main/popup contexts
+    5.0.22 : README overhaul + Git/Greasy script sync
+    5.0.26 : Mobile button visibility adaptation and layout stability refinement
+    5.0.27 : Dynamic observer scheduling optimization and interaction pipeline load reduction
+    5.0.28 : Add-survey-image modal upward positioning and drag behavior fix
+```
 
-- Star Wars HUD (Immersive)
-- Dracula (Official)
-- Monokai Pro
-- Solarized Dark (Pro)
-- MacOS Light
-- Cyberpunk 2077
-- Synthwave '84'
-- Emerald Forest
-- Glass Morphism
-- Future Tech
-- Bauhaus
-- Modern Dark
-- Midnight Blue
-- GitHub Dark
-- Default (official baseline)
+## Installation & Deployment
 
-## 🛠 Install & Update
+### Install via Tampermonkey
+1. Install Tampermonkey on Chrome / Edge / Firefox.
+2. Install and enable one of the distribution scripts.
+3. Open `https://vr.xhj.com/houseadmin/` and refresh.
 
-### Installation
-1. Install **Tampermonkey** (Chrome / Edge / Firefox).
-2. Install the script that matches your GreasyFork page:
-   - `xhj_assistant_534783.user.js`
-   - `xhj_assistant_563982.user.js`
-   - `xhj_assistant_563997.user.js`
-3. Open Xiangshi Admin: `https://vr.xhj.com/houseadmin/`
-4. Refresh page and enable script features.
+### GreasyFork (3 scripts)
 
-### Update Strategy
-- Auto update via userscript manager is recommended.
-- Version follows `x.x.x` incremental releases.
-- Three GreasyFork scripts keep “same code, different names” distribution.
+- [Script 534783](https://greasyfork.org/en/scripts/534783)
+- [Script 563982](https://greasyfork.org/en/scripts/563982)
+- [Script 563997](https://greasyfork.org/en/scripts/563997)
 
-## 🧭 Versioning Policy
+### GitHub
 
-- Uses **SemVer-style patch progression**: `5.0.8 → 5.0.11 ...`
-- Each change synchronizes:
-  - main script `xhj_assistant.user.js`
-  - three distributed scripts `xhj_assistant_*.user.js`
-  - version badges in both READMEs
+- [Repository](https://github.com/jhihhe/XHJ-VR-assistant)
+- [Issues](https://github.com/jhihhe/XHJ-VR-assistant/issues)
+- [Commits](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 
-## ✅ Compatibility & Adaptation
+## Technical Overview
 
-- **Domains**: `vr.xhj.com`, `*.xhj.com`
-- **Contexts**: main pages, layer popups, iframe child pages
-- **UI stack**: Layui + Element UI mixed scenarios
-- **Browsers**: latest stable Chrome / Edge recommended
+| Dimension | Detail |
+|---|---|
+| Script Type | Tampermonkey Userscript |
+| Core Language | JavaScript (ES6+) |
+| UI Stack | Layui + Element UI mixed ecosystem |
+| Mechanisms | CSS variables, DOM hooks, event injection, MutationObserver |
+| Intelligence | ONNX Runtime Web (local inference) |
+| Coverage | Main pages + Layer modals + iframe pages |
 
-## 🖼 Previews
+## Versioning Policy
+
+- SemVer-style incremental flow: `5.0.8 → 5.0.28`.
+- Every release synchronizes:
+  - main file `xhj_assistant.user.js`
+  - three Greasy distribution files
+  - version badges and descriptions in both READMEs
+
+## Screenshots
 
 ![preview-1](pic1.png)
 ![preview-2](pic2.png)
@@ -176,22 +171,22 @@ Built-in themes include:
 ![preview-4](pic4.png)
 ![preview-5](pic5.png)
 
-## ❓ FAQ
+## FAQ
 
-### Q1: Why theme changes are not visible?
-- Ensure Tampermonkey script is enabled.
-- Ensure current URL matches `@match` rules.
+### Q1: Theme changes are not visible
+- Ensure script is enabled in Tampermonkey.
+- Ensure URL matches `@match` rules.
 - Hard refresh with `Ctrl/Cmd + Shift + R`.
 
-### Q2: Why retry button is not shown?
-- It appears only when at least one item is in failed state.
-- Long-running uploading items will auto-switch to failed after 150s timeout.
+### Q2: Why header configuration is not saved
+- Complete column adjustment first, then click save.
+- Config is persisted per-page-path in local storage.
 
-### Q3: Does it alter backend data structures?
+### Q3: Does it modify backend data
 - No. It focuses on frontend UX and workflow efficiency only.
 
-## ⚠️ Disclaimer
+## Disclaimer
 
-- This project is designed to improve admin operation quality and efficiency.
-- If target DOM structure changes significantly, adaptation updates may be required.
-- Issues and PRs are welcome for continuous hardening and compatibility upgrades.
+- This project is for compliant productivity and UX improvements.
+- If upstream DOM/business structure changes significantly, adaptation updates may be required.
+- Issues and PRs are welcome.
