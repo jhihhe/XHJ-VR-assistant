@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手（563997）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.8
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.8: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
+// @version      5.0.9
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.9: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -2205,6 +2205,8 @@
                         if (elapsed > 150000) {
                             btn.textContent = '上传失败';
                             btn.dataset.xhjUploadTimeout = 'true';
+                            btn.classList.add('update');
+                            btn.classList.remove('layui-btn-danger');
                         }
                     }
                 });
@@ -2216,11 +2218,11 @@
                     return rawText.includes('上传失败');
                 });
                 
-                const retryHost =
-                    container.querySelector('.layui-form-item .layui-input-block') ||
-                    container.querySelector('.layui-form') ||
-                    titleEl ||
-                    container;
+                const retryHost = titleEl || container.querySelector('.layui-form') || container;
+                const retryButtons = container.querySelectorAll('.xhj-retry-btn');
+                retryButtons.forEach((btn, index) => {
+                    if (index > 0) btn.remove();
+                });
 
                 if (failedBtns.length > 0) {
                     if (retryHost && !retryHost.querySelector('.xhj-retry-btn')) {
@@ -2241,17 +2243,14 @@
                             e.preventDefault();
                             e.stopPropagation();
                             failedBtns.forEach(btn => {
-                                // 模拟点击原生上传失败的按钮
-                                btn.click();
+                                btn.classList.add('update');
+                                btn.classList.remove('layui-btn-danger');
+                                btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
                             });
                             retryBtn.textContent = '正在重试...';
                             retryBtn.style.opacity = '0.7';
                             setTimeout(() => retryBtn.remove(), 1000);
                         };
-                        if (getComputedStyle(retryHost).position === 'static') retryHost.style.position = 'relative';
-                        retryBtn.style.position = 'absolute';
-                        retryBtn.style.right = '10px';
-                        retryBtn.style.top = '-2px';
                         retryHost.appendChild(retryBtn);
                     } else if (retryHost) {
                         const existingBtn = retryHost.querySelector('.xhj-retry-btn');
@@ -2260,10 +2259,7 @@
                         }
                     }
                 } else {
-                    if (retryHost) {
-                        const retryBtn = retryHost.querySelector('.xhj-retry-btn');
-                        if (retryBtn) retryBtn.remove();
-                    }
+                    container.querySelectorAll('.xhj-retry-btn').forEach(btn => btn.remove());
                 }
                 
                 let uploadingCount = uploadingBtns.length;
@@ -2614,6 +2610,9 @@
                                 dialogHeader.style.alignItems = 'center';
                                 dialogHeader.style.gap = '12px';
                                 dialogHeader.style.paddingRight = '20px';
+                                dialogTitle.style.display = 'inline-flex';
+                                dialogTitle.style.alignItems = 'center';
+                                dialogTitle.style.marginRight = 'auto';
 
                                 let actionWrap = dialogHeader.querySelector('.xhj-header-actions');
                                 if (!actionWrap) {
@@ -2623,7 +2622,8 @@
                                         display: inline-flex;
                                         align-items: center;
                                         gap: 10px;
-                                        margin-left: 6px;
+                                        margin-left: auto;
+                                        height: 28px;
                                     `;
                                     dialogHeader.appendChild(actionWrap);
                                 }
@@ -2639,6 +2639,7 @@
                                         padding: 0 15px !important;
                                         display: inline-flex !important;
                                         align-items: center !important;
+                                        justify-content: center !important;
                                     `;
                                     const batchUploadInner = batchBtn.querySelector('.el-upload');
                                     if (batchUploadInner) {
@@ -2777,8 +2778,42 @@
 
 
 
+    const initClickFeedback = () => {
+        if (document.getElementById('xhj-click-feedback-style')) return;
+        const style = document.createElement('style');
+        style.id = 'xhj-click-feedback-style';
+        style.textContent = `
+            .xhj-click-feedback {
+                position: fixed;
+                width: 14px;
+                height: 14px;
+                border-radius: 999px;
+                pointer-events: none;
+                z-index: 2147483646;
+                background: radial-gradient(circle, rgba(130,220,255,0.95) 0%, rgba(130,220,255,0.2) 55%, rgba(130,220,255,0) 100%);
+                box-shadow: 0 0 10px rgba(130,220,255,0.9), 0 0 24px rgba(130,220,255,0.45);
+                transform: translate(-50%, -50%) scale(0.7);
+                animation: xhj-click-pop 520ms ease-out forwards;
+            }
+            @keyframes xhj-click-pop {
+                0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.7); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(4.2); }
+            }
+        `;
+        document.head.appendChild(style);
+        document.addEventListener('pointerdown', (e) => {
+            const dot = document.createElement('span');
+            dot.className = 'xhj-click-feedback';
+            dot.style.left = `${e.clientX}px`;
+            dot.style.top = `${e.clientY}px`;
+            document.body.appendChild(dot);
+            setTimeout(() => dot.remove(), 560);
+        }, true);
+    };
+
     const init = () => {
         initThemeObserver();
+        initClickFeedback();
 
         // 1. 加载主题
         const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';

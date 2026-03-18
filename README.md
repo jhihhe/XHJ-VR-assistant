@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Xiangshi_Admin-223?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
 [![Type](https://img.shields.io/badge/Type-Tampermonkey_UserScript-8a2be2?style=for-the-badge&logo=tampermonkey&logoColor=white)](#)
 [![Language](https://img.shields.io/badge/Language-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111)](#)
-[![Version](https://img.shields.io/badge/Version-v5.0.8-00c853?style=for-the-badge)](#)
+[![Version](https://img.shields.io/badge/Version-v5.0.9-00c853?style=for-the-badge)](#)
 [![Release Train](https://img.shields.io/badge/Release-SemVer_x.x.x-00b4d8?style=for-the-badge)](#版本策略)
 
 [![Themes](https://img.shields.io/badge/Themes-15+-ff9800?style=flat-square)](#-主题系统)
@@ -29,6 +29,7 @@
 
 - [项目定位](#-项目定位)
 - [核心能力总览](#-核心能力总览)
+- [✨ 超炫展示区](#-超炫展示区)
 - [详细功能说明](#-详细功能说明)
 - [主题系统](#-主题系统)
 - [安装与更新](#-安装与更新)
@@ -71,6 +72,51 @@
 ### 5) 跨上下文一致性
 - 主页面、Layer 弹窗、iframe 内页面样式行为保持一致。
 - 弹窗按钮重排与对齐优化，减少遮挡与错位。
+
+## ✨ 超炫展示区
+
+### 🆚 功能对比表（上脚本前 vs 上脚本后）
+
+| 维度 | 原生后台体验 | XHJ 助手增强后 |
+|---|---|---|
+| 视觉一致性 | 多模块风格不统一，层级割裂 | HUD 风格统一，状态与重点更聚焦 |
+| 操作路径 | 重复点击多，跨区域跳转频繁 | 常用入口前置，一键同步批处理 |
+| 上传反馈 | 状态分散，失败不易追踪 | 成功/失败/上传中着色，超时自动判失败 |
+| 批量效率 | 人工逐条确认，易漏操作 | 自动化链路接管，减少机械重复 |
+| 跨页面一致性 | 主页与弹窗/iframe 体验不一致 | 主页面、Layer、iframe 同步表现 |
+| 风险控制 | 人工盯状态，容错低 | 重试入口与可视反馈更完整 |
+
+### 🧭 架构流程图（从触发到反馈）
+
+```mermaid
+flowchart LR
+    A[用户触发操作] --> B[UI 增强层]
+    B --> C[自动化编排层]
+    C --> D[上传状态引擎]
+    C --> E[本地识别引擎 ONNX]
+    D --> F[结果面板/HUD反馈]
+    E --> C
+    F --> G[重试与下一步动作]
+```
+
+### 🎬 场景化操作指南（3 条黄金路径）
+
+| 场景 | 目标 | 推荐操作路径 | 结果收益 |
+|---|---|---|---|
+| 批量同步日常作业 | 缩短重复点击链路 | 进入列表页 → 触发一键同步 → 观察 HUD 反馈 | 减少人工逐项操作负担 |
+| 上传异常处理 | 快速收敛失败任务 | 打开上传弹窗 → 识别失败/超时项 → 一键重试失败项 | 异常处理路径更短、反馈更清晰 |
+| 高密度列表巡检 | 提升扫读速度和命中率 | 使用主题 + 状态着色 → 聚焦状态列与操作列 → 执行关键动作 | 降低误点与漏判概率 |
+
+### 🖼 GIF 占位模板（替换即用）
+
+> 建议将 GIF 文件放在 `docs/gifs/` 目录，并保持 8~15 秒短流程演示。
+
+| 模块 | 建议文件名 | Markdown 模板 |
+|---|---|---|
+| 一键同步演示 | `autosync-demo.gif` | `![一键同步演示](docs/gifs/autosync-demo.gif)` |
+| 上传失败重试演示 | `upload-retry-demo.gif` | `![上传失败重试演示](docs/gifs/upload-retry-demo.gif)` |
+| 主题切换演示 | `theme-switch-demo.gif` | `![主题切换演示](docs/gifs/theme-switch-demo.gif)` |
+| 跨 iframe 一致性演示 | `iframe-consistency-demo.gif` | `![跨 iframe 一致性演示](docs/gifs/iframe-consistency-demo.gif)` |
 
 ## 🔍 详细功能说明
 
@@ -154,7 +200,7 @@
 
 ## 🧭 版本策略
 
-- 采用 **SemVer 风格小版本递进**：`5.0.7 → 5.0.8 ...`
+- 采用 **SemVer 风格小版本递进**：`5.0.8 → 5.0.9 ...`
 - 每次变更同步更新：
   - 主脚本 `xhj_assistant.user.js`
   - 三个分发脚本 `xhj_assistant_*.user.js`
