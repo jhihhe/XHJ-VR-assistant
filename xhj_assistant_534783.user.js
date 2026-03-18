@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视自动同步助手（534783）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.4
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.4: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
+// @version      5.0.5
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.5: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -2608,11 +2608,13 @@
                                         const adoptedBatch = document.adoptNode(batchBtn);
                                         adoptedBatch.style.cssText = `
                                             position: absolute !important;
-                                            right: 150px !important;
-                                            top: 50% !important;
-                                            transform: translateY(-50%) !important;
+                                            right: 90px !important;
+                                            top: -30px !important;
                                             z-index: 100 !important;
                                             margin: 0 !important;
+                                            height: 28px !important;
+                                            line-height: 28px !important;
+                                            padding: 0 15px !important;
                                         `;
                                         targetRow.appendChild(adoptedBatch);
                                     }
@@ -2624,9 +2626,8 @@
                                         const adoptedConfirm = document.adoptNode(confirmBtn);
                                         adoptedConfirm.style.cssText = `
                                             position: absolute !important;
-                                            right: 50px !important;
-                                            top: 50% !important;
-                                            transform: translateY(-50%) !important;
+                                            right: 0px !important;
+                                            top: -30px !important;
                                             z-index: 100 !important;
                                             height: 28px !important;
                                             line-height: 28px !important;
