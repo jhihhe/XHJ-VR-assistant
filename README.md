@@ -1,6 +1,6 @@
 # 🌌 象视平台助手 · XHJ VR Assistant
 
-[![Version](https://img.shields.io/badge/Version-v5.0.28-00c853?style=for-the-badge)](#版本策略)
+[![Version](https://img.shields.io/badge/Version-v5.0.35-00c853?style=for-the-badge)](#版本策略)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
@@ -12,7 +12,7 @@
 [![Themes](https://img.shields.io/badge/Themes-15-ff9800?style=flat-square)](#主题矩阵)
 [![Auto Sync](https://img.shields.io/badge/AutoSync-Batch-7c4dff?style=flat-square)](#功能全景)
 [![Auto Verify](https://img.shields.io/badge/AutoVerify-ONNX_Local-00897b?style=flat-square)](#功能全景)
-[![Layout Safe](https://img.shields.io/badge/Layout-TopBar_Stable-455a64?style=flat-square)](#最新更新-v5028)
+[![Layout Safe](https://img.shields.io/badge/Layout-TopBar_Stable-455a64?style=flat-square)](#最新更新-v5035)
 [![GreasyFork x3](https://img.shields.io/badge/GreasyFork-3_scripts-d32f2f?style=flat-square)](#安装部署)
 [![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](#)
 
@@ -24,7 +24,7 @@
 ## 📌 目录
 
 - [项目亮点](#项目亮点)
-- [最新更新 v5.0.28](#最新更新-v5028)
+- [最新更新 v5.0.35](#最新更新-v5035)
 - [功能全景](#功能全景)
 - [主题矩阵](#主题矩阵)
 - [图形图表](#图形图表)
@@ -43,11 +43,11 @@
 - 本地智能识别：ONNX 验证码识别链路，无需外部 API Key。
 - 跨上下文一致：主页面、弹窗、iframe 风格与交互保持统一。
 
-## 最新更新 v5.0.28
+## 最新更新 v5.0.35
 
-- 修复“新增房堪图”弹窗初始位置偏下问题，默认位置上移避免贴近底部。
-- 调整弹窗定位策略为固定定位，滚动页面后仍可稳定上移拖拽。
-- 同步发布 `v5.0.28`，统一 Git 与 Greasy 三脚本头部元数据。
+- 统一“新增全景图”上传状态色：上传中为荧光红，上传成功为荧光绿。
+- 增强状态文字跨主题可读性，补充描边与多层发光，并同步覆盖按钮内部文字节点。
+- 同步发布 `v5.0.35`，统一脚本头部元数据与文档版本信息。
 
 ## 功能全景
 
@@ -124,6 +124,13 @@ timeline
     5.0.26 : 移动端按钮可见性适配与布局稳定性优化
     5.0.27 : 动态监听调度优化与交互链路减载
     5.0.28 : 新增房堪图弹窗上移与拖拽体验修复
+    5.0.29 : 新增房堪图按钮迁移防闪现修复
+    5.0.30 : 已上传计数器延迟更新修复
+    5.0.31 : 已接单页面默认90条并联动自动同步
+    5.0.32 : 新增房堪图计数器首屏防跳变优化
+    5.0.33 : 已接单页面默认90条并联动自动同步
+    5.0.34 : 新增房堪图计数器首屏防跳变优化
+    5.0.35 : 全景图上传状态文字统一荧光配色与可读性增强
 ```
 
 ## 安装部署
@@ -158,7 +165,7 @@ timeline
 
 ## 版本策略
 
-- 采用语义化小版本递进：`5.0.8 → 5.0.28`。
+- 采用语义化小版本递进：`5.0.8 → 5.0.35`。
 - 每次发布同步更新：
   - 主脚本 `xhj_assistant.user.js`
   - Greasy 三脚本 `xhj_assistant_534783.user.js / xhj_assistant_563982.user.js / xhj_assistant_563997.user.js`

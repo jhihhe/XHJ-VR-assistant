@@ -1,6 +1,6 @@
 # 🌌 Xiangshi Platform Assistant · XHJ VR Assistant
 
-[![Version](https://img.shields.io/badge/Version-v5.0.28-00c853?style=for-the-badge)](#versioning-policy)
+[![Version](https://img.shields.io/badge/Version-v5.0.35-00c853?style=for-the-badge)](#versioning-policy)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
@@ -12,7 +12,7 @@
 [![Themes](https://img.shields.io/badge/Themes-15-ff9800?style=flat-square)](#theme-matrix)
 [![Auto Sync](https://img.shields.io/badge/AutoSync-Batch-7c4dff?style=flat-square)](#feature-panorama)
 [![Auto Verify](https://img.shields.io/badge/AutoVerify-ONNX_Local-00897b?style=flat-square)](#feature-panorama)
-[![Layout Safe](https://img.shields.io/badge/Layout-TopBar_Stable-455a64?style=flat-square)](#latest-update-v5028)
+[![Layout Safe](https://img.shields.io/badge/Layout-TopBar_Stable-455a64?style=flat-square)](#latest-update-v5035)
 [![GreasyFork x3](https://img.shields.io/badge/GreasyFork-3_scripts-d32f2f?style=flat-square)](#installation--deployment)
 [![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](#)
 
@@ -23,7 +23,7 @@
 ## 📌 Contents
 
 - [Highlights](#highlights)
-- [Latest Update v5.0.28](#latest-update-v5028)
+- [Latest Update v5.0.35](#latest-update-v5035)
 - [Feature Panorama](#feature-panorama)
 - [Theme Matrix](#theme-matrix)
 - [Charts & Diagrams](#charts--diagrams)
@@ -42,11 +42,11 @@
 - Local intelligence: ONNX-based CAPTCHA workflow without external API keys.
 - Cross-context consistency: main pages, modal layers, and iframes stay aligned.
 
-## Latest Update v5.0.28
+## Latest Update v5.0.35
 
-- Fixed the "Add Survey Images" modal opening too low on screen.
-- Switched the modal to fixed positioning so upward dragging remains stable after page scroll.
-- Published as `v5.0.28` with synchronized Git and all Greasy metadata headers.
+- Unified "Add Panorama" upload status colors: in-progress uses neon red, success uses neon green.
+- Improved cross-theme readability with stroke + layered glow and nested text-node color enforcement.
+- Published as `v5.0.35` with synchronized Git and all Greasy metadata headers.
 
 ## Feature Panorama
 
@@ -123,6 +123,12 @@ timeline
     5.0.26 : Mobile button visibility adaptation and layout stability refinement
     5.0.27 : Dynamic observer scheduling optimization and interaction pipeline load reduction
     5.0.28 : Add-survey-image modal upward positioning and drag behavior fix
+    5.0.29 : Add-survey-image action-button anti-flicker migration fix
+    5.0.30 : Uploaded-counter delayed update fix
+    5.0.31 : Accepted-order 90-per-page default and auto-sync pre-navigation
+    5.0.33 : Accepted-order 90-per-page default and auto-sync pre-navigation
+    5.0.34 : Accepted-order 90-per-page default and auto-sync pre-navigation
+    5.0.35 : Panorama upload status neon color unification and readability boost
 ```
 
 ## Installation & Deployment
@@ -157,7 +163,7 @@ timeline
 
 ## Versioning Policy
 
-- SemVer-style incremental flow: `5.0.8 → 5.0.28`.
+- SemVer-style incremental flow: `5.0.8 → 5.0.35`.
 - Every release synchronizes:
   - main file `xhj_assistant.user.js`
   - three Greasy distribution files

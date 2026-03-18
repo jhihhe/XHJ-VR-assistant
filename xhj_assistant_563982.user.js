@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手（563982）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.28
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.28: 修复新增房堪图弹窗初始位置偏下与上移受限问题，拖拽更顺畅。
+// @version      5.0.35
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.35: 统一全景图上传状态文字颜色，上传中荧光红、上传成功荧光绿并增强跨主题可读性。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -32,7 +32,7 @@
     const ENABLE_CLICK_RIPPLE = false;
     const ENABLE_ADVANCED_CLICK_ANIMATION = false;
     const CLICK_FEEDBACK_MIN_INTERVAL = 90;
-    const DYNAMIC_CONTENT_FALLBACK_INTERVAL = 5000;
+    const DYNAMIC_CONTENT_FALLBACK_INTERVAL = 1500;
     const DYNAMIC_MIN_RUN_GAP = 120;
     const STATUS_STYLE_SELECTOR = '.layui-table-cell, .layui-upload-list span, .status-text, .layui-btn, .layui-badge';
     const DYNAMIC_OBSERVER_RELEVANT_SELECTOR = '.layui-layer, .el-dialog, .layui-table, .layui-table-view, .layui-upload-list, #uploader-list, iframe, .layui-layer-content';
@@ -1984,7 +1984,7 @@
         // 创建设置按钮
         const settingsButton = document.createElement('button');
         settingsButton.id = SETTINGS_BUTTON_ID;
-        settingsButton.textContent = '跳转并指定90';
+        settingsButton.textContent = '跳转到已接单';
         settingsButton.style.cssText = `
             position: fixed; top: 50px; right: 10px; z-index: 999999;
             padding: 10px 16px; border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.34); border-radius: 10px;
@@ -2035,10 +2035,87 @@
         else button.style.opacity = '1';
     }
 
+    function isAcceptedOrderSelected() {
+        const statusSelect = document.querySelector('#status');
+        if (statusSelect && statusSelect.options && statusSelect.selectedIndex >= 0) {
+            const selectedOption = statusSelect.options[statusSelect.selectedIndex];
+            const selectedText = selectedOption ? selectedOption.textContent.trim() : '';
+            if (selectedText.includes('已接单')) return true;
+        }
+        return Array.from(document.querySelectorAll('.layui-form-select dl dd.layui-this')).some(el => el.textContent.includes('已接单'));
+    }
+
+    function enforceAcceptedPageSize() {
+        if (!isInTargetFrame() || !isAcceptedOrderSelected()) return false;
+        const select = document.querySelector("[id^='layui-laypage'] > span > select");
+        if (!select) return false;
+        if (select.value !== '90') {
+            select.value = '90';
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            return true;
+        }
+        return false;
+    }
+
+    async function navigateToAcceptedAndSet90() {
+        try {
+            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+            const waitForElement = async (selector, timeout = 5000) => {
+                const start = Date.now();
+                while (Date.now() - start < timeout) {
+                    const el = document.querySelector(selector);
+                    if (el) return el;
+                    await delay(100);
+                }
+                throw new Error(`Element not found: ${selector}`);
+            };
+
+            const tabIcon = await waitForElement("body > div.admin-main.layui-anim.layui-anim-upbit > form > div > div:nth-child(2) > div > div > i");
+            tabIcon.click();
+            await delay(160);
+
+            const statusOptions = Array.from(document.querySelectorAll("body > div.admin-main.layui-anim.layui-anim-upbit > form > div > div:nth-child(2) > div > dl > dd"));
+            const acceptedTab = statusOptions.find(dd => dd.textContent.includes('已接单'));
+            if (acceptedTab) {
+                acceptedTab.click();
+            } else {
+                const fallbackTab = await waitForElement("body > div.admin-main.layui-anim.layui-anim-upbit > form > div > div:nth-child(2) > div > dl > dd:nth-child(5)");
+                fallbackTab.click();
+            }
+            await delay(220);
+
+            const searchButton = await waitForElement("#search");
+            searchButton.click();
+            await delay(800);
+
+            const select = await waitForElement("[id^='layui-laypage'] > span > select", 8000);
+            if (select.value !== '90') {
+                select.value = "90";
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                await delay(240);
+            }
+            return true;
+        } catch (error) {
+            console.error("自动化操作失败:", error);
+            return false;
+        }
+    }
+
     async function clickSyncButtons(e) {
         e.preventDefault();
         if (isSyncRunning) return;
         isSyncRunning = true;
+
+        updateButtonStatus('跳转已接单中...', true);
+        const navigated = await navigateToAcceptedAndSet90();
+        if (!navigated) {
+            updateButtonStatus('跳转已接单失败');
+            setTimeout(() => {
+                updateButtonStatus('开始自动同步');
+                isSyncRunning = false;
+            }, 2000);
+            return;
+        }
 
         const buttons = findSyncButtons();
         let currentCount = 0;
@@ -2069,37 +2146,7 @@
     }
 
     async function openSettings() {
-        // ... (保持原有的设置逻辑) ...
-        try {
-            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-            const waitForElement = async (selector, timeout = 5000) => {
-                const start = Date.now();
-                while (Date.now() - start < timeout) {
-                    const el = document.querySelector(selector);
-                    if (el) return el;
-                    await delay(100);
-                }
-                throw new Error(`Element not found: ${selector}`);
-            };
-
-            const tabIcon = await waitForElement("body > div.admin-main.layui-anim.layui-anim-upbit > form > div > div:nth-child(2) > div > div > i");
-            tabIcon.click();
-            await delay(200);
-            
-            const orderTab = await waitForElement("body > div.admin-main.layui-anim.layui-anim-upbit > form > div > div:nth-child(2) > div > dl > dd:nth-child(5)");
-            orderTab.click();
-            await delay(300);
-            
-            const searchButton = await waitForElement("#search");
-            searchButton.click();
-            await delay(4000);
-
-            const select = await waitForElement("[id^='layui-laypage'] > span > select");
-            select.value = "90";
-            select.dispatchEvent(new Event('change', { bubbles: true }));
-        } catch (error) {
-            console.error("自动化操作失败:", error);
-        }
+        await navigateToAcceptedAndSet90();
     }
 
     /* ==========================================================================
@@ -2443,6 +2490,35 @@
         lastStatusStamp: ''
     };
 
+    const bindCounterRefreshForIframe = (iframe) => {
+        if (!iframe || iframe.dataset.xhjCounterBound) return;
+        iframe.dataset.xhjCounterBound = 'true';
+        const triggerUpdate = () => {
+            if (typeof handleDynamicContent === 'function') {
+                handleDynamicContent(true);
+            }
+        };
+        iframe.addEventListener('load', () => {
+            triggerUpdate();
+            let retry = 0;
+            const timer = setInterval(() => {
+                retry += 1;
+                triggerUpdate();
+                if (retry >= 30 || !document.body.contains(iframe)) {
+                    clearInterval(timer);
+                }
+            }, 120);
+        }, { passive: true });
+        let warmup = 0;
+        const warmupTimer = setInterval(() => {
+            warmup += 1;
+            triggerUpdate();
+            if (warmup >= 10 || !document.body.contains(iframe)) {
+                clearInterval(warmupTimer);
+            }
+        }, 120);
+    };
+
     // [v2.7.2] 3D 数码管渲染 Helper
     const render3DCounter = (titleEl, count, minGreenCount = 9, maxCount = 35, maxTotal = 0) => {
         let hue = 0;
@@ -2527,6 +2603,7 @@
                 }
 
                 const iframe = container.querySelector('iframe');
+                bindCounterRefreshForIframe(iframe);
                 // 移除旧版文本计数
                 const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
                 if (oldPattern.test(titleEl.innerHTML)) titleEl.innerHTML = titleEl.innerHTML.replace(oldPattern, '');
@@ -2537,19 +2614,35 @@
 
                 if (iframe && iframe.contentDocument) {
                     try {
-                        const appNode = iframe.contentDocument.querySelector('#app');
+                        const iframeDoc = iframe.contentDocument;
+                        const appNode = iframeDoc.querySelector('#app');
                         if (appNode && appNode.__vue__) {
                             const vue = appNode.__vue__;
                             let totalImgs = 0;
+                            const hasFormUploads = !!vue.formuploads;
+                            const hasHouseList = Array.isArray(vue.houseDataList);
                             if (vue.formuploads) {
-                                if (vue.formuploads.imageUrls) totalImgs += vue.formuploads.imageUrls.length;
-                                if (vue.formuploads.imageUrlx) totalImgs += vue.formuploads.imageUrlx.length;
-                                if (vue.formuploads.shineiURL) totalImgs += vue.formuploads.shineiURL.length;
+                                if (Array.isArray(vue.formuploads.imageUrls)) totalImgs += vue.formuploads.imageUrls.length;
+                                if (Array.isArray(vue.formuploads.imageUrlx)) totalImgs += vue.formuploads.imageUrlx.length;
+                                if (Array.isArray(vue.formuploads.shineiURL)) totalImgs += vue.formuploads.shineiURL.length;
                             }
-                            if (vue.houseDataList) {
+                            if (Array.isArray(vue.houseDataList)) {
                                 vue.houseDataList.forEach(room => {
                                     if (room.hsImgList) totalImgs += room.hsImgList.length;
                                 });
+                            }
+                            const iframeDirectImgs = iframeDoc.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original], .upimg.imgstyle img[data-original], img.imgstyle_img[data-original]').length;
+                            if (totalImgs === 0 && iframeDirectImgs > 0) {
+                                totalImgs = iframeDirectImgs;
+                            }
+                            if (
+                                totalImgs === 0 &&
+                                !hasFormUploads &&
+                                !hasHouseList &&
+                                titleEl &&
+                                !titleEl.querySelector('.xhj-3d-counter')
+                            ) {
+                                return;
                             }
                             
                             if (titleEl && !titleEl.classList.contains('layui-layer-title')) {
@@ -2566,8 +2659,16 @@
                 }
 
                 if (titleEl && !titleEl.classList.contains('layui-layer-title')) {
-                    const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
-                    render3DCounter(titleEl, directImgs.length);
+                    let directCount = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]').length;
+                    if (iframe && iframe.contentDocument) {
+                        try {
+                            directCount = Math.max(
+                                directCount,
+                                iframe.contentDocument.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original], .upimg.imgstyle img[data-original], img.imgstyle_img[data-original]').length
+                            );
+                        } catch (e) {}
+                    }
+                    render3DCounter(titleEl, directCount);
                 }
                 
                 // 清理旧残留
@@ -2915,23 +3016,30 @@
                     const signature = `${text}|${color}|${shadowColor}`;
                     if (cell.dataset.xhjStatusStyled === signature) return;
                     cell.dataset.xhjStatusStyled = signature;
-                    // 使用 !important 覆盖原有样式 (如 layui-btn 的默认白字/背景)
                     cell.style.setProperty('color', color, 'important');
                     cell.style.setProperty('font-weight', 'bold', 'important');
-                    // 如果是按钮或徽章，可能需要调整背景色或边框，这里暂只调整文字和发光
+                    cell.style.setProperty('-webkit-text-stroke', '0.35px rgba(0, 0, 0, 0.75)', 'important');
+                    cell.style.setProperty('text-shadow', `0 0 6px ${shadowColor}, 0 0 12px ${shadowColor}, 0 1px 2px rgba(0,0,0,0.75)`, 'important');
+                    const nestedTextNodes = cell.querySelectorAll('span, em, b, strong, a, button');
+                    nestedTextNodes.forEach(node => {
+                        node.style.setProperty('color', color, 'important');
+                        node.style.setProperty('font-weight', 'bold', 'important');
+                        node.style.setProperty('-webkit-text-stroke', '0.35px rgba(0, 0, 0, 0.75)', 'important');
+                        node.style.setProperty('text-shadow', `0 0 6px ${shadowColor}, 0 0 12px ${shadowColor}, 0 1px 2px rgba(0,0,0,0.75)`, 'important');
+                    });
                     if (cell.classList.contains('layui-btn') || cell.classList.contains('layui-badge') || cell.tagName === 'SPAN') {
-                        cell.style.setProperty('text-shadow', `0 0 5px ${shadowColor}`, 'important');
+                        cell.style.setProperty('letter-spacing', '0.02em', 'important');
                     }
                 };
 
                 if (text.includes('正在上传') || text.includes('上传中')) {
-                    applyStyle('#f1c40f', 'rgba(241, 196, 15, 0.4)'); // 橙黄色
+                    applyStyle('#ff2d55', 'rgba(255, 45, 85, 0.75)');
                 } else if (text.includes('上传完成') || text.includes('上传成功')) {
-                    applyStyle('#00ff9d', 'rgba(0, 255, 157, 0.4)'); // 荧光绿
+                    applyStyle('#39ff14', 'rgba(57, 255, 20, 0.72)');
                 } else if (text.includes('上传失败')) {
-                    applyStyle('#ff5252', 'rgba(255, 82, 82, 0.4)'); // 红色
+                    applyStyle('#ff5252', 'rgba(255, 82, 82, 0.4)');
                 } else if (text === '上传') {
-                    applyStyle('#3498db', 'rgba(52, 152, 219, 0.4)'); // 蓝色
+                    applyStyle('#3498db', 'rgba(52, 152, 219, 0.4)');
                 }
                 });
             }
@@ -2964,11 +3072,25 @@
                     if (layer && !layer.dataset.xhjBtnsMovedToHeader) {
                         layer.dataset.xhjBtnsMovedToHeader = 'true';
 
+                        const ensureNoFlashStyle = (doc) => {
+                            if (!doc || doc.getElementById('xhj-no-flash-actions')) return;
+                            const style = doc.createElement('style');
+                            style.id = 'xhj-no-flash-actions';
+                            style.textContent = '.boxFrom > .uploadBtn, .dialog-footer .el-button { opacity: 0 !important; pointer-events: none !important; } .xhj-header-actions .uploadBtn, .xhj-header-actions .el-button { opacity: 1 !important; pointer-events: auto !important; }';
+                            doc.head && doc.head.appendChild(style);
+                        };
+
+                        const clearNoFlashStyle = (doc) => {
+                            const style = doc && doc.getElementById('xhj-no-flash-actions');
+                            if (style) style.remove();
+                        };
+
                         const moveRealButtonsToHeader = () => {
                             try {
                                 const iframe = layer.querySelector('iframe');
                                 if (!iframe || !iframe.contentDocument) return;
                                 const doc = iframe.contentDocument;
+                                ensureNoFlashStyle(doc);
                                 const dialogHeader = doc.querySelector('.el-dialog__header');
                                 const dialogTitle = doc.querySelector('.el-dialog__title');
                                 if (!dialogHeader || !dialogTitle) return;
@@ -2997,6 +3119,7 @@
                                 }
 
                                 const batchBtn = doc.querySelector('.uploadBtn');
+                                let movedBatch = false;
                                 if (batchBtn && batchBtn.parentElement !== actionWrap) {
                                     batchBtn.style.cssText = `
                                         position: static !important;
@@ -3031,10 +3154,12 @@
                                         `;
                                     }
                                     actionWrap.appendChild(batchBtn);
+                                    movedBatch = true;
                                 }
 
                                 const confirmBtns = Array.from(doc.querySelectorAll('.dialog-footer .el-button'));
                                 const confirmBtn = confirmBtns.find(b => b.textContent.includes('确 定') || b.textContent.includes('确定'));
+                                let movedConfirm = false;
                                 if (confirmBtn && confirmBtn.parentElement !== actionWrap) {
                                     confirmBtn.style.cssText = `
                                         position: static !important;
@@ -3048,10 +3173,14 @@
                                         justify-content: center !important;
                                     `;
                                     actionWrap.appendChild(confirmBtn);
+                                    movedConfirm = true;
                                 }
 
                                 const hasBatchInFooter = !!doc.querySelector('.boxFrom > .uploadBtn');
                                 const hasConfirmInFooter = !!Array.from(doc.querySelectorAll('.dialog-footer .el-button')).find(b => b.textContent.includes('确 定') || b.textContent.includes('确定'));
+                                if ((!hasBatchInFooter && !hasConfirmInFooter) || movedBatch || movedConfirm) {
+                                    clearNoFlashStyle(doc);
+                                }
                                 if (!hasBatchInFooter && !hasConfirmInFooter && layer._xhjBtnHeaderTimer) {
                                     clearInterval(layer._xhjBtnHeaderTimer);
                                     layer._xhjBtnHeaderTimer = null;
@@ -3061,15 +3190,31 @@
                             }
                         };
 
+                        const iframe = layer.querySelector('iframe');
+                        if (iframe && !iframe.dataset.xhjMoveBinded) {
+                            iframe.dataset.xhjMoveBinded = 'true';
+                            iframe.addEventListener('load', () => {
+                                moveRealButtonsToHeader();
+                                setTimeout(moveRealButtonsToHeader, 30);
+                            }, { passive: true });
+                        }
+                        moveRealButtonsToHeader();
+                        setTimeout(moveRealButtonsToHeader, 0);
+                        setTimeout(moveRealButtonsToHeader, 60);
+                        if (typeof requestAnimationFrame === 'function') {
+                            requestAnimationFrame(moveRealButtonsToHeader);
+                        }
                         if (!layer._xhjBtnHeaderTimer) {
                             layer._xhjBtnHeaderStartedAt = Date.now();
                             layer._xhjBtnHeaderTimer = setInterval(() => {
                                 moveRealButtonsToHeader();
-                                if (Date.now() - layer._xhjBtnHeaderStartedAt > 15000 && layer._xhjBtnHeaderTimer) {
+                                if (Date.now() - layer._xhjBtnHeaderStartedAt > 8000 && layer._xhjBtnHeaderTimer) {
                                     clearInterval(layer._xhjBtnHeaderTimer);
                                     layer._xhjBtnHeaderTimer = null;
+                                    const iframe = layer.querySelector('iframe');
+                                    if (iframe && iframe.contentDocument) clearNoFlashStyle(iframe.contentDocument);
                                 }
-                            }, 1000);
+                            }, 120);
                         }
                     }
                 }
@@ -3100,48 +3245,51 @@
 
             const addedNodes = [];
             
-            // 收集所有新增的元素节点
             for (const mutation of mutations) {
-                if (mutation.addedNodes.length > 0) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
                     for (const node of mutation.addedNodes) {
-                        if (node.nodeType === 1) { // 仅处理 Element 节点
+                        if (node.nodeType === 1) {
                             addedNodes.push(node);
                             if (!hasRelevantMutation && node.matches && node.matches(DYNAMIC_OBSERVER_RELEVANT_SELECTOR)) {
                                 hasRelevantMutation = true;
                             } else if (!hasRelevantMutation && node.querySelector && node.querySelector(DYNAMIC_OBSERVER_RELEVANT_SELECTOR)) {
                                 hasRelevantMutation = true;
                             }
-                            // 如果添加的是容器，也收集其子元素（可选，视性能而定，这里暂只处理顶层和特定子级）
                         }
+                    }
+                }
+                if (!hasRelevantMutation && mutation.type === 'characterData') {
+                    const parentEl = mutation.target && mutation.target.parentElement;
+                    if (parentEl && parentEl.closest && parentEl.closest(DYNAMIC_OBSERVER_RELEVANT_SELECTOR)) {
+                        hasRelevantMutation = true;
+                    }
+                } else if (!hasRelevantMutation && mutation.type === 'attributes') {
+                    const targetEl = mutation.target;
+                    if (targetEl && targetEl.matches && (targetEl.matches(DYNAMIC_OBSERVER_RELEVANT_SELECTOR) || (targetEl.closest && targetEl.closest(DYNAMIC_OBSERVER_RELEVANT_SELECTOR)))) {
+                        hasRelevantMutation = true;
                     }
                 }
             }
 
-            if (addedNodes.length === 0) return;
             if (hasRelevantMutation) {
                 debouncedHandleDynamic();
             }
+            if (addedNodes.length === 0) return;
 
-            // 1. 处理新增的 iframe
             addedNodes.forEach(node => {
                 if (node.tagName === 'IFRAME') {
                     applyThemeToIframe(node);
                 } else if (node.querySelectorAll) {
-                    // 检查容器内部是否有 iframe
                     const iframes = node.querySelectorAll('iframe');
                     iframes.forEach(applyThemeToIframe);
                 }
             });
 
-            // 2. 针对性去白底 (仅检查新增节点及其子树)
-            // 避免 document.querySelectorAll 全局扫描
             addedNodes.forEach(node => {
-                // 检查节点本身
                 if (node.matches && (node.matches('.layui-bg-white') || node.style.backgroundColor === 'white' || node.style.backgroundColor === '#fff' || node.style.backgroundColor === 'rgb(255, 255, 255)')) {
                     node.style.setProperty('background-color', 'transparent', 'important');
                 }
                 
-                // 仅在可能是弹窗或容器的元素内部查找
                 if (node.classList && (node.classList.contains('layui-layer') || node.classList.contains('el-dialog') || node.classList.contains('layui-layer-content'))) {
                     const whiteElements = node.querySelectorAll('.layui-bg-white, [style*="background-color: white"], [style*="background-color: #fff"], [style*="background-color: rgb(255, 255, 255)"]');
                     whiteElements.forEach(el => el.style.setProperty('background-color', 'transparent', 'important'));
@@ -3149,7 +3297,7 @@
             });
         });
         
-        const config = { childList: true, subtree: true };
+        const config = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style'] };
         if (document.body) {
             observer.observe(document.body, config);
         } else {
@@ -3217,12 +3365,16 @@
 
         // 2. 动态内容处理 (核心优化)
         // 逻辑已移至 handleDynamicContent，此处仅做初始调用和定时检查（低频）
-        requestAnimationFrame(() => handleDynamicContent(true));
+        requestAnimationFrame(() => {
+            handleDynamicContent(true);
+            enforceAcceptedPageSize();
+        });
         
         // 保留一个低频定时器作为兜底 (每 2 秒)，防止 MutationObserver 漏掉某些无 DOM 变动但样式需更新的情况
         setInterval(() => {
             if (document.hidden) return;
             handleDynamicContent(true);
+            enforceAcceptedPageSize();
         }, DYNAMIC_CONTENT_FALLBACK_INTERVAL);
 
         // 3. 监听跨窗口同步
