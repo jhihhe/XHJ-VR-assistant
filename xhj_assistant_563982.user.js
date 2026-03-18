@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台后台换肤助手（563982）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.3
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.3: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
+// @version      5.0.4
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.4: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -2134,6 +2134,12 @@
                                     if (room.hsImgList) totalImgs += room.hsImgList.length;
                                 });
                             }
+                            
+                            // 移除多余的计数器
+                            titleEl.querySelectorAll('.xhj-3d-counter').forEach((el, index) => {
+                                if (index > 0) el.remove();
+                            });
+                            
                             render3DCounter(titleEl, totalImgs);
                             return; // 成功使用 Vue 实例数据后返回
                         }
@@ -2183,6 +2189,20 @@
                 ).filter(el => {
                     const rawText = (el.innerText || el.textContent || '').replace(/\s+/g, '');
                     return rawText.includes('上传中') || rawText.includes('等待') || rawText.includes('准备');
+                });
+                
+                // 标记长时间处于“上传中”的按钮为失败
+                uploadingBtns.forEach(btn => {
+                    if (!btn.dataset.xhjUploadStartTime) {
+                        btn.dataset.xhjUploadStartTime = Date.now().toString();
+                    } else {
+                        const elapsed = Date.now() - parseInt(btn.dataset.xhjUploadStartTime);
+                        // 如果超过 180 秒（180000 毫秒）仍未成功，强制视为失败
+                        if (elapsed > 180000) {
+                            btn.textContent = '上传失败';
+                            btn.dataset.xhjUploadTimeout = 'true';
+                        }
+                    }
                 });
                 
                 // --- 全景图上传失败一键重试功能 ---
@@ -2588,7 +2608,7 @@
                                         const adoptedBatch = document.adoptNode(batchBtn);
                                         adoptedBatch.style.cssText = `
                                             position: absolute !important;
-                                            right: 120px !important;
+                                            right: 150px !important;
                                             top: 50% !important;
                                             transform: translateY(-50%) !important;
                                             z-index: 100 !important;
@@ -2604,7 +2624,7 @@
                                         const adoptedConfirm = document.adoptNode(confirmBtn);
                                         adoptedConfirm.style.cssText = `
                                             position: absolute !important;
-                                            right: 20px !important;
+                                            right: 50px !important;
                                             top: 50% !important;
                                             transform: translateY(-50%) !important;
                                             z-index: 100 !important;
