@@ -2031,7 +2031,7 @@
     };
 
     // [v2.7.2] 3D 数码管渲染 Helper
-    const render3DCounter = (titleEl, count, minGreenCount = 9, maxCount = 35) => {
+    const render3DCounter = (titleEl, count, minGreenCount = 9, maxCount = 35, maxTotal = 0) => {
         let hue = 0;
         if (count >= minGreenCount) {
              const greenProgress = Math.min((count - minGreenCount) / (maxCount - minGreenCount), 1);
@@ -2079,7 +2079,10 @@
 
         const textSpan = counter.querySelector('.xhj-counter-text');
         if (textSpan) {
-            const displayText = `已上传: ${count} 张`;
+            let displayText = `已上传: ${count} 张`;
+            if (maxTotal > 0) {
+                displayText = `已上传: ${count} / ${maxTotal} 张`;
+            }
             if (textSpan.textContent !== displayText) {
                  textSpan.textContent = displayText;
                  textSpan.style.color = color;
@@ -2154,6 +2157,43 @@
                     const fallbackText = uploaderList ? (uploaderList.innerText || '').replace(/\s+/g, '') : '';
                     const matches = fallbackText.match(/上传成功|上传完成/g);
                     successCount = matches ? matches.length : 0;
+                }
+                
+                // --- 计算总数 (基于上传中、等待等状态和列表行数) ---
+                const uploadingBtns = Array.from(
+                    container.querySelectorAll('#uploader-list .layui-upload-list a, #uploader-list .layui-upload-list .layui-btn, #uploader-list .layui-upload-list span, #uploader-list .layui-upload-list td')
+                ).filter(el => {
+                    const rawText = (el.innerText || el.textContent || '').replace(/\s+/g, '');
+                    return rawText.includes('上传中') || rawText.includes('等待') || rawText.includes('准备');
+                });
+                
+                let uploadingCount = uploadingBtns.length;
+                if (uploadingCount === 0) {
+                    const uploaderList = container.querySelector('#uploader-list');
+                    const fallbackText = uploaderList ? (uploaderList.innerText || '').replace(/\s+/g, '') : '';
+                    const matches = fallbackText.match(/上传中|等待|准备/g);
+                    uploadingCount = matches ? matches.length : 0;
+                }
+                
+                let currentTotal = successCount + uploadingCount;
+                const trElements = container.querySelectorAll('#uploader-list .layui-upload-list tr');
+                if (trElements.length > 0) {
+                    const headerCount = container.querySelectorAll('#uploader-list .layui-upload-list th').length > 0 ? 1 : 0;
+                    const listTotal = Math.max(0, trElements.length - headerCount);
+                    if (listTotal > currentTotal) {
+                        currentTotal = listTotal;
+                    }
+                }
+                
+                let maxTotal = parseInt(container.dataset.xhjMaxTotal || '0', 10);
+                if (currentTotal > maxTotal) {
+                    maxTotal = currentTotal;
+                    container.dataset.xhjMaxTotal = maxTotal;
+                }
+                
+                if (currentTotal === 0 && successCount === 0 && (!trElements || trElements.length <= 1)) {
+                    maxTotal = 0;
+                    container.dataset.xhjMaxTotal = '0';
                 }
                 
                 // [v2.7.3] 调整全景图计数器位置
@@ -2262,18 +2302,21 @@
                               hue = 60 + Math.floor(greenProgress * 60); 
                          }
                          const color = `hsl(${hue}, 100%, 50%)`;
-                         const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
-                        
-                        const displayText = `已上传: ${successCount} 张`;
-                        if (textSpan.textContent !== displayText) {
-                             textSpan.textContent = displayText;
+                        const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
+                       
+                       let displayText = `已上传: ${successCount} 张`;
+                       if (maxTotal > 0) {
+                           displayText = `已上传: ${successCount} / ${maxTotal} 张`;
+                       }
+                       if (textSpan.textContent !== displayText) {
+                            textSpan.textContent = displayText;
                              textSpan.style.color = color;
                              textSpan.style.textShadow = `0 0 8px ${shadowColor}, 0 0 15px ${shadowColor}`;
                              counter.style.borderColor = `hsla(${hue}, 50%, 40%, 0.5)`;
                         }
                     }
                 } else if (titleEl) {
-                    render3DCounter(titleEl, successCount);
+                    render3DCounter(titleEl, successCount, 9, 35, maxTotal);
                 }
             }
         });
@@ -2436,7 +2479,7 @@
                 }
             });
             
-            // 3. 修复“新增房堪图”弹窗高度
+            // 3. 修复“新增房堪图”弹窗高度 及 移动按钮
             document.querySelectorAll('.layui-layer-title').forEach(title => {
                 if (title.textContent.includes('新增房堪图') || title.textContent.includes('房堪上传')) {
                     const layer = title.closest('.layui-layer');
@@ -2453,6 +2496,115 @@
                         const iframe = layer.querySelector('iframe');
                         if (iframe && iframe.style.height) iframe.style.height = (parseInt(iframe.style.height) + 60) + 'px';
                         layer.dataset.xhjResized = 'true';
+                    }
+                    
+                    // 移动 批量上传 和 确定 按钮到 title 栏
+                    if (layer && !layer.dataset.xhjBtnsMoved) {
+                        layer.dataset.xhjBtnsMoved = 'true';
+                        
+                        if (getComputedStyle(title).position === 'static') {
+                            title.style.position = 'relative';
+                        }
+                        title.style.paddingLeft = '100px';
+                        
+                        // 创建批量上传按钮 (代理)
+                        const proxyBatchBtn = document.createElement('button');
+                        proxyBatchBtn.className = 'layui-btn layui-btn-sm layui-btn-normal';
+                        proxyBatchBtn.textContent = '批量上传';
+                        proxyBatchBtn.style.cssText = `
+                            position: absolute;
+                            left: 15px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            height: 28px;
+                            line-height: 28px;
+                            border-radius: 4px;
+                            z-index: 100;
+                            padding: 0 12px;
+                            background-color: var(--xhj-active-bg, #3498db);
+                            border: none;
+                            color: white;
+                            cursor: pointer;
+                        `;
+                        
+                        // 创建确定按钮 (代理)
+                        const proxyConfirmBtn = document.createElement('button');
+                        proxyConfirmBtn.className = 'layui-btn layui-btn-sm';
+                        proxyConfirmBtn.textContent = '确定';
+                        proxyConfirmBtn.style.cssText = `
+                            position: absolute;
+                            right: 50px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            height: 28px;
+                            line-height: 28px;
+                            border-radius: 4px;
+                            z-index: 100;
+                            padding: 0 12px;
+                            background-color: var(--xhj-active-bg, #3498db);
+                            border: none;
+                            color: white;
+                            cursor: pointer;
+                        `;
+                        
+                        title.appendChild(proxyBatchBtn);
+                        title.appendChild(proxyConfirmBtn);
+                        
+                        // 寻找真实的按钮并代理点击
+                        const findRealButtons = () => {
+                            let batchBtn = null;
+                            let confirmBtn = null;
+                            
+                            const iframe = layer.querySelector('iframe');
+                            if (iframe && iframe.contentDocument) {
+                                const doc = iframe.contentDocument;
+                                const btns = Array.from(doc.querySelectorAll('.layui-btn, .el-button, button'));
+                                batchBtn = btns.find(b => b.textContent.includes('批量上传'));
+                                confirmBtn = btns.find(b => b.textContent.trim() === '确定' || b.textContent.trim() === '确认');
+                            } else {
+                                const btns = Array.from(layer.querySelectorAll('.layui-btn, .el-button, button'));
+                                batchBtn = btns.find(b => b.textContent.includes('批量上传'));
+                                confirmBtn = btns.find(b => b.textContent.trim() === '确定' || b.textContent.trim() === '确认');
+                            }
+                            return { batchBtn, confirmBtn };
+                        };
+                        
+                        proxyBatchBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const { batchBtn } = findRealButtons();
+                            if (batchBtn) {
+                                batchBtn.click();
+                            } else {
+                                console.warn('未找到真实的批量上传按钮');
+                            }
+                        });
+                        
+                        proxyConfirmBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const { confirmBtn } = findRealButtons();
+                            if (confirmBtn) {
+                                confirmBtn.click();
+                            } else {
+                                console.warn('未找到真实的确定按钮');
+                            }
+                        });
+                        
+                        // 隐藏原始按钮
+                        const hideRealButtons = () => {
+                            const { batchBtn, confirmBtn } = findRealButtons();
+                            if (batchBtn) batchBtn.style.display = 'none';
+                            if (confirmBtn) confirmBtn.style.display = 'none';
+                        };
+                        
+                        // 轮询隐藏原始按钮，因为按钮可能是异步加载的
+                        let checkCount = 0;
+                        const checkInterval = setInterval(() => {
+                            hideRealButtons();
+                            checkCount++;
+                            if (checkCount > 20) clearInterval(checkInterval);
+                        }, 500);
                     }
                 }
             });
