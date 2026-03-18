@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台后台换肤助手（563982）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.6
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.6: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
+// @version      5.0.7
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.7: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -2197,21 +2197,18 @@
                     return rawText.includes('上传中') || rawText.includes('等待') || rawText.includes('准备');
                 });
                 
-                // 标记长时间处于“上传中”的按钮为失败
                 uploadingBtns.forEach(btn => {
                     if (!btn.dataset.xhjUploadStartTime) {
                         btn.dataset.xhjUploadStartTime = Date.now().toString();
                     } else {
                         const elapsed = Date.now() - parseInt(btn.dataset.xhjUploadStartTime);
-                        // 如果超过 180 秒（180000 毫秒）仍未成功，强制视为失败
-                        if (elapsed > 180000) {
+                        if (elapsed > 150000) {
                             btn.textContent = '上传失败';
                             btn.dataset.xhjUploadTimeout = 'true';
                         }
                     }
                 });
                 
-                // --- 全景图上传失败一键重试功能 ---
                 const failedBtns = Array.from(
                     container.querySelectorAll('#uploader-list .layui-upload-list a, #uploader-list .layui-upload-list .layui-btn')
                 ).filter(el => {
@@ -2219,8 +2216,14 @@
                     return rawText.includes('上传失败');
                 });
                 
+                const retryHost =
+                    container.querySelector('.layui-form-item .layui-input-block') ||
+                    container.querySelector('.layui-form') ||
+                    titleEl ||
+                    container;
+
                 if (failedBtns.length > 0) {
-                    if (titleEl && !titleEl.querySelector('.xhj-retry-btn')) {
+                    if (retryHost && !retryHost.querySelector('.xhj-retry-btn')) {
                         const retryBtn = document.createElement('button');
                         retryBtn.className = 'xhj-retry-btn layui-btn layui-btn-sm layui-btn-danger';
                         retryBtn.textContent = `重试失败 (${failedBtns.length})`;
@@ -2245,16 +2248,20 @@
                             retryBtn.style.opacity = '0.7';
                             setTimeout(() => retryBtn.remove(), 1000);
                         };
-                        titleEl.appendChild(retryBtn);
-                    } else if (titleEl) {
-                        const existingBtn = titleEl.querySelector('.xhj-retry-btn');
+                        if (getComputedStyle(retryHost).position === 'static') retryHost.style.position = 'relative';
+                        retryBtn.style.position = 'absolute';
+                        retryBtn.style.right = '10px';
+                        retryBtn.style.top = '-2px';
+                        retryHost.appendChild(retryBtn);
+                    } else if (retryHost) {
+                        const existingBtn = retryHost.querySelector('.xhj-retry-btn');
                         if (existingBtn && !existingBtn.textContent.includes('正在重试')) {
                             existingBtn.textContent = `重试失败 (${failedBtns.length})`;
                         }
                     }
                 } else {
-                    if (titleEl) {
-                        const retryBtn = titleEl.querySelector('.xhj-retry-btn');
+                    if (retryHost) {
+                        const retryBtn = retryHost.querySelector('.xhj-retry-btn');
                         if (retryBtn) retryBtn.remove();
                     }
                 }
@@ -2603,49 +2610,75 @@
                                 if (!dialogHeader || !dialogTitle) return;
 
                                 dialogHeader.style.position = 'relative';
-                                dialogHeader.style.paddingRight = '220px';
+                                dialogHeader.style.display = 'flex';
+                                dialogHeader.style.alignItems = 'center';
+                                dialogHeader.style.gap = '12px';
+                                dialogHeader.style.paddingRight = '20px';
+
+                                let actionWrap = dialogHeader.querySelector('.xhj-header-actions');
+                                if (!actionWrap) {
+                                    actionWrap = doc.createElement('div');
+                                    actionWrap.className = 'xhj-header-actions';
+                                    actionWrap.style.cssText = `
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 10px;
+                                        margin-left: 6px;
+                                    `;
+                                    dialogHeader.appendChild(actionWrap);
+                                }
 
                                 const batchBtn = doc.querySelector('.uploadBtn');
-                                if (batchBtn && batchBtn.parentElement !== dialogHeader) {
+                                if (batchBtn && batchBtn.parentElement !== actionWrap) {
                                     batchBtn.style.cssText = `
-                                        position: absolute !important;
-                                        right: 110px !important;
-                                        top: 50% !important;
-                                        transform: translateY(-50%) !important;
-                                        z-index: 100 !important;
+                                        position: static !important;
                                         margin: 0 !important;
                                         height: 28px !important;
                                         line-height: 28px !important;
-                                        min-width: 90px !important;
+                                        min-width: 100px !important;
                                         padding: 0 15px !important;
+                                        display: inline-flex !important;
+                                        align-items: center !important;
                                     `;
+                                    const batchUploadInner = batchBtn.querySelector('.el-upload');
+                                    if (batchUploadInner) {
+                                        batchUploadInner.style.cssText = `
+                                            display: inline-flex !important;
+                                            align-items: center !important;
+                                            margin: 0 !important;
+                                            height: 28px !important;
+                                        `;
+                                    }
                                     const batchInnerBtn = batchBtn.querySelector('.el-button');
                                     if (batchInnerBtn) {
                                         batchInnerBtn.style.cssText = `
                                             height: 28px !important;
                                             line-height: 28px !important;
-                                            min-width: 90px !important;
+                                            min-width: 100px !important;
                                             padding: 0 15px !important;
+                                            display: inline-flex !important;
+                                            align-items: center !important;
+                                            justify-content: center !important;
                                         `;
                                     }
-                                    dialogHeader.appendChild(batchBtn);
+                                    actionWrap.appendChild(batchBtn);
                                 }
 
                                 const confirmBtns = Array.from(doc.querySelectorAll('.dialog-footer .el-button'));
                                 const confirmBtn = confirmBtns.find(b => b.textContent.includes('确 定') || b.textContent.includes('确定'));
-                                if (confirmBtn && confirmBtn.parentElement !== dialogHeader) {
+                                if (confirmBtn && confirmBtn.parentElement !== actionWrap) {
                                     confirmBtn.style.cssText = `
-                                        position: absolute !important;
-                                        right: 10px !important;
-                                        top: 50% !important;
-                                        transform: translateY(-50%) !important;
-                                        z-index: 100 !important;
+                                        position: static !important;
+                                        margin: 0 !important;
                                         height: 28px !important;
                                         line-height: 28px !important;
-                                        min-width: 90px !important;
+                                        min-width: 100px !important;
                                         padding: 0 15px !important;
+                                        display: inline-flex !important;
+                                        align-items: center !important;
+                                        justify-content: center !important;
                                     `;
-                                    dialogHeader.appendChild(confirmBtn);
+                                    actionWrap.appendChild(confirmBtn);
                                 }
 
                                 const hasBatchInFooter = !!doc.querySelector('.boxFrom > .uploadBtn');
