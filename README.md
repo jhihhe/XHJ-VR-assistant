@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Xiangshi_Admin-223?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
 [![Type](https://img.shields.io/badge/Type-Tampermonkey_UserScript-8a2be2?style=for-the-badge&logo=tampermonkey&logoColor=white)](#)
 [![Language](https://img.shields.io/badge/Language-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111)](#)
-[![Version](https://img.shields.io/badge/Version-v5.0-00c853?style=for-the-badge)](#)
+[![Version](https://img.shields.io/badge/Version-v5.0.1-00c853?style=for-the-badge)](#)
 
 [![Themes](https://img.shields.io/badge/Themes-15+-ff9800?style=flat-square)](#-内置主题)
 [![HUD UI](https://img.shields.io/badge/HUD-Display_Style-00bcd4?style=flat-square)](#-核心能力)
