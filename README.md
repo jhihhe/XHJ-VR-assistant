@@ -4,72 +4,121 @@
 [![GitHub Forks](https://img.shields.io/github/forks/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=7bdff2)](https://github.com/jhihhe/XHJ-VR-assistant/network/members)
 [![GitHub Issues](https://img.shields.io/github/issues/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ff7aa2)](https://github.com/jhihhe/XHJ-VR-assistant/issues)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 
 [![Platform](https://img.shields.io/badge/Platform-Xiangshi_Admin-223?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
 [![Type](https://img.shields.io/badge/Type-Tampermonkey_UserScript-8a2be2?style=for-the-badge&logo=tampermonkey&logoColor=white)](#)
 [![Language](https://img.shields.io/badge/Language-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111)](#)
-[![Version](https://img.shields.io/badge/Version-v5.0.7-00c853?style=for-the-badge)](#)
+[![Version](https://img.shields.io/badge/Version-v5.0.8-00c853?style=for-the-badge)](#)
+[![Release Train](https://img.shields.io/badge/Release-SemVer_x.x.x-00b4d8?style=for-the-badge)](#版本策略)
 
-[![Themes](https://img.shields.io/badge/Themes-15+-ff9800?style=flat-square)](#-内置主题)
-[![HUD UI](https://img.shields.io/badge/HUD-Display_Style-00bcd4?style=flat-square)](#-核心能力)
-[![AutoSync](https://img.shields.io/badge/AutoSync-Batch_Ready-7c4dff?style=flat-square)](#-核心能力)
-[![AutoVerify](https://img.shields.io/badge/AutoVerify-ONNX_Local-009688?style=flat-square)](#-核心能力)
-[![iFrame](https://img.shields.io/badge/iFrame-Style_Sync-5c6bc0?style=flat-square)](#-适配范围)
+[![Themes](https://img.shields.io/badge/Themes-15+-ff9800?style=flat-square)](#-主题系统)
+[![HUD UI](https://img.shields.io/badge/HUD-Display_Style-00bcd4?style=flat-square)](#-视觉系统)
+[![AutoSync](https://img.shields.io/badge/AutoSync-Batch_Ready-7c4dff?style=flat-square)](#-自动化能力)
+[![AutoVerify](https://img.shields.io/badge/AutoVerify-ONNX_Local-009688?style=flat-square)](#-自动化能力)
+[![Upload UX](https://img.shields.io/badge/Upload-Enhanced-4caf50?style=flat-square)](#-上传增强)
+[![iFrame](https://img.shields.io/badge/iFrame-Style_Sync-5c6bc0?style=flat-square)](#-兼容与适配)
 [![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](#)
 
-> 为象视平台后台打造的一体化增强脚本：**视觉升级 + 流程自动化 + 列表智能化 + 上传体验增强**。
+> 面向象视平台后台的一体化增强脚本：**视觉深度美化 + 流程自动化提效 + 上传链路增强 + 跨 iframe 一致体验**。  
+> 适合追求“信息密度高、操作路径短、视觉统一”的高频后台作业场景。
 
 ---
 
-## 🌐 文档导航
+## 📚 文档目录
 
-- [中文文档](README.md)
-- [English README](README-EN.md)
-- [GitHub 项目主页](https://github.com/jhihhe/XHJ-VR-assistant)
+- [项目定位](#-项目定位)
+- [核心能力总览](#-核心能力总览)
+- [详细功能说明](#-详细功能说明)
+- [主题系统](#-主题系统)
+- [安装与更新](#-安装与更新)
+- [版本策略](#-版本策略)
+- [兼容与适配](#-兼容与适配)
+- [预览截图](#-预览截图)
+- [常见问题](#-常见问题)
+- [免责声明](#-免责声明)
 
-## 🖼️ 效果预览
+## 🎯 项目定位
 
-![preview-1](pic1.png)
-![preview-2](pic2.png)
-![preview-3](pic3.png)
-![preview-4](pic4.png)
-![preview-5](pic5.png)
+本项目不是简单换肤脚本，而是围绕“**后台重度操作体验**”进行的完整增强层：
 
-## ✨ 项目亮点
+- **界面层**：统一 HUD 风格、改善对比度、修复层级视觉割裂。
+- **行为层**：批量同步、按钮重排、状态着色、智能计数、失败重试。
+- **流程层**：减少重复点击、缩短路径、提升反馈清晰度。
+- **稳定层**：优先使用非侵入方式，不改后端接口协议。
 
-- **HUD 显示器风格 UI**：统一深色显示层、扫描线、信息栅格、发光描边文字质感。
-- **高效业务自动化**：一键自动同步、上传状态增强、计数器反馈。
-- **本地智能识别**：内置 ONNX Runtime 验证码识别，不依赖第三方密钥。
-- **性能优先策略**：去除高功耗无限动画与重 blur，兼顾沉浸感和低温运行。
-- **主页面 + iframe 协同**：样式与行为跨上下文统一。
+## 🧠 核心能力总览
 
-## 🧠 核心能力
+### 1) 视觉系统
+- 全站 Dark HUD 化：头部、侧栏、表格、弹窗、输入框、按钮统一风格。
+- 栅格背景、边缘辉光、层级阴影，提升信息组织感。
+- 关键文本与状态色强化：高亮信息“可一眼识别”。
 
-### 1) HUD 视觉引擎
-- 全站风格统一：头部、侧栏、卡片、表格、弹窗、按钮一致视觉语义。
-- 文本质感增强：主文本/次文本/按钮文字分层渲染，强调可读性与科技感。
-- 上传/弹窗显示升级：提示窗、输入控件、上传区边界统一 HUD 风格。
+### 2) 自动化能力
+- 一键同步批处理，降低重复手工点击。
+- 表格操作区更高可读性，减少误点。
+- 上传失败重试入口自动出现，配合超时判定降本提效。
 
-### 2) 自动同步工作流
-- 一键执行页面内“同步”按钮批处理。
-- 自动进度提示，降低重复点击操作。
-- 保留原业务逻辑，仅做提效增强。
+### 3) 上传增强
+- 房堪上传计数展示与状态识别优化。
+- 全景上传成功/失败/上传中状态动态识别。
+- “上传中”超时自动判失败（当前阈值：150s）。
 
-### 3) 智能表格布局与可读性
-- 表头和内容对齐修复。
-- 房勘与售房全景场景列宽策略优化。
-- 长字段显示更紧凑，信息密度更高。
+### 4) 智能识别
+- 本地 ONNX 推理验证码识别（无需外部 API Key）。
+- 更稳定的自动化前置能力，降低人工打码频率。
 
-### 4) 上传计数与状态增强
-- 房勘上传计数（3D 数码管风格）。
-- 全景上传“成功/完成”状态识别与计数。
-- 状态文本自动着色，降低误判成本。
+### 5) 跨上下文一致性
+- 主页面、Layer 弹窗、iframe 内页面样式行为保持一致。
+- 弹窗按钮重排与对齐优化，减少遮挡与错位。
 
-### 5) 本地验证码识别（AutoVerify）
-- ONNX 本地推理，数据不出本机。
-- 避免云接口依赖，稳定且可控。
+## 🔍 详细功能说明
 
-## 🎨 内置主题
+### 🎨 视觉系统
+
+#### 全局 HUD 改造
+- 统一深色主基调与对比层级。
+- 按钮、卡片、表格、弹窗采用一致材质语言。
+- 减少“默认样式 + 自定义样式”混搭带来的割裂感。
+
+#### 文本与交互反馈
+- 关键信息（状态、计数、危险提示）颜色分层。
+- 悬浮、聚焦、激活状态统一化，操作反馈更清楚。
+
+### ⚙️ 自动化能力
+
+#### 一键自动同步
+- 对业务同步流程做批处理入口整合。
+- 使用可视化反馈提示当前状态，避免误判进度。
+
+#### 流程提效
+- 常用操作路径前置，减少跨区域鼠标移动。
+- 针对上传弹窗中的关键按钮进行布局优化。
+
+### 📤 上传增强
+
+#### 房堪上传增强
+- 计数与状态反馈优化，避免重复或错误计数影响判断。
+- 弹窗操作按钮在视觉上统一尺寸与对齐，提高点击命中效率。
+
+#### 全景上传增强
+- 识别“上传成功 / 上传失败 / 上传中”状态并着色。
+- 失败时自动展示“重试失败(X)”按钮。
+- 超时策略：若某项持续“上传中”超过 150 秒，将自动标记为“上传失败”并可一键重试。
+
+### 🧩 表格与布局增强
+- 按业务场景优化列宽（房勘 / 全景列表）。
+- 提升高密度列表可读性，减少换行扰动。
+- 让状态列与操作列更符合“扫读 + 快点”的习惯。
+
+### 🔐 本地识别能力（AutoVerify）
+- ONNX Runtime 本地推理，数据无需出站。
+- 规避第三方验证码服务稳定性风险。
+- 适合作为自动化链路中的本地基础组件。
+
+## 🌈 主题系统
+
+内置多套主题，可按偏好快速切换：
 
 - Star Wars HUD (Immersive)
 - Dracula (Official)
@@ -85,32 +134,64 @@
 - Modern Dark
 - Midnight Blue
 - GitHub Dark
-- Default（官方样式）
+- Default（官方基线）
 
-## 🧩 安装方式
+## 🛠 安装与更新
 
+### 安装步骤
 1. 安装浏览器扩展 **Tampermonkey**（Chrome / Edge / Firefox）。
-2. 按脚本页 ID 安装对应文件：`xhj_assistant_534783.user.js` / `xhj_assistant_563982.user.js` / `xhj_assistant_563997.user.js`。
-3. 进入象视后台页面：`https://vr.xhj.com/houseadmin/`。
-4. 通过右下角悬浮入口切换主题并启用增强功能。
+2. 按对应脚本页安装：
+   - `xhj_assistant_534783.user.js`
+   - `xhj_assistant_563982.user.js`
+   - `xhj_assistant_563997.user.js`
+3. 打开象视后台：`https://vr.xhj.com/houseadmin/`
+4. 刷新页面并启用脚本。
 
-## ✅ 适配范围
+### 更新方式
+- 推荐使用脚本管理器自动检查更新。
+- 版本采用 `x.x.x` 递进，每次功能/文档变更均同步提升版本号。
+- 三个 GreasyFork 脚本与 GitHub 主文件保持同码不同名发布策略。
 
-- 域名：`vr.xhj.com`、`*.xhj.com`
-- 上下文：主页面、Layer 弹窗、iframe 子页面
-- 组件生态：Layui + 部分 Element UI
+## 🧭 版本策略
 
-## 📜 更新摘要
+- 采用 **SemVer 风格小版本递进**：`5.0.7 → 5.0.8 ...`
+- 每次变更同步更新：
+  - 主脚本 `xhj_assistant.user.js`
+  - 三个分发脚本 `xhj_assistant_*.user.js`
+  - 中文 / 英文 README 版本徽章
 
-### v5.0
-- 三脚本改为分名同码发布，统一同步到 GitHub 仓库。
-- 三个 Greasy 页面名称固定为指定名称并保持独立。
-- 版本号与描述统一提升到 v5.0，避免低版本号阻塞更新。
+## ✅ 兼容与适配
 
-### v2.7.4 ~ v2.7.0
-- 全景上传计数器定位、识别逻辑与 3D 数码管显示持续优化。
+- **域名范围**：`vr.xhj.com`、`*.xhj.com`
+- **页面类型**：主页面、Layer 弹窗、iframe 子页面
+- **UI 框架**：Layui + Element UI 混合场景
+- **浏览器建议**：Chrome / Edge 最新稳定版
 
-## ⚠️ 声明
+## 🖼 预览截图
 
-- 本脚本仅增强前端显示和操作体验，不修改后台核心数据结构。
-- 若你的业务页面 DOM 结构与默认场景不同，欢迎提交 Issue 反馈适配需求。
+![preview-1](pic1.png)
+![preview-2](pic2.png)
+![preview-3](pic3.png)
+![preview-4](pic4.png)
+![preview-5](pic5.png)
+
+## ❓ 常见问题
+
+### Q1：为什么我没有看到主题变化？
+- 请确认 Tampermonkey 脚本已启用。
+- 确认当前域名命中 `@match` 规则。
+- 尝试强制刷新页面（`Ctrl/Cmd + Shift + R`）。
+
+### Q2：为什么上传失败重试按钮没出现？
+- 仅在出现“上传失败”状态后显示。
+- 若长期“上传中”，超过 150 秒会自动转为失败并显示重试入口。
+
+### Q3：会影响后台数据吗？
+- 不会修改后端数据结构与接口协议。
+- 主要作用于前端显示、交互体验和流程效率。
+
+## ⚠️ 免责声明
+
+- 本项目用于提升后台操作体验与效率，请在合规场景下使用。
+- 若业务页面 DOM 结构发生重大变化，部分功能可能需要适配更新。
+- 欢迎提交 Issue 或 PR，共同改进稳定性与可维护性。
