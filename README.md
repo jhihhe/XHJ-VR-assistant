@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Xiangshi_Admin-223?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
 [![Type](https://img.shields.io/badge/Type-Tampermonkey_UserScript-8a2be2?style=for-the-badge&logo=tampermonkey&logoColor=white)](#)
 [![Language](https://img.shields.io/badge/Language-JavaScript-f7df1e?style=for-the-badge&logo=javascript&logoColor=111)](#)
-[![Version](https://img.shields.io/badge/Version-v5.0.9-00c853?style=for-the-badge)](#)
+[![Version](https://img.shields.io/badge/Version-v5.0.10-00c853?style=for-the-badge)](#)
 [![Release Train](https://img.shields.io/badge/Release-SemVer_x.x.x-00b4d8?style=for-the-badge)](#版本策略)
 
 [![Themes](https://img.shields.io/badge/Themes-15+-ff9800?style=flat-square)](#-主题系统)
@@ -200,7 +200,7 @@ flowchart LR
 
 ## 🧭 版本策略
 
-- 采用 **SemVer 风格小版本递进**：`5.0.8 → 5.0.9 ...`
+- 采用 **SemVer 风格小版本递进**：`5.0.8 → 5.0.10 ...`
 - 每次变更同步更新：
   - 主脚本 `xhj_assistant.user.js`
   - 三个分发脚本 `xhj_assistant_*.user.js`

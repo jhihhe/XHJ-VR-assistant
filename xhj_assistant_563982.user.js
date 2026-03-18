@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         象视平台后台换肤助手（563982）
+// @name         象视平台助手（563982）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.9
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.9: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
+// @version      5.0.10
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.10: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -2218,7 +2218,26 @@
                     return rawText.includes('上传失败');
                 });
                 
-                const retryHost = titleEl || container.querySelector('.layui-form') || container;
+                let retryHost = null;
+                const retryFormLabels = Array.from(container.querySelectorAll('.layui-form-label'));
+                const retryTypeLabel = retryFormLabels.find(l => l.textContent.includes('类型'));
+                
+                let retryTargetContainer = null;
+                if (retryTypeLabel) {
+                    const inputBlock = retryTypeLabel.nextElementSibling;
+                    if (inputBlock && inputBlock.classList.contains('layui-input-block')) {
+                        retryTargetContainer = inputBlock;
+                    }
+                }
+
+                if (retryTargetContainer) {
+                    retryHost = retryTargetContainer;
+                    retryTargetContainer.style.display = 'flex';
+                    retryTargetContainer.style.alignItems = 'center';
+                } else {
+                    retryHost = titleEl || container.querySelector('.layui-form') || container;
+                }
+
                 const retryButtons = container.querySelectorAll('.xhj-retry-btn');
                 retryButtons.forEach((btn, index) => {
                     if (index > 0) btn.remove();
@@ -2235,7 +2254,6 @@
                             line-height: 28px;
                             border-radius: 4px;
                             position: relative;
-                            top: -2px;
                             z-index: 100;
                             box-shadow: 0 0 10px rgba(255, 82, 82, 0.5);
                         `;
@@ -2245,7 +2263,7 @@
                             failedBtns.forEach(btn => {
                                 btn.classList.add('update');
                                 btn.classList.remove('layui-btn-danger');
-                                btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                                btn.click();
                             });
                             retryBtn.textContent = '正在重试...';
                             retryBtn.style.opacity = '0.7';
@@ -3235,8 +3253,81 @@
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
     }
 
+    // [v2.7.4] 鼠标点击炫酷动画
+    const initClickAnimation = () => {
+        const style = document.createElement('style');
+        style.textContent = `
+            .xhj-click-ripple {
+                position: fixed;
+                border-radius: 50%;
+                transform: scale(0);
+                animation: xhj-ripple-anim 0.6s linear;
+                background: rgba(64, 158, 255, 0.4);
+                pointer-events: none;
+                z-index: 999999;
+                width: 20px;
+                height: 20px;
+                margin-top: -10px;
+                margin-left: -10px;
+            }
+            @keyframes xhj-ripple-anim {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            .xhj-click-spark {
+                position: fixed;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background-color: #ffeb3b;
+                pointer-events: none;
+                z-index: 999999;
+                animation: xhj-spark-anim 0.8s ease-out forwards;
+            }
+            @keyframes xhj-spark-anim {
+                0% { transform: scale(1); opacity: 1; }
+                100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        document.addEventListener('click', (e) => {
+            // Ripple
+            const ripple = document.createElement('div');
+            ripple.className = 'xhj-click-ripple';
+            ripple.style.left = e.clientX + 'px';
+            ripple.style.top = e.clientY + 'px';
+            document.body.appendChild(ripple);
+            
+            // Sparks
+            const colors = ['#ff3b30', '#4cd964', '#007aff', '#ff9500', '#5ac8fa'];
+            for (let i = 0; i < 5; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'xhj-click-spark';
+                spark.style.left = (e.clientX - 3) + 'px';
+                spark.style.top = (e.clientY - 3) + 'px';
+                spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 20 + Math.random() * 30;
+                spark.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                spark.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                
+                document.body.appendChild(spark);
+                
+                setTimeout(() => spark.remove(), 800);
+            }
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+    };
+
     init();
     initAutoVerify();
     initSafariMobileAdaptation();
+    initClickAnimation();
 
 })();
