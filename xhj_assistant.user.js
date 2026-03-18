@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手（563997）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.5
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.5: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
+// @version      5.0.6
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.6: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -2118,6 +2118,10 @@
                 const oldPattern = /(?:（|\()\s*已上传[:：]\s*\d+\s*张\s*(?:）|\))/g;
                 if (oldPattern.test(titleEl.innerHTML)) titleEl.innerHTML = titleEl.innerHTML.replace(oldPattern, '');
 
+                if (titleEl && titleEl.classList.contains('layui-layer-title')) {
+                    titleEl.querySelectorAll('.xhj-3d-counter').forEach(el => el.remove());
+                }
+
                 if (iframe && iframe.contentDocument) {
                     try {
                         const appNode = iframe.contentDocument.querySelector('#app');
@@ -2135,12 +2139,12 @@
                                 });
                             }
                             
-                            // 移除多余的计数器
-                            titleEl.querySelectorAll('.xhj-3d-counter').forEach((el, index) => {
-                                if (index > 0) el.remove();
-                            });
-                            
-                            render3DCounter(titleEl, totalImgs);
+                            if (titleEl && !titleEl.classList.contains('layui-layer-title')) {
+                                titleEl.querySelectorAll('.xhj-3d-counter').forEach((el, index) => {
+                                    if (index > 0) el.remove();
+                                });
+                                render3DCounter(titleEl, totalImgs);
+                            }
                             return; // 成功使用 Vue 实例数据后返回
                         }
                     } catch (e) {
@@ -2148,8 +2152,10 @@
                     }
                 }
 
-                const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
-                render3DCounter(titleEl, directImgs.length);
+                if (titleEl && !titleEl.classList.contains('layui-layer-title')) {
+                    const directImgs = container.querySelectorAll('.upimg.imgstyle img.imgstyle_img[data-original]');
+                    render3DCounter(titleEl, directImgs.length);
+                }
                 
                 // 清理旧残留
                 container.querySelectorAll('.schoolTu_top .xhj-img-counter, .xhj-img-counter').forEach(el => el.remove());
@@ -2584,77 +2590,77 @@
                         layer.dataset.xhjResized = 'true';
                     }
                     
-                    // 移动 批量上传 和 确定 按钮到指定位置
-                    if (layer && !layer.dataset.xhjBtnsMovedToRow) {
-                        layer.dataset.xhjBtnsMovedToRow = 'true';
-                        
-                        const moveRealButtonsToRow = () => {
+                    if (layer && !layer.dataset.xhjBtnsMovedToHeader) {
+                        layer.dataset.xhjBtnsMovedToHeader = 'true';
+
+                        const moveRealButtonsToHeader = () => {
                             try {
                                 const iframe = layer.querySelector('iframe');
                                 if (!iframe || !iframe.contentDocument) return;
                                 const doc = iframe.contentDocument;
-                                
-                                // 找到目标行：包含“申请人”字样的 el-row
-                                const rows = Array.from(doc.querySelectorAll('.el-row.row-bg'));
-                                const targetRow = rows.find(r => r.textContent.includes('申请人'));
-                                
-                                if (targetRow && !targetRow.dataset.xhjBtnsAdded) {
-                                    targetRow.dataset.xhjBtnsAdded = 'true';
-                                    targetRow.style.position = 'relative';
-                                    
-                                    const batchBtn = doc.querySelector('.uploadBtn');
-                                    if (batchBtn && !batchBtn.dataset.xhjMoved) {
-                                        batchBtn.dataset.xhjMoved = 'true';
-                                        const adoptedBatch = document.adoptNode(batchBtn);
-                                        adoptedBatch.style.cssText = `
-                                            position: absolute !important;
-                                            right: 90px !important;
-                                            top: -30px !important;
-                                            z-index: 100 !important;
-                                            margin: 0 !important;
+                                const dialogHeader = doc.querySelector('.el-dialog__header');
+                                const dialogTitle = doc.querySelector('.el-dialog__title');
+                                if (!dialogHeader || !dialogTitle) return;
+
+                                dialogHeader.style.position = 'relative';
+                                dialogHeader.style.paddingRight = '220px';
+
+                                const batchBtn = doc.querySelector('.uploadBtn');
+                                if (batchBtn && batchBtn.parentElement !== dialogHeader) {
+                                    batchBtn.style.cssText = `
+                                        position: absolute !important;
+                                        right: 110px !important;
+                                        top: 50% !important;
+                                        transform: translateY(-50%) !important;
+                                        z-index: 100 !important;
+                                        margin: 0 !important;
+                                        height: 28px !important;
+                                        line-height: 28px !important;
+                                        min-width: 90px !important;
+                                        padding: 0 15px !important;
+                                    `;
+                                    const batchInnerBtn = batchBtn.querySelector('.el-button');
+                                    if (batchInnerBtn) {
+                                        batchInnerBtn.style.cssText = `
                                             height: 28px !important;
                                             line-height: 28px !important;
+                                            min-width: 90px !important;
                                             padding: 0 15px !important;
                                         `;
-                                        targetRow.appendChild(adoptedBatch);
                                     }
-                                    
-                                    const confirmBtns = Array.from(doc.querySelectorAll('.dialog-footer .el-button'));
-                                    const confirmBtn = confirmBtns.find(b => b.textContent.includes('确 定') || b.textContent.includes('确定'));
-                                    if (confirmBtn && !confirmBtn.dataset.xhjMoved) {
-                                        confirmBtn.dataset.xhjMoved = 'true';
-                                        const adoptedConfirm = document.adoptNode(confirmBtn);
-                                        adoptedConfirm.style.cssText = `
-                                            position: absolute !important;
-                                            right: 0px !important;
-                                            top: -30px !important;
-                                            z-index: 100 !important;
-                                            height: 28px !important;
-                                            line-height: 28px !important;
-                                            padding: 0 15px !important;
-                                        `;
-                                        targetRow.appendChild(adoptedConfirm);
-                                    }
+                                    dialogHeader.appendChild(batchBtn);
+                                }
+
+                                const confirmBtns = Array.from(doc.querySelectorAll('.dialog-footer .el-button'));
+                                const confirmBtn = confirmBtns.find(b => b.textContent.includes('确 定') || b.textContent.includes('确定'));
+                                if (confirmBtn && confirmBtn.parentElement !== dialogHeader) {
+                                    confirmBtn.style.cssText = `
+                                        position: absolute !important;
+                                        right: 10px !important;
+                                        top: 50% !important;
+                                        transform: translateY(-50%) !important;
+                                        z-index: 100 !important;
+                                        height: 28px !important;
+                                        line-height: 28px !important;
+                                        min-width: 90px !important;
+                                        padding: 0 15px !important;
+                                    `;
+                                    dialogHeader.appendChild(confirmBtn);
+                                }
+
+                                const hasBatchInFooter = !!doc.querySelector('.boxFrom > .uploadBtn');
+                                const hasConfirmInFooter = !!Array.from(doc.querySelectorAll('.dialog-footer .el-button')).find(b => b.textContent.includes('确 定') || b.textContent.includes('确定'));
+                                if (!hasBatchInFooter && !hasConfirmInFooter && layer._xhjBtnHeaderTimer) {
+                                    clearInterval(layer._xhjBtnHeaderTimer);
+                                    layer._xhjBtnHeaderTimer = null;
                                 }
                             } catch (e) {
                                 console.warn('移动按钮失败:', e);
                             }
                         };
-                        
-                        // 轮询移动真实按钮
-                        if (!layer.dataset.xhjBtnRowInterval) {
-                            layer.dataset.xhjBtnRowInterval = setInterval(() => {
-                                moveRealButtonsToRow();
-                                // 检查是否已移动
-                                const iframe = layer.querySelector('iframe');
-                                if (iframe && iframe.contentDocument) {
-                                    const hasBatch = iframe.contentDocument.querySelector('.boxFrom > .uploadBtn');
-                                    const hasConfirm = Array.from(iframe.contentDocument.querySelectorAll('.dialog-footer .el-button')).some(b => b.textContent.includes('确 定'));
-                                    if (!hasBatch && !hasConfirm) {
-                                        clearInterval(layer.dataset.xhjBtnRowInterval);
-                                    }
-                                }
-                            }, 500);
+
+                        if (!layer._xhjBtnHeaderTimer) {
+                            layer._xhjBtnHeaderTimer = setInterval(moveRealButtonsToHeader, 500);
                         }
                     }
                 }
