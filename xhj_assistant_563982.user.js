@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手（563982）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.10
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.10: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
+// @version      5.0.11
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.11: 三脚本分名同码发布，统一 Git 同步并保持各页面独立名称。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -1714,36 +1714,71 @@
         divider.style.cssText = 'height: 1px; background: linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.05), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.5), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.05)); margin: 10px 0;';
         menu.appendChild(divider);
 
-        // --- 自动缩放开关 ---
+        // --- 自动缩放开关与调节 ---
+        const scaleContainer = document.createElement('div');
+        scaleContainer.style.cssText = `
+            display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 14px; margin-bottom: 6px;
+            border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25); border-radius: 10px; box-sizing: border-box;
+            background: linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.1), transparent);
+        `;
+
         const scaleBtn = document.createElement('button');
         scaleBtn.className = 'xhj-scale-option';
-        const updateScaleBtnText = () => {
-            scaleBtn.textContent = isScaleEnabled() ? '关闭自动缩放' : '开启自动缩放';
-            scaleBtn.style.background = isScaleEnabled() 
-                ? 'linear-gradient(90deg, rgba(66, 239, 175, 0.24), rgba(66, 239, 175, 0.1))' 
-                : 'linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.1), transparent)';
+        
+        const scaleControls = document.createElement('div');
+        scaleControls.style.cssText = 'display: flex; align-items: center; gap: 6px;';
+        
+        const updateScaleUI = () => {
+            scaleBtn.textContent = isScaleEnabled() ? '自动缩放(已开)' : '自动缩放(已关)';
+            scaleBtn.style.color = isScaleEnabled() ? '#42efaf' : '#d4f0ff';
+            ratioText.textContent = Math.round(getScaleRatio() * 100) + '%';
+            scaleControls.style.opacity = isScaleEnabled() ? '1' : '0.5';
+            scaleControls.style.pointerEvents = isScaleEnabled() ? 'auto' : 'none';
         };
-        updateScaleBtnText();
+
         scaleBtn.style.cssText = `
-            display: block; width: 100%; padding: 10px 14px; margin-bottom: 6px;
-            border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25); 
-            cursor: pointer; text-align: left; border-radius: 10px; color: #d4f0ff;
-            transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease; font-size: 14px; font-weight: 500;
+            background: transparent; border: none; cursor: pointer; color: #d4f0ff;
+            font-size: 14px; font-weight: 500; padding: 0; outline: none; transition: color 0.2s;
         `;
         scaleBtn.onclick = () => {
             toggleScale(!isScaleEnabled());
-            updateScaleBtnText();
-            // 不关闭菜单，方便查看效果
+            updateScaleUI();
         };
-        scaleBtn.onmouseenter = () => {
-             scaleBtn.style.color = '#fff';
-             scaleBtn.style.borderColor = 'rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.58)';
+
+        const minusBtn = document.createElement('button');
+        minusBtn.textContent = '-';
+        minusBtn.style.cssText = 'background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 4px; width: 24px; height: 24px; cursor: pointer;';
+        minusBtn.onclick = () => {
+            let r = getScaleRatio() - 0.05;
+            if(r < 0.5) r = 0.5;
+            setScaleRatio(r);
+            applyScale();
+            updateScaleUI();
         };
-        scaleBtn.onmouseleave = () => {
-             scaleBtn.style.color = '#d4f0ff';
-             scaleBtn.style.borderColor = 'rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25)';
+
+        const ratioText = document.createElement('span');
+        ratioText.style.cssText = 'color: #d4f0ff; font-size: 13px; min-width: 36px; text-align: center;';
+
+        const plusBtn = document.createElement('button');
+        plusBtn.textContent = '+';
+        plusBtn.style.cssText = 'background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 4px; width: 24px; height: 24px; cursor: pointer;';
+        plusBtn.onclick = () => {
+            let r = getScaleRatio() + 0.05;
+            if(r > 2.0) r = 2.0;
+            setScaleRatio(r);
+            applyScale();
+            updateScaleUI();
         };
-        menu.appendChild(scaleBtn);
+
+        scaleControls.appendChild(minusBtn);
+        scaleControls.appendChild(ratioText);
+        scaleControls.appendChild(plusBtn);
+
+        scaleContainer.appendChild(scaleBtn);
+        scaleContainer.appendChild(scaleControls);
+        
+        updateScaleUI();
+        menu.appendChild(scaleContainer);
 
         const toggleMenu = (show) => {
             if (show) {
@@ -1947,16 +1982,17 @@
        模块 4: 自动缩放功能 (Auto Scale)
        ========================================================================== */
     const AUTO_SCALE_STORAGE_KEY = 'xhj_auto_scale_enabled';
-    // const DESIGN_WIDTH = 1920; // 不再使用固定设计宽度
+    const AUTO_SCALE_RATIO_KEY = 'xhj_auto_scale_ratio'; // 用户自定义缩放比例
 
     // 获取当前缩放状态 (默认开启: 只要不是 'false' 就算开启)
     const isScaleEnabled = () => localStorage.getItem(AUTO_SCALE_STORAGE_KEY) !== 'false';
+    const getScaleRatio = () => parseFloat(localStorage.getItem(AUTO_SCALE_RATIO_KEY)) || 1.20;
+    const setScaleRatio = (ratio) => localStorage.setItem(AUTO_SCALE_RATIO_KEY, ratio.toFixed(2));
 
     // 设置缩放
     const applyScale = () => {
         // v1.40: 针对全景图管理-上传页面禁用自动缩放 (解决DPI异常问题)
         // 识别策略：检查URL或标题是否包含"新增"、"上传"等关键词
-        // 许多管理系统的添加页面URL通常包含 /add 或 /create
         if (window.location.href.includes('/add') || 
             window.location.href.includes('/upload') || 
             document.title.includes('新增') || 
@@ -1972,9 +2008,9 @@
         
         // 使用当前屏幕分辨率宽度作为基准
         const baseWidth = window.screen.width;
-        // 计算缩放比例：(当前窗口宽度 / 屏幕宽度) * 1.20 (120%)
-        // v1.38: 回滚最小缩放限制，调整基准比例为 120%
-        const scale = (window.innerWidth / baseWidth) * 1.20;
+        // 计算缩放比例：(当前窗口宽度 / 屏幕宽度) * 自定义比例 (默认120%)
+        const userRatio = getScaleRatio();
+        const scale = (window.innerWidth / baseWidth) * userRatio;
         
         document.body.style.zoom = scale;
     };
@@ -2196,89 +2232,6 @@
                     const rawText = (el.innerText || el.textContent || '').replace(/\s+/g, '');
                     return rawText.includes('上传中') || rawText.includes('等待') || rawText.includes('准备');
                 });
-                
-                uploadingBtns.forEach(btn => {
-                    if (!btn.dataset.xhjUploadStartTime) {
-                        btn.dataset.xhjUploadStartTime = Date.now().toString();
-                    } else {
-                        const elapsed = Date.now() - parseInt(btn.dataset.xhjUploadStartTime);
-                        if (elapsed > 150000) {
-                            btn.textContent = '上传失败';
-                            btn.dataset.xhjUploadTimeout = 'true';
-                            btn.classList.add('update');
-                            btn.classList.remove('layui-btn-danger');
-                        }
-                    }
-                });
-                
-                const failedBtns = Array.from(
-                    container.querySelectorAll('#uploader-list .layui-upload-list a, #uploader-list .layui-upload-list .layui-btn')
-                ).filter(el => {
-                    const rawText = (el.innerText || el.textContent || '').replace(/\s+/g, '');
-                    return rawText.includes('上传失败');
-                });
-                
-                let retryHost = null;
-                const retryFormLabels = Array.from(container.querySelectorAll('.layui-form-label'));
-                const retryTypeLabel = retryFormLabels.find(l => l.textContent.includes('类型'));
-                
-                let retryTargetContainer = null;
-                if (retryTypeLabel) {
-                    const inputBlock = retryTypeLabel.nextElementSibling;
-                    if (inputBlock && inputBlock.classList.contains('layui-input-block')) {
-                        retryTargetContainer = inputBlock;
-                    }
-                }
-
-                if (retryTargetContainer) {
-                    retryHost = retryTargetContainer;
-                    retryTargetContainer.style.display = 'flex';
-                    retryTargetContainer.style.alignItems = 'center';
-                } else {
-                    retryHost = titleEl || container.querySelector('.layui-form') || container;
-                }
-
-                const retryButtons = container.querySelectorAll('.xhj-retry-btn');
-                retryButtons.forEach((btn, index) => {
-                    if (index > 0) btn.remove();
-                });
-
-                if (failedBtns.length > 0) {
-                    if (retryHost && !retryHost.querySelector('.xhj-retry-btn')) {
-                        const retryBtn = document.createElement('button');
-                        retryBtn.className = 'xhj-retry-btn layui-btn layui-btn-sm layui-btn-danger';
-                        retryBtn.textContent = `重试失败 (${failedBtns.length})`;
-                        retryBtn.style.cssText = `
-                            margin-left: 15px;
-                            height: 28px;
-                            line-height: 28px;
-                            border-radius: 4px;
-                            position: relative;
-                            z-index: 100;
-                            box-shadow: 0 0 10px rgba(255, 82, 82, 0.5);
-                        `;
-                        retryBtn.onclick = (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            failedBtns.forEach(btn => {
-                                btn.classList.add('update');
-                                btn.classList.remove('layui-btn-danger');
-                                btn.click();
-                            });
-                            retryBtn.textContent = '正在重试...';
-                            retryBtn.style.opacity = '0.7';
-                            setTimeout(() => retryBtn.remove(), 1000);
-                        };
-                        retryHost.appendChild(retryBtn);
-                    } else if (retryHost) {
-                        const existingBtn = retryHost.querySelector('.xhj-retry-btn');
-                        if (existingBtn && !existingBtn.textContent.includes('正在重试')) {
-                            existingBtn.textContent = `重试失败 (${failedBtns.length})`;
-                        }
-                    }
-                } else {
-                    container.querySelectorAll('.xhj-retry-btn').forEach(btn => btn.remove());
-                }
                 
                 let uploadingCount = uploadingBtns.length;
                 if (uploadingCount === 0) {
