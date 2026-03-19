@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手（534783）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.35
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.35: 统一全景图上传状态文字颜色，上传中荧光红、上传成功荧光绿并增强跨主题可读性。
+// @version      5.0.40
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.40: 全局排版优化与15套主题上传状态专属高级光效适配。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -73,7 +73,11 @@
                 '--xhj-input-bg': '#ffffff',
                 '--xhj-table-head': '#e0e0e0',
                 '--xhj-glow-color': 'rgba(227, 28, 37, 0.4)',
-                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.2)'
+                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.2)',
+                '--xhj-uploading-color': '#E31C25',
+                '--xhj-uploading-shadow': 'rgba(227, 28, 37, 0.3)',
+                '--xhj-success-color': '#1C4DE3',
+                '--xhj-success-shadow': 'rgba(28, 77, 227, 0.3)'
             }
         },
         'default': {
@@ -94,7 +98,11 @@
                 '--xhj-input-bg': '#07111d',
                 '--xhj-table-head': '#0a1b2d',
                 '--xhj-glow-color': 'rgba(82, 216, 255, 0.55)',
-                '--xhj-shadow-color': 'rgba(3, 10, 20, 0.85)'
+                '--xhj-shadow-color': 'rgba(3, 10, 20, 0.85)',
+                '--xhj-uploading-color': '#ffaa00',
+                '--xhj-uploading-shadow': 'rgba(255, 170, 0, 0.6)',
+                '--xhj-success-color': '#52d8ff',
+                '--xhj-success-shadow': 'rgba(82, 216, 255, 0.6)'
             }
         },
         'dracula': {
@@ -111,7 +119,11 @@
                 '--xhj-input-bg': '#282a36',
                 '--xhj-table-head': '#44475a',
                 '--xhj-glow-color': 'rgba(189, 147, 249, 0.6)',
-                '--xhj-shadow-color': 'rgba(98, 114, 164, 0.4)'
+                '--xhj-shadow-color': 'rgba(98, 114, 164, 0.4)',
+                '--xhj-uploading-color': '#ffb86c',
+                '--xhj-uploading-shadow': 'rgba(255, 184, 108, 0.5)',
+                '--xhj-success-color': '#50fa7b',
+                '--xhj-success-shadow': 'rgba(80, 250, 123, 0.5)'
             }
         },
         'solarized-dark': {
@@ -128,7 +140,11 @@
                 '--xhj-input-bg': '#002b36',
                 '--xhj-table-head': '#073642',
                 '--xhj-glow-color': 'rgba(42, 161, 152, 0.6)',
-                '--xhj-shadow-color': 'rgba(42, 161, 152, 0.3)'
+                '--xhj-shadow-color': 'rgba(42, 161, 152, 0.3)',
+                '--xhj-uploading-color': '#cb4b16',
+                '--xhj-uploading-shadow': 'rgba(203, 75, 22, 0.4)',
+                '--xhj-success-color': '#859900',
+                '--xhj-success-shadow': 'rgba(133, 153, 0, 0.4)'
             }
         },
         'monokai': {
@@ -145,7 +161,11 @@
                 '--xhj-input-bg': '#2D2A2E',
                 '--xhj-table-head': '#403E41',
                 '--xhj-glow-color': 'rgba(255, 216, 102, 0.6)',
-                '--xhj-shadow-color': 'rgba(255, 216, 102, 0.3)'
+                '--xhj-shadow-color': 'rgba(255, 216, 102, 0.3)',
+                '--xhj-uploading-color': '#FD971F',
+                '--xhj-uploading-shadow': 'rgba(253, 151, 31, 0.5)',
+                '--xhj-success-color': '#A6E22E',
+                '--xhj-success-shadow': 'rgba(166, 226, 46, 0.5)'
             }
         },
         'github-dark': {
@@ -162,7 +182,11 @@
                 '--xhj-input-bg': '#0d1117',
                 '--xhj-table-head': '#161b22',
                 '--xhj-glow-color': 'rgba(31, 111, 235, 0.6)',
-                '--xhj-shadow-color': 'rgba(31, 111, 235, 0.3)'
+                '--xhj-shadow-color': 'rgba(31, 111, 235, 0.3)',
+                '--xhj-uploading-color': '#d29922',
+                '--xhj-uploading-shadow': 'rgba(210, 153, 34, 0.4)',
+                '--xhj-success-color': '#2ea043',
+                '--xhj-success-shadow': 'rgba(46, 160, 67, 0.4)'
             }
         },
         'cyberpunk': {
@@ -180,7 +204,11 @@
                 '--xhj-table-head': '#05122b',
                 '--xhj-glow-color': '#00f3ff',
                 '--xhj-special-font': 'Courier New, monospace',
-                '--xhj-shadow-color': 'rgba(255, 0, 60, 0.5)'
+                '--xhj-shadow-color': 'rgba(255, 0, 60, 0.5)',
+                '--xhj-uploading-color': '#ff003c',
+                '--xhj-uploading-shadow': 'rgba(255, 0, 60, 0.6)',
+                '--xhj-success-color': '#00ff9d',
+                '--xhj-success-shadow': 'rgba(0, 255, 157, 0.6)'
             }
         },
         'glass-morphism': {
@@ -197,7 +225,11 @@
                 '--xhj-input-bg': 'rgba(0, 0, 0, 0.25)',
                 '--xhj-table-head': 'rgba(255, 255, 255, 0.05)',
                 '--xhj-glow-color': '#7aa2f7',
-                '--xhj-shadow-color': 'rgba(122, 162, 247, 0.3)'
+                '--xhj-shadow-color': 'rgba(122, 162, 247, 0.3)',
+                '--xhj-uploading-color': '#f6c177',
+                '--xhj-uploading-shadow': 'rgba(246, 193, 119, 0.4)',
+                '--xhj-success-color': '#9ece6a',
+                '--xhj-success-shadow': 'rgba(158, 206, 106, 0.4)'
             }
         },
         'future-tech': {
@@ -214,7 +246,11 @@
                 '--xhj-input-bg': 'rgba(0, 0, 0, 0.6)',
                 '--xhj-table-head': 'rgba(0, 242, 255, 0.1)',
                 '--xhj-glow-color': '#d900ff',
-                '--xhj-shadow-color': 'rgba(217, 0, 255, 0.4)'
+                '--xhj-shadow-color': 'rgba(217, 0, 255, 0.4)',
+                '--xhj-uploading-color': '#ff00ff',
+                '--xhj-uploading-shadow': 'rgba(255, 0, 255, 0.6)',
+                '--xhj-success-color': '#00f2ff',
+                '--xhj-success-shadow': 'rgba(0, 242, 255, 0.6)'
             }
         },
         'modern-dark': {
@@ -231,7 +267,11 @@
                 '--xhj-input-bg': '#292524',
                 '--xhj-table-head': '#292524',
                 '--xhj-glow-color': 'rgba(202, 138, 4, 0.6)',
-                '--xhj-shadow-color': 'rgba(202, 138, 4, 0.3)'
+                '--xhj-shadow-color': 'rgba(202, 138, 4, 0.3)',
+                '--xhj-uploading-color': '#d97706',
+                '--xhj-uploading-shadow': 'rgba(217, 119, 6, 0.4)',
+                '--xhj-success-color': '#16a34a',
+                '--xhj-success-shadow': 'rgba(22, 163, 74, 0.4)'
             }
         },
         'midnight-blue': {
@@ -248,7 +288,11 @@
                 '--xhj-input-bg': '#0F172A',
                 '--xhj-table-head': '#0F172A',
                 '--xhj-glow-color': 'rgba(56, 189, 248, 0.6)',
-                '--xhj-shadow-color': 'rgba(56, 189, 248, 0.3)'
+                '--xhj-shadow-color': 'rgba(56, 189, 248, 0.3)',
+                '--xhj-uploading-color': '#f59e0b',
+                '--xhj-uploading-shadow': 'rgba(245, 158, 11, 0.4)',
+                '--xhj-success-color': '#10b981',
+                '--xhj-success-shadow': 'rgba(16, 185, 129, 0.4)'
             }
         },
         'synthwave-84': {
@@ -265,7 +309,11 @@
                 '--xhj-input-bg': '#2b213a',
                 '--xhj-table-head': '#2b213a',
                 '--xhj-glow-color': 'rgba(1, 205, 254, 0.8)',
-                '--xhj-shadow-color': 'rgba(1, 205, 254, 0.4)'
+                '--xhj-shadow-color': 'rgba(1, 205, 254, 0.4)',
+                '--xhj-uploading-color': '#ff71ce',
+                '--xhj-uploading-shadow': 'rgba(255, 113, 206, 0.6)',
+                '--xhj-success-color': '#39ff14',
+                '--xhj-success-shadow': 'rgba(57, 255, 20, 0.6)'
             }
         },
         'emerald-forest': {
@@ -282,7 +330,11 @@
                 '--xhj-input-bg': '#064e3b',
                 '--xhj-table-head': '#064e3b',
                 '--xhj-glow-color': 'rgba(16, 185, 129, 0.6)',
-                '--xhj-shadow-color': 'rgba(16, 185, 129, 0.3)'
+                '--xhj-shadow-color': 'rgba(16, 185, 129, 0.3)',
+                '--xhj-uploading-color': '#f59e0b',
+                '--xhj-uploading-shadow': 'rgba(245, 158, 11, 0.4)',
+                '--xhj-success-color': '#10b981',
+                '--xhj-success-shadow': 'rgba(16, 185, 129, 0.4)'
             }
         },
         'macos-light': {
@@ -299,7 +351,11 @@
                 '--xhj-input-bg': '#FFFFFF',
                 '--xhj-table-head': 'rgba(0, 0, 0, 0.02)',
                 '--xhj-glow-color': 'rgba(0, 122, 255, 0.2)',
-                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.05)'
+                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.05)',
+                '--xhj-uploading-color': '#FF9500',
+                '--xhj-uploading-shadow': 'rgba(255, 149, 0, 0.2)',
+                '--xhj-success-color': '#34C759',
+                '--xhj-success-shadow': 'rgba(52, 199, 89, 0.2)'
             }
         }
     };
@@ -318,6 +374,9 @@
                     html, body {
                         background-color: ${theme.vars['--xhj-bg']} !important;
                         color: ${theme.vars['--xhj-fg']} !important;
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+                        -webkit-font-smoothing: antialiased !important;
+                        -moz-osx-font-smoothing: grayscale !important;
                         transition: none !important; /* 禁用过渡，防止颜色缓慢变化 */
                     }
                     /* 预先隐藏可能的白色背景元素 */
@@ -515,8 +574,17 @@
         `;
 
         return `
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
             ${extraCss}
+            
+            /* 1. 极致排版与字体优化 (Premium Typography) */
+            html, body, .layui-table, .layui-btn, .layui-input, .layui-form-label, .layui-layer-title, .el-dialog__title {
+                font-family: ${vars['--xhj-special-font'] || "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif"} !important;
+                -webkit-font-smoothing: antialiased !important;
+                -moz-osx-font-smoothing: grayscale !important;
+                text-rendering: optimizeLegibility !important;
+            }
+
             :root {
                 ${varDeclarations}
                 --xhj-header-bg-rgb: ${headerBgRgb};
@@ -2520,13 +2588,16 @@
     };
 
     // [v2.7.2] 3D 数码管渲染 Helper
-    const render3DCounter = (titleEl, count, minGreenCount = 9, maxCount = 35, maxTotal = 0) => {
+    const render3DCounter = (titleEl, count, minGreenCount = 9, maxCount = 35, maxTotal = 0, hueOverride = null) => {
         let hue = 0;
         if (count >= minGreenCount) {
              const greenProgress = Math.min((count - minGreenCount) / (maxCount - minGreenCount), 1);
              hue = 60 + Math.floor(greenProgress * 60); // 60(黄) -> 120(绿)
         } else {
              hue = 0; // 红色
+        }
+        if (Number.isFinite(hueOverride)) {
+            hue = Math.max(0, Math.min(120, Math.round(hueOverride)));
         }
 
         const color = `hsl(${hue}, 100%, 50%)`;
@@ -2739,6 +2810,9 @@
                     maxTotal = 0;
                     container.dataset.xhjMaxTotal = '0';
                 }
+                const ratioTotal = maxTotal > 0 ? maxTotal : currentTotal;
+                const successRatio = ratioTotal > 0 ? Math.max(0, Math.min(1, successCount / ratioTotal)) : 0;
+                const ratioHue = Math.round(successRatio * 120);
                 
                 // [v2.7.3] 调整全景图计数器位置
                 // 目标位置：单选框区域 (全景图/全景视频/3D模型) 的右侧
@@ -2781,15 +2855,7 @@
                         // 为了复用 render3DCounter，我们稍作修改，让它支持传入 parentElement
                         
                         // 这里直接手动创建/更新，逻辑与 render3DCounter 类似但位置不同
-                         const minGreenCount = 9;
-                         const maxCount = 35;
-                         let hue = 0;
-                         if (successCount >= minGreenCount) {
-                              const greenProgress = Math.min((successCount - minGreenCount) / (maxCount - minGreenCount), 1);
-                              hue = 60 + Math.floor(greenProgress * 60); 
-                         } else {
-                              hue = 0; 
-                         }
+                         const hue = ratioHue;
                 
                          const color = `hsl(${hue}, 100%, 50%)`;
                          const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
@@ -2838,13 +2904,7 @@
                     const textSpan = counter.querySelector('.xhj-counter-text');
                     if (textSpan) {
                          // 重新计算颜色 (因为是局部变量)
-                         const minGreenCount = 9;
-                         const maxCount = 35;
-                         let hue = 0;
-                         if (successCount >= minGreenCount) {
-                              const greenProgress = Math.min((successCount - minGreenCount) / (maxCount - minGreenCount), 1);
-                              hue = 60 + Math.floor(greenProgress * 60); 
-                         }
+                         const hue = ratioHue;
                          const color = `hsl(${hue}, 100%, 50%)`;
                         const shadowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
                        
@@ -2860,7 +2920,7 @@
                         }
                     }
                 } else if (titleEl) {
-                    render3DCounter(titleEl, successCount, 9, 35, maxTotal);
+                    render3DCounter(titleEl, successCount, 9, 35, maxTotal, ratioHue);
                 }
             }
         });
@@ -2996,50 +3056,147 @@
 
             // 2. VR上传状态颜色区分
             // 扩展选择器以覆盖图二中的“上传中”、“上传成功”按钮/徽章
-            const statusRoot = document.querySelector('.layui-table-view, .layui-layer-content, .layui-upload-list, .el-dialog') || document.body;
-            const statusStamp = `${statusRoot.childElementCount}|${statusRoot.querySelectorAll('.layui-upload-list tr').length}|${statusRoot.querySelectorAll('.layui-btn, .layui-badge, .status-text').length}`;
+            const statusCells = Array.from(document.querySelectorAll(STATUS_STYLE_SELECTOR)).filter(cell => {
+                if (!cell || ['SCRIPT', 'STYLE'].includes(cell.tagName)) return false;
+                if (cell.childElementCount > 2 && !cell.classList.contains('layui-btn')) return false;
+                if (!cell.closest('.layui-upload-list, #uploader-list, .layui-layer, .el-dialog')) return false;
+                return true;
+            });
+            const statusTextSignature = statusCells
+                .map(cell => (cell.textContent || '').trim())
+                .filter(Boolean)
+                .slice(0, 200)
+                .join('|');
+            const statusStamp = `${statusCells.length}|${statusTextSignature}`;
             if (force || statusStamp !== dynamicFlags.lastStatusStamp) {
                 dynamicFlags.lastStatusStamp = statusStamp;
-                const statusCells = statusRoot.querySelectorAll(STATUS_STYLE_SELECTOR);
                 statusCells.forEach(cell => {
-                // 排除 script, style
-                if (['SCRIPT', 'STYLE'].includes(cell.tagName)) return;
-                
-                // 排除包含大量子元素的容器，但允许包含少量内联元素（如 icon）的按钮
-                if (cell.childElementCount > 2 && !cell.classList.contains('layui-btn')) return;
-
                 const text = cell.textContent.trim();
                 if (!text || text.length > 20) return;
                 
-                // 定义样式应用 helper
-                const applyStyle = (color, shadowColor) => {
-                    const signature = `${text}|${color}|${shadowColor}`;
+                const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
+                const statusThemePalette = {
+                    'bauhaus': { uploading: { color: '#E31C25', shadow: 'transparent', mode: 'bauhaus-sharp' }, success: { color: '#1C4DE3', shadow: 'transparent', mode: 'bauhaus-sharp' } },
+                    'default': { uploading: { color: '#ff7a59', shadow: 'rgba(255, 122, 89, 0.3)', mode: 'soft-matte' }, success: { color: '#2ec4b6', shadow: 'rgba(46, 196, 182, 0.3)', mode: 'soft-matte' } },
+                    'star-wars-hud': { uploading: { color: '#FFaa00', shadow: 'rgba(255, 170, 0, 0.8)', mode: 'holographic' }, success: { color: '#52d8ff', shadow: 'rgba(82, 216, 255, 0.8)', mode: 'holographic' } },
+                    'dracula': { uploading: { color: '#ffb86c', shadow: 'rgba(255, 184, 108, 0.5)', mode: 'vampire-glow' }, success: { color: '#50fa7b', shadow: 'rgba(80, 250, 123, 0.5)', mode: 'vampire-glow' } },
+                    'solarized-dark': { uploading: { color: '#cb4b16', shadow: 'transparent', mode: 'terminal-classic' }, success: { color: '#859900', shadow: 'transparent', mode: 'terminal-classic' } },
+                    'monokai': { uploading: { color: '#FD971F', shadow: 'rgba(253, 151, 31, 0.4)', mode: 'code-highlight' }, success: { color: '#A6E22E', shadow: 'rgba(166, 226, 46, 0.4)', mode: 'code-highlight' } },
+                    'github-dark': { uploading: { color: '#d29922', shadow: 'transparent', mode: 'minimal-tech' }, success: { color: '#2ea043', shadow: 'transparent', mode: 'minimal-tech' } },
+                    'cyberpunk': { uploading: { color: '#ff003c', shadow: 'rgba(255, 0, 60, 0.9)', mode: 'glitch-neon' }, success: { color: '#00ff9d', shadow: 'rgba(0, 255, 157, 0.9)', mode: 'glitch-neon' } },
+                    'glass-morphism': { uploading: { color: '#f6c177', shadow: 'rgba(246, 193, 119, 0.5)', mode: 'frosted-pastel' }, success: { color: '#9ece6a', shadow: 'rgba(158, 206, 106, 0.5)', mode: 'frosted-pastel' } },
+                    'future-tech': { uploading: { color: '#ff00ff', shadow: 'rgba(255, 0, 255, 0.8)', mode: 'laser-grid' }, success: { color: '#00f2ff', shadow: 'rgba(0, 242, 255, 0.8)', mode: 'laser-grid' } },
+                    'modern-dark': { uploading: { color: '#d97706', shadow: 'rgba(217, 119, 6, 0.3)', mode: 'elegant-stone' }, success: { color: '#16a34a', shadow: 'rgba(22, 163, 74, 0.3)', mode: 'elegant-stone' } },
+                    'midnight-blue': { uploading: { color: '#f59e0b', shadow: 'rgba(245, 158, 11, 0.4)', mode: 'deep-ocean' }, success: { color: '#10b981', shadow: 'rgba(16, 185, 129, 0.4)', mode: 'deep-ocean' } },
+                    'synthwave-84': { uploading: { color: '#ff71ce', shadow: 'rgba(255, 113, 206, 0.85)', mode: 'retro-wave' }, success: { color: '#01cdfe', shadow: 'rgba(1, 205, 254, 0.85)', mode: 'retro-wave' } },
+                    'emerald-forest': { uploading: { color: '#f59e0b', shadow: 'rgba(245, 158, 11, 0.3)', mode: 'organic-leaf' }, success: { color: '#10b981', shadow: 'rgba(16, 185, 129, 0.3)', mode: 'organic-leaf' } },
+                    'macos-light': { uploading: { color: '#FF9500', shadow: 'rgba(255, 149, 0, 0.15)', mode: 'apple-flat' }, success: { color: '#34C759', shadow: 'rgba(52, 199, 89, 0.15)', mode: 'apple-flat' } }
+                };
+                const activePalette = statusThemePalette[currentTheme] || statusThemePalette.default;
+                
+                const applyStyle = ({ color, shadow, mode }) => {
+                    const signature = `${text}|${color}|${shadow}|${mode}`;
                     if (cell.dataset.xhjStatusStyled === signature) return;
                     cell.dataset.xhjStatusStyled = signature;
+                    
+                    let stroke = 'none';
+                    let textShadow = 'none';
+                    let fontWeight = '700';
+                    let letterSpacing = '0.02em';
+                    let fontStyle = 'normal';
+                    let textTransform = 'none';
+
+                    // 高级排版与光效策略
+                    switch (mode) {
+                        case 'bauhaus-sharp':
+                            stroke = '0.5px #000';
+                            textShadow = `2px 2px 0px #000`; // 硬阴影
+                            fontWeight = '900';
+                            letterSpacing = '0.05em';
+                            textTransform = 'uppercase';
+                            break;
+                        case 'holographic':
+                        case 'laser-grid':
+                            stroke = `0.3px rgba(255,255,255,0.5)`;
+                            textShadow = `0 0 5px ${color}, 0 0 10px ${color}, 0 0 20px ${shadow}`;
+                            fontWeight = '800';
+                            letterSpacing = '0.08em';
+                            break;
+                        case 'glitch-neon':
+                        case 'retro-wave':
+                            stroke = '0.2px #fff';
+                            textShadow = `2px 0px 1px rgba(0,255,255,0.5), -2px 0px 1px rgba(255,0,255,0.5), 0 0 15px ${shadow}`;
+                            fontWeight = '900';
+                            fontStyle = 'italic';
+                            letterSpacing = '0.04em';
+                            break;
+                        case 'vampire-glow':
+                        case 'code-highlight':
+                            stroke = '0.4px #282a36';
+                            textShadow = `0 0 8px ${shadow}, 0 1px 3px rgba(0,0,0,0.8)`;
+                            fontWeight = '800';
+                            break;
+                        case 'terminal-classic':
+                        case 'minimal-tech':
+                            stroke = '0.3px rgba(0,0,0,0.8)';
+                            textShadow = `0 1px 1px rgba(0,0,0,0.9)`;
+                            fontWeight = '600';
+                            fontStyle = 'italic';
+                            break;
+                        case 'frosted-pastel':
+                        case 'soft-matte':
+                        case 'organic-leaf':
+                            stroke = '0.2px rgba(0,0,0,0.4)';
+                            textShadow = `0 2px 4px ${shadow}, 0 1px 2px rgba(0,0,0,0.5)`;
+                            fontWeight = '700';
+                            break;
+                        case 'apple-flat':
+                            stroke = '0.1px rgba(255,255,255,0.8)';
+                            textShadow = `0 1px 2px ${shadow}`;
+                            fontWeight = '600';
+                            letterSpacing = '0.01em';
+                            break;
+                        case 'elegant-stone':
+                        case 'deep-ocean':
+                        default:
+                            stroke = '0.3px rgba(0,0,0,0.6)';
+                            textShadow = `0 1px 5px ${shadow}, 0 1px 2px rgba(0,0,0,0.8)`;
+                            fontWeight = '700';
+                            break;
+                    }
+
                     cell.style.setProperty('color', color, 'important');
-                    cell.style.setProperty('font-weight', 'bold', 'important');
-                    cell.style.setProperty('-webkit-text-stroke', '0.35px rgba(0, 0, 0, 0.75)', 'important');
-                    cell.style.setProperty('text-shadow', `0 0 6px ${shadowColor}, 0 0 12px ${shadowColor}, 0 1px 2px rgba(0,0,0,0.75)`, 'important');
-                    const nestedTextNodes = cell.querySelectorAll('span, em, b, strong, a, button');
+                    cell.style.setProperty('-webkit-text-fill-color', color, 'important');
+                    cell.style.setProperty('font-weight', fontWeight, 'important');
+                    if (stroke !== 'none') cell.style.setProperty('-webkit-text-stroke', stroke, 'important');
+                    if (textShadow !== 'none') cell.style.setProperty('text-shadow', textShadow, 'important');
+                    cell.style.setProperty('font-style', fontStyle, 'important');
+                    cell.style.setProperty('text-transform', textTransform, 'important');
+                    
+                    const nestedTextNodes = cell.querySelectorAll('*');
                     nestedTextNodes.forEach(node => {
                         node.style.setProperty('color', color, 'important');
-                        node.style.setProperty('font-weight', 'bold', 'important');
-                        node.style.setProperty('-webkit-text-stroke', '0.35px rgba(0, 0, 0, 0.75)', 'important');
-                        node.style.setProperty('text-shadow', `0 0 6px ${shadowColor}, 0 0 12px ${shadowColor}, 0 1px 2px rgba(0,0,0,0.75)`, 'important');
+                        node.style.setProperty('-webkit-text-fill-color', color, 'important');
+                        node.style.setProperty('font-weight', fontWeight, 'important');
+                        if (stroke !== 'none') node.style.setProperty('-webkit-text-stroke', stroke, 'important');
+                        if (textShadow !== 'none') node.style.setProperty('text-shadow', textShadow, 'important');
+                        node.style.setProperty('font-style', fontStyle, 'important');
+                        node.style.setProperty('text-transform', textTransform, 'important');
                     });
+                    
                     if (cell.classList.contains('layui-btn') || cell.classList.contains('layui-badge') || cell.tagName === 'SPAN') {
-                        cell.style.setProperty('letter-spacing', '0.02em', 'important');
+                        cell.style.setProperty('letter-spacing', letterSpacing, 'important');
                     }
                 };
 
                 if (text.includes('正在上传') || text.includes('上传中')) {
-                    applyStyle('#ff2d55', 'rgba(255, 45, 85, 0.75)');
+                    applyStyle(activePalette.uploading);
                 } else if (text.includes('上传完成') || text.includes('上传成功')) {
-                    applyStyle('#39ff14', 'rgba(57, 255, 20, 0.72)');
+                    applyStyle(activePalette.success);
                 } else if (text.includes('上传失败')) {
-                    applyStyle('#ff5252', 'rgba(255, 82, 82, 0.4)');
+                    applyStyle({ color: '#ff3333', shadow: 'rgba(255, 51, 51, 0.6)', mode: 'glitch-neon' });
                 } else if (text === '上传') {
-                    applyStyle('#3498db', 'rgba(52, 152, 219, 0.4)');
+                    applyStyle({ color: '#3498db', shadow: 'rgba(52, 152, 219, 0.4)', mode: 'minimal-tech' });
                 }
                 });
             }

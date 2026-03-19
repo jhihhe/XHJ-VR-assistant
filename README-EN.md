@@ -1,6 +1,6 @@
 # 🌌 Xiangshi Platform Assistant · XHJ VR Assistant
 
-[![Version](https://img.shields.io/badge/Version-v5.0.35-00c853?style=for-the-badge)](#versioning-policy)
+[![Version](https://img.shields.io/badge/Version-v5.0.40-00c853?style=for-the-badge)](#versioning-policy)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
@@ -129,6 +129,9 @@ timeline
     5.0.33 : Accepted-order 90-per-page default and auto-sync pre-navigation
     5.0.34 : Accepted-order 90-per-page default and auto-sync pre-navigation
     5.0.35 : Panorama upload status neon color unification and readability boost
+    5.0.36 : Fixed multi-line panorama upload status coloring
+    5.0.39 : Panorama counter color transitions from red to green based on success ratio
+    5.0.40 : Global typography optimization and theme-exclusive upload FX
 ```
 
 ## Installation & Deployment

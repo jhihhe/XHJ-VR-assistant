@@ -1,6 +1,6 @@
 # 🌌 象视平台助手 · XHJ VR Assistant
 
-[![Version](https://img.shields.io/badge/Version-v5.0.35-00c853?style=for-the-badge)](#版本策略)
+[![Version](https://img.shields.io/badge/Version-v5.0.40-00c853?style=for-the-badge)](#版本策略)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
@@ -12,7 +12,7 @@
 [![Themes](https://img.shields.io/badge/Themes-15-ff9800?style=flat-square)](#主题矩阵)
 [![Auto Sync](https://img.shields.io/badge/AutoSync-Batch-7c4dff?style=flat-square)](#功能全景)
 [![Auto Verify](https://img.shields.io/badge/AutoVerify-ONNX_Local-00897b?style=flat-square)](#功能全景)
-[![Layout Safe](https://img.shields.io/badge/Layout-TopBar_Stable-455a64?style=flat-square)](#最新更新-v5035)
+[![Layout Safe](https://img.shields.io/badge/Layout-TopBar_Stable-455a64?style=flat-square)](#最新更新-v5040)
 [![GreasyFork x3](https://img.shields.io/badge/GreasyFork-3_scripts-d32f2f?style=flat-square)](#安装部署)
 [![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](#)
 
@@ -24,7 +24,7 @@
 ## 📌 目录
 
 - [项目亮点](#项目亮点)
-- [最新更新 v5.0.35](#最新更新-v5035)
+- [最新更新 v5.0.40](#最新更新-v5040)
 - [功能全景](#功能全景)
 - [主题矩阵](#主题矩阵)
 - [图形图表](#图形图表)
@@ -43,11 +43,11 @@
 - 本地智能识别：ONNX 验证码识别链路，无需外部 API Key。
 - 跨上下文一致：主页面、弹窗、iframe 风格与交互保持统一。
 
-## 最新更新 v5.0.35
+## 最新更新 v5.0.40
 
-- 统一“新增全景图”上传状态色：上传中为荧光红，上传成功为荧光绿。
-- 增强状态文字跨主题可读性，补充描边与多层发光，并同步覆盖按钮内部文字节点。
-- 同步发布 `v5.0.35`，统一脚本头部元数据与文档版本信息。
+- **全局排版跃升**：引入 Inter 字体栈、平滑抗锯齿与 Legibility 渲染优化。
+- **主题专属上传光效**：为15套主题分别定制了独立的“上传中/成功”字体效果（支持赛博霓虹、包豪斯硬阴影、磨砂玻璃光晕、极简代码高亮等多种渲染策略）。
+- 同步发布 `v5.0.40`，统一脚本头部元数据与文档版本信息。
 
 ## 功能全景
 
@@ -131,6 +131,9 @@ timeline
     5.0.33 : 已接单页面默认90条并联动自动同步
     5.0.34 : 新增房堪图计数器首屏防跳变优化
     5.0.35 : 全景图上传状态文字统一荧光配色与可读性增强
+    5.0.36 : 修复全景图多行上传状态着色不一致
+    5.0.39 : 全景图计数器按成功占比红绿渐变
+    5.0.40 : 全局排版优化与15套主题上传状态专属光效适配
 ```
 
 ## 安装部署
@@ -165,7 +168,7 @@ timeline
 
 ## 版本策略
 
-- 采用语义化小版本递进：`5.0.8 → 5.0.35`。
+- 采用语义化小版本递进：`5.0.8 → 5.0.40`。
 - 每次发布同步更新：
   - 主脚本 `xhj_assistant.user.js`
   - Greasy 三脚本 `xhj_assistant_534783.user.js / xhj_assistant_563982.user.js / xhj_assistant_563997.user.js`
