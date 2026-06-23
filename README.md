@@ -1,6 +1,6 @@
 # 🌌 象视平台助手 · XHJ VR Assistant
 
-[![Version](https://img.shields.io/badge/Version-v5.0.41-00c853?style=for-the-badge)](#版本策略)
+[![Version](https://img.shields.io/badge/Version-v5.0.42-00c853?style=for-the-badge)](#版本策略)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
@@ -43,11 +43,11 @@
 - 本地智能识别：ONNX 验证码识别链路，无需外部 API Key。
 - 跨上下文一致：主页面、弹窗、iframe 风格与交互保持统一。
 
-## 最新更新 v5.0.41
+## 最新更新 v5.0.42
 
 - **设计系统全面重构**：基于 `ui-ux-pro-max` 规范重构，实现了统一的高级视觉语言。
 - **高性能 60fps 动效引擎**：为按钮、卡片、输入框与表格引入物理回弹级的反馈动效与 Shimmer 加载过渡。
-- 同步发布 `v5.0.41`，统一脚本头部元数据与文档版本信息。
+- 同步发布 `v5.0.42`，统一脚本头部元数据与文档版本信息。
 
 ## 功能全景
 
@@ -135,6 +135,7 @@ timeline
     5.0.39 : 全景图计数器按成功占比红绿渐变
     5.0.40 : 全局排版优化与15套主题上传状态专属光效适配
     5.0.41 : 基于 ui-ux-pro-max 重构设计系统与 60fps 动效引擎
+    5.0.42 : 新增房堪图弹窗「一键清除」按钮位置优化，提升操作连贯性
 ```
 
 ## 安装部署
@@ -169,7 +170,7 @@ timeline
 
 ## 版本策略
 
-- 采用语义化小版本递进：`5.0.8 → 5.0.41`。
+- 采用语义化小版本递进：`5.0.8 → 5.0.42`。
 - 每次发布同步更新：
   - 主脚本 `xhj_assistant.user.js`
   - Greasy 三脚本 `xhj_assistant_534783.user.js / xhj_assistant_563982.user.js / xhj_assistant_563997.user.js`

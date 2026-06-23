@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手（563982）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.41
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.41: 引入 ui-ux-pro-max 设计系统重写全局排版与动效引擎 (60fps)。
+// @version      5.0.42
+// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.42: 引入 ui-ux-pro-max 设计系统重写全局排版与动效引擎 (60fps)。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -1756,7 +1756,7 @@
             }
         
             /* =========================================================================
-               [v5.0.41] UI/UX Pro Max - Unified Design System & High-Performance Motion
+               [v5.0.42] UI/UX Pro Max - Unified Design System & High-Performance Motion
                ========================================================================= */
             :root {
                 /* Spacing System (8pt Grid) */
@@ -3413,8 +3413,45 @@
                                     movedBatch = true;
                                 }
 
-                                const confirmBtns = Array.from(doc.querySelectorAll('.dialog-footer .el-button'));
-                                const confirmBtn = confirmBtns.find(b => b.textContent.includes('确 定') || b.textContent.includes('确定'));
+                                const footerBtns = Array.from(doc.querySelectorAll('.dialog-footer .el-button'));
+                                const clearBtn = footerBtns.find(b => b.textContent.includes('一键清除'));
+                                let movedClear = false;
+                                if (clearBtn && clearBtn.parentElement !== actionWrap) {
+                                    clearBtn.style.cssText = `
+                                        position: static !important;
+                                        margin: 0 !important;
+                                        height: 28px !important;
+                                        line-height: 28px !important;
+                                        min-width: 80px !important;
+                                        padding: 0 15px !important;
+                                        display: inline-flex !important;
+                                        align-items: center !important;
+                                        justify-content: center !important;
+                                    `;
+                                    // Insert clearBtn before batchBtn if batchBtn is in actionWrap, else append
+                                    // Actually, we want it adjacent to "批量上传", and usually batchBtn is already in actionWrap.
+                                    // Let's ensure clearBtn is placed right before batchBtn.
+                                    // Wait, the user said "from current position to adjacent to batch upload button". 
+                                    // In the screenshot, batch upload is to the left of confirm. We want clearBtn to the left of batch upload.
+                                    // So insertBefore(clearBtn, batchBtn) is correct if batchBtn is the next sibling.
+                                    if (batchBtn && batchBtn.parentElement === actionWrap) {
+                                        actionWrap.insertBefore(clearBtn, batchBtn);
+                                    } else {
+                                        actionWrap.appendChild(clearBtn);
+                                    }
+                                    
+                                    // To match UI styles with batchBtn/confirmBtn, we need to ensure clearBtn has the secondary/warning style 
+                                    // but conforms to the unified button layout we just built.
+                                    // The `el-button--warning` class already gives it the yellow color in default ElementUI, 
+                                    // but our global CSS will override it to primary active-bg. 
+                                    // We should add a specific class or style so it stands out as a clear/warning button if needed.
+                                    // Or simply rely on its original classes. Let's just adjust margin for spacing.
+                                    clearBtn.style.marginRight = '0px';
+                                    
+                                    movedClear = true;
+                                }
+
+                                const confirmBtn = footerBtns.find(b => b.textContent.includes('确 定') || b.textContent.includes('确定'));
                                 let movedConfirm = false;
                                 if (confirmBtn && confirmBtn.parentElement !== actionWrap) {
                                     confirmBtn.style.cssText = `
@@ -3434,10 +3471,12 @@
 
                                 const hasBatchInFooter = !!doc.querySelector('.boxFrom > .uploadBtn');
                                 const hasConfirmInFooter = !!Array.from(doc.querySelectorAll('.dialog-footer .el-button')).find(b => b.textContent.includes('确 定') || b.textContent.includes('确定'));
-                                if ((!hasBatchInFooter && !hasConfirmInFooter) || movedBatch || movedConfirm) {
+                                const hasClearInFooter = !!Array.from(doc.querySelectorAll('.dialog-footer .el-button')).find(b => b.textContent.includes('一键清除'));
+                                
+                                if ((!hasBatchInFooter && !hasConfirmInFooter && !hasClearInFooter) || movedBatch || movedConfirm || movedClear) {
                                     clearNoFlashStyle(doc);
                                 }
-                                if (!hasBatchInFooter && !hasConfirmInFooter && layer._xhjBtnHeaderTimer) {
+                                if (!hasBatchInFooter && !hasConfirmInFooter && !hasClearInFooter && layer._xhjBtnHeaderTimer) {
                                     clearInterval(layer._xhjBtnHeaderTimer);
                                     layer._xhjBtnHeaderTimer = null;
                                 }
