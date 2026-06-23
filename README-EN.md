@@ -1,6 +1,6 @@
 # 🌌 Xiangshi Platform Assistant · XHJ VR Assistant
 
-[![Version](https://img.shields.io/badge/Version-v5.0.40-00c853?style=for-the-badge)](#versioning-policy)
+[![Version](https://img.shields.io/badge/Version-v5.0.41-00c853?style=for-the-badge)](#versioning-policy)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
@@ -42,11 +42,11 @@
 - Local intelligence: ONNX-based CAPTCHA workflow without external API keys.
 - Cross-context consistency: main pages, modal layers, and iframes stay aligned.
 
-## Latest Update v5.0.35
+## Latest Update v5.0.41
 
-- Unified "Add Panorama" upload status colors: in-progress uses neon red, success uses neon green.
-- Improved cross-theme readability with stroke + layered glow and nested text-node color enforcement.
-- Published as `v5.0.35` with synchronized Git and all Greasy metadata headers.
+- **Complete Design System Refactor**: Rebuilt the foundation using `ui-ux-pro-max` guidelines for a premium unified visual language.
+- **High-Performance 60fps Motion Engine**: Introduced hardware-accelerated, spring-physics transitions for buttons, cards, and table interactions, replacing legacy scripts.
+- Published as `v5.0.41` with synchronized Git and all Greasy metadata headers.
 
 ## Feature Panorama
 
@@ -132,6 +132,7 @@ timeline
     5.0.36 : Fixed multi-line panorama upload status coloring
     5.0.39 : Panorama counter color transitions from red to green based on success ratio
     5.0.40 : Global typography optimization and theme-exclusive upload FX
+    5.0.41 : Unified Design System & High-Performance Motion Engine via ui-ux-pro-max
 ```
 
 ## Installation & Deployment
@@ -166,7 +167,7 @@ timeline
 
 ## Versioning Policy
 
-- SemVer-style incremental flow: `5.0.8 → 5.0.35`.
+- SemVer-style incremental flow: `5.0.8 → 5.0.41`.
 - Every release synchronizes:
   - main file `xhj_assistant.user.js`
   - three Greasy distribution files
