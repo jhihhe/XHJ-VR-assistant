@@ -11,6 +11,13 @@ class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
     def do_GET(self):
+        if self.path.startswith('/source/'):
+            name = urllib.parse.unquote(self.path.split('/source/', 1)[1])
+            file = ROOT / name
+            if file.is_file() and file.suffix == '.js':
+                import html
+                body = '<meta charset="utf-8"><pre id="source">' + html.escape(file.read_text()) + '</pre>'
+                self.send_response(200); self.send_header('Content-Type', 'text/html; charset=utf-8'); self.end_headers(); self.wfile.write(body.encode()); return
         if self.path.startswith('/houseadmin/'):
             route = urllib.parse.urlparse(self.path).path
             if not Path(route).suffix: route += '/index.html'
