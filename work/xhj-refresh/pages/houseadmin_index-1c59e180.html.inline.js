@@ -1,0 +1,20 @@
+
+    var ADMIN = '/static/admin';
+    var navs = [{"id":289,"href":"House\/index","title":"\u623f\u52d8\u7ba1\u7406","type":1,"status":1,"authopen":0,"icon":"icon-list2","condition":"","pid":0,"sort":4,"addtime":1718870966,"zt":null,"menustatus":1,"children":[{"id":290,"href":"\/houseadmin\/house\/index.html","title":"\u623f\u52d8\u5217\u8868","type":1,"status":1,"authopen":1,"icon":"","condition":"","pid":289,"sort":1,"addtime":1718871075,"zt":null,"menustatus":1}]},{"id":303,"href":"Pano\/index","title":"\u5168\u666f\u7ba1\u7406","type":1,"status":1,"authopen":0,"icon":"icon-list2","condition":"","pid":0,"sort":5,"addtime":1739755305,"zt":null,"menustatus":1,"children":[{"id":304,"href":"\/houseadmin\/pano\/index.html","title":"\u552e\u623f\u5168\u666f","type":1,"status":1,"authopen":0,"icon":"","condition":"","pid":303,"sort":1,"addtime":1739755472,"zt":null,"menustatus":1}]},{"id":293,"href":"pano\/datacenter","title":"\u6570\u636e\u4e2d\u5fc3","type":1,"status":1,"authopen":0,"icon":"icon-database","condition":"","pid":0,"sort":8,"addtime":1729738431,"zt":null,"menustatus":1,"children":[{"id":295,"href":"\/houseadmin\/pano\/everybody.html","title":"\u4e2a\u4eba\u6570\u636e","type":1,"status":1,"authopen":0,"icon":"","condition":"","pid":293,"sort":2,"addtime":1729738500,"zt":null,"menustatus":1}]},{"id":286,"href":"user\/index","title":"\u4e2a\u4eba\u4e2d\u5fc3","type":1,"status":1,"authopen":1,"icon":"icon-user","condition":"","pid":0,"sort":10,"addtime":1626751048,"zt":null,"menustatus":1,"children":[{"id":287,"href":"\/houseadmin\/user\/index.html","title":"\u4e2a\u4eba\u8d44\u6599","type":1,"status":1,"authopen":1,"icon":"","condition":"","pid":286,"sort":10,"addtime":1626751095,"zt":null,"menustatus":1}]}];
+
+
+        layui.use('layer',function(){
+            var $ = layui.jquery, layer = layui.layer;
+            $('#cache').click(function () {
+                document.cookie="skin=;expires="+new Date().toGMTString();
+                layer.confirm('确认要清除缓存？', {icon: 3}, function () {
+                    $.post('/houseadmin/index/clear.html',function (data) {
+                        layer.msg(data.info, {icon: 6}, function (index) {
+                            layer.close(index);
+                            window.location.href = data.url;
+                        });
+                    });
+                });
+            });
+        })
+    

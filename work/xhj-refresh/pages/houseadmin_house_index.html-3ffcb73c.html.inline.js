@@ -1,0 +1,184 @@
+
+        {{# if(d.isKey==1){ }} 是{{# }else{  }}否{{# } }}
+
+
+    {{# if(d.state==0){ }}
+        <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a>
+    {{# }else if(d.state==1){ }}
+        <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="add_fk_image" id="add_fk_image">上传</a>
+        <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a>
+        <a href="javascript:void(0)"  class="layui-btn layui-btn-warm layui-btn-xs" lay-event="synchronous" >同步</a>
+        <a href="javascript:void(0)" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="invalid">无效</a>
+    {{# }else if(d.state==2){ }}
+        /*<a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="confirm" >接单</a>*/
+    {{# }else if(d.state==3){ }}
+        <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="add_fk_image">上传</a>
+        <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="cancel">取消</a>
+        <a href="javascript:void(0)"  class="layui-btn layui-btn-warm layui-btn-xs" lay-event="transfer" >转单</a>
+        <a href="javascript:void(0)"  class="layui-btn layui-btn-warm layui-btn-xs" lay-event="synchronous" >同步</a>
+        <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a>  
+    {{# }else{  }}
+        <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a>  
+    {{# } }}
+
+
+    layui.use(['table','form','laydate','upload'], function() {
+        var table = layui.table,laydate = layui.laydate,form = layui.form, $ = layui.jquery,upload = layui.upload;
+        form.render('select','cancelRemarks')
+        //var keys = ''
+        var tableIn = table.render({
+            id: 'order',
+            elem: '#order',
+            url: '/houseadmin/house/index.html',
+            method: 'post',
+           /* where: {
+              key: keys
+            },*/
+            page: true,
+            cols: [[
+                /*{checkbox:true,fixed: true},*/
+                /*{field: 'id', title: 'ID', width: 90},*/
+                
+                {field: 'stateName', title: '订单状态', width: 90},
+                {field: 'houseSourceNumber', title: '房源编号', width: 150},
+                {field: 'lpName', title: '楼盘名称', width: 130},
+                {field: 'creatorName', title: '申请人', width: 100},
+                {field: 'departmentName', title: '申请门店', width: 150},
+                {field: 'createDate', title: '申请时间', width: 160},
+                {field: 'appointmentDate', title: '预约时间', width: 160},
+                {field: 'isKey', title: '钥匙', width: 60,toolbar: '#isKey'},
+                {field: 'photographyUserName', title: '摄影师', width: 105},
+                {field: 'uploadName', title: '上传人', width: 105},
+                {field: 'tel', title: '电话', width: 120},
+                {field: 'fk_status', title: '房堪状态', width: 90},
+                /*{field: 'house_status', title: '全景状态', width: 90},*/
+                {width: 320, title: '操作',align: 'center', toolbar: '#action'}
+            ]],
+            limit: 10 //每页默认显示的数量
+        });
+
+        
+        table.on('tool(order)', function(obj) {
+            var data = obj.data;
+            console.log(data)
+            var key = $.trim($('#key').val());
+            var status = $('#status').val();
+            var photographyUserId = $('#user_id').val();
+            
+            if (obj.event === 'confirm'){
+                layer.confirm('你确定接受本次拍摄任务吗？一旦接单,请及时联系客户按时进行拍摄', {
+                    btn: ['取消', '确定'] //按钮
+                }, function(){
+                    layer.closeAll();
+                }, function(){
+                    $.post("receive", {'id':data.id,'city':data.cityName,'house_nums':data.houseSourceNumber,'house_name':data.lpName}, function (res) {
+                        layer.close(loading);
+                        if (res.code > 0) {
+                            layer.msg('接单成功',{time:1000,icon:1});
+                            tableIn.reload({where: {flag:1,key: key,status:status,photographyUserId:photographyUserId}});
+                        } else {
+                            //console.log(res.obj)
+                            layer.msg('接单失败', {time: 1800, icon: 2});
+                        }
+                    });
+                });
+            }else if(obj.event === 'add_fk_image'){
+                //新增房堪图
+                var index = layer.open({
+                    type: 2, 
+                    title:'新增房堪图',
+                    area: ['900px', '700px'],
+                    content: "/houseadmin/house/add_fk_image.html?id="+data.surveyId+"&lpid="+data.lpid+"&oid="+data.id+"&saleOrRentid="+data.saleOrRentid+"&housetype="+data.housetype+"&housesourceid="+data.housesourceid+"&houseSourceNumber="+data.houseSourceNumber
+                }); 
+            }else if(obj.event === 'cancel'){
+                const index = layer.open({
+                    type: 2,
+                    title: '取消订单将终止房堪拍摄，请确认已联系摄影师取消预约',
+                    area: ['600px', '400px'],
+                    content: "/houseadmin/house/cancel.html?id="+data.id+"&tel="+data.tel+"&photographyUserName="+data.photographyUserName
+                }); 
+            }else if(obj.event === 'invalid'){
+                const index = layer.open({
+                    type: 2,
+                    title: '无效之后房堪将会下架需要重新申请房堪',
+                    area: ['600px', '300px'],
+                    content: "/houseadmin/house/invalid.html?id="+data.surveyId+"&house_nums="+data.houseSourceNumber+"&key="+key
+                }); 
+            }else if(obj.event === 'transfer'){
+                const index = layer.open({
+                    type: 2,
+                    title: '转单即将摄影师订单转移给接受人，由接受摄影师完成订单后续流程',
+                    area: ['600px', '500px'],
+                    content: "/houseadmin/house/transfer.html?id="+data.id+"&houseSourceNumber="+data.houseSourceNumber+"&lpName="+data.lpName
+                }); 
+            }else if(obj.event === 'synchronous'){           
+                $.post("synchronous", {'id':data.id}, function (res) {
+                    if (res.code > 0) {
+                        layer.msg('同步成功',{time:1000,icon:1});
+                    } else {
+                        console.log(res.msg)
+                        layer.msg('同步失败', {time: 1800, icon: 2});
+                    }
+                });
+            }else if(obj.event === 'detail'){
+                const index = layer.open({
+                    type: 2,
+                    title: '操作详情',
+                    area: ['1000px', '700px'],
+                    content: "/houseadmin/house/detail.html?createDate="+data.createDate+"&tel="+data.tel+"&departmentName="+data.departmentName+"&creatorName="+data.creatorName+"&photographyDate="+data.photographyDate+"&lpName="+data.lpName+"&id="+data.id
+                }); 
+            }
+        });
+
+         //搜索
+        $('#search').on('click', function() {
+            var key = $.trim($('#key').val());
+            var status = $('#status').val();
+            var photographyUserId = $('#user_id').val();
+            var departmentID = $('#departmentID').val();
+            var dept6Id = $('#fuzong').val();
+            var dept5Id = $('#zongjian').val();
+            var dept4Id = $('#zongjians').val();
+            tableIn.reload({where: {flag:1,key: key,status:status,photographyUserId:photographyUserId,departmentID:departmentID,dept4Id:dept4Id,dept5Id:dept5Id,dept6Id:dept6Id}});
+        });
+        
+        //三级联动
+        form.on('select(province)', function (data) {
+            var pid = data.value;
+            $.post("/houseadmin/house/dept.html?pid=" + pid, function (data) {
+                var html = '<option value="">总监区</option>';
+                $.each(data.data, function (i, value) {
+                    html += '<option value="' + value.id + '">' + value.department_name + '</option>';
+                });
+                console.log(html)
+                $('#zongjian').html(html);
+                form.render()
+            });
+        });
+        
+        form.on('select(zongjian)', function (data) {
+            var pid = data.value;
+            $.post("/houseadmin/house/dept.html?pid=" + pid, function (data) {
+                var html = '<option value="">实习总监</option>';
+                $.each(data.data, function (i, value) {
+                    html += '<option value="' + value.id + '">' + value.department_name + '</option>';
+                });
+                //console.log(html)
+                $('#zongjians').html(html);
+                form.render()
+            });
+        });
+
+        form.on('select(citys)', function (data) {
+            var pid = data.value;
+            $.post("/houseadmin/house/dept.html?pid=" + pid, function (data) {
+                var html = '<option value="">门店</option>';
+                $.each(data.data, function (i, value) {
+                    html += '<option value="' + value.id + '">' + value.department_name + '</option>';
+                });
+                $('#departmentID').html(html);
+                form.render()
+            });
+        });
+        
+    });

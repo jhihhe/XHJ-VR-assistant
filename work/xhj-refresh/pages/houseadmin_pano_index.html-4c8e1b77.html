@@ -1,0 +1,600 @@
+<html><head>
+    <meta charset="utf-8">
+    <title>象视平台后台管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="/static/plugins/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/admin/css/global.css" media="all">
+    <link rel="stylesheet" href="/static/common/css/font.css" media="all">
+<link id="layuicss-layer" rel="stylesheet" href="https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/layer.css?v=3.1.1" media="all"><link id="layuicss-laydate" rel="stylesheet" href="https://vr.xhj.com/static/plugins/layui/css/modules/laydate/default/laydate.css?v=5.0.9" media="all"></head>
+<body class="skin-0">
+<style type="text/css">
+    .layui-table, .layui-table-view {
+        margin: 0;
+    }
+    /* 自定义标题字体颜色 */
+    .layui-layer-title {
+      color: red; /* 设置标题字体颜色为红色 */
+      background-color: #f5f5f5; /* 背景色 */
+      border-bottom: 1px solid #d2d2d2; /* 边框 */
+    }
+</style>
+<div class="admin-main layui-anim layui-anim-upbit">
+    
+    <div class="demoTable">
+        <div class="layui-inline">
+            <input class="layui-input" name="key" id="key" placeholder="项目名称或项目ID">
+        </div>
+
+        <div class="layui-inline layui-form">
+            <select name="status" lay-search="" id="status" lay-filter="test_user">
+                    <option value="0">全景状态</option>
+                    <option value="1">未上传</option>
+                    <option value="2">已上传</option>
+                    <option value="3">已发布</option>
+                    <option value="5">已同步</option>
+            </select><div class="layui-form-select"><div class="layui-select-title"><input type="text" placeholder="请选择" value="全景状态" class="layui-input"><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd lay-value="0" class="layui-this">全景状态</dd><dd lay-value="1" class="">未上传</dd><dd lay-value="2" class="">已上传</dd><dd lay-value="3" class="">已发布</dd><dd lay-value="5" class="">已同步</dd></dl></div>
+        </div>
+
+        <div class="layui-inline layui-form">
+            <select name="fb_uid" id="uid" lay-filter="test_user">
+                <option value="0">摄影师</option>
+                                    <option value="14">张发鑫</option>
+                                    <option value="16">刘熠</option>
+                                    <option value="17">王宇轩</option>
+                                    <option value="18">张宏伟</option>
+                                    <option value="19">程应紫野</option>
+                                    <option value="20">刘书言</option>
+                                    <option value="21">刘娟</option>
+                                    <option value="22">王禹鑫</option>
+                                    <option value="24">蒋松翰</option>
+                                    <option value="26">王原</option>
+                                    <option value="27">夏新婷</option>
+                                    <option value="28">王岳</option>
+                                    <option value="29">刘毅</option>
+                                    <option value="30">姜迪</option>
+                                    <option value="31">张黎香</option>
+                                    <option value="32">黄文财</option>
+                                    <option value="34">卢哲彬</option>
+                                    <option value="35">杨发强</option>
+                                    <option value="36">陈浩</option>
+                                    <option value="40">测试1003</option>
+                                    <option value="45">马文辉</option>
+                                    <option value="46">靳浩然</option>
+                                    <option value="61">张超煜</option>
+                                    <option value="63">马宏泽</option>
+                                    <option value="66">曾纪均</option>
+                                    <option value="70">武凯</option>
+                                    <option value="72">夏威</option>
+                                    <option value="73">曾滢波</option>
+                                    <option value="79">胡鹏程</option>
+                                    <option value="81">杨雯</option>
+                                    <option value="82">王健宇</option>
+                                    <option value="87">廖柔刚</option>
+                                    <option value="88">王超</option>
+                                    <option value="89">刘锦涛</option>
+                                    <option value="90">童大根</option>
+                                    <option value="92">冯李文</option>
+                                    <option value="98">刘敬儒</option>
+                                    <option value="99">吴谋康</option>
+                                    <option value="100">贺志</option>
+                                    <option value="103">郑忠</option>
+                                    <option value="108">测试鲁班</option>
+                                    <option value="109">黄红</option>
+                                    <option value="110">唐洲</option>
+                                    <option value="111">李港</option>
+                                    <option value="149">李浩楠</option>
+                                    <option value="150">樊淑钦</option>
+                                    <option value="151">郭蕾</option>
+                                    <option value="167">宾姗</option>
+                            </select><div class="layui-unselect layui-form-select"><div class="layui-select-title"><input type="text" placeholder="请选择" value="摄影师" readonly="" class="layui-input layui-unselect"><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd lay-value="0" class="layui-this">摄影师</dd><dd lay-value="14" class="">张发鑫</dd><dd lay-value="16" class="">刘熠</dd><dd lay-value="17" class="">王宇轩</dd><dd lay-value="18" class="">张宏伟</dd><dd lay-value="19" class="">程应紫野</dd><dd lay-value="20" class="">刘书言</dd><dd lay-value="21" class="">刘娟</dd><dd lay-value="22" class="">王禹鑫</dd><dd lay-value="24" class="">蒋松翰</dd><dd lay-value="26" class="">王原</dd><dd lay-value="27" class="">夏新婷</dd><dd lay-value="28" class="">王岳</dd><dd lay-value="29" class="">刘毅</dd><dd lay-value="30" class="">姜迪</dd><dd lay-value="31" class="">张黎香</dd><dd lay-value="32" class="">黄文财</dd><dd lay-value="34" class="">卢哲彬</dd><dd lay-value="35" class="">杨发强</dd><dd lay-value="36" class="">陈浩</dd><dd lay-value="40" class="">测试1003</dd><dd lay-value="45" class="">马文辉</dd><dd lay-value="46" class="">靳浩然</dd><dd lay-value="61" class="">张超煜</dd><dd lay-value="63" class="">马宏泽</dd><dd lay-value="66" class="">曾纪均</dd><dd lay-value="70" class="">武凯</dd><dd lay-value="72" class="">夏威</dd><dd lay-value="73" class="">曾滢波</dd><dd lay-value="79" class="">胡鹏程</dd><dd lay-value="81" class="">杨雯</dd><dd lay-value="82" class="">王健宇</dd><dd lay-value="87" class="">廖柔刚</dd><dd lay-value="88" class="">王超</dd><dd lay-value="89" class="">刘锦涛</dd><dd lay-value="90" class="">童大根</dd><dd lay-value="92" class="">冯李文</dd><dd lay-value="98" class="">刘敬儒</dd><dd lay-value="99" class="">吴谋康</dd><dd lay-value="100" class="">贺志</dd><dd lay-value="103" class="">郑忠</dd><dd lay-value="108" class="">测试鲁班</dd><dd lay-value="109" class="">黄红</dd><dd lay-value="110" class="">唐洲</dd><dd lay-value="111" class="">李港</dd><dd lay-value="149" class="">李浩楠</dd><dd lay-value="150" class="">樊淑钦</dd><dd lay-value="151" class="">郭蕾</dd><dd lay-value="167" class="">宾姗</dd></dl></div>
+        </div>
+        <div class="layui-inline layui-form">
+            <select name="fb_uid" id="fb_uid" lay-filter="test_user">
+                <option value="0">设计人</option>
+                                    <option value="15">摄影测试</option>
+                                    <option value="23">房勘拍摄</option>
+                                    <option value="25">宁欢</option>
+                                    <option value="33">罗德雄</option>
+                                    <option value="37">颜军红</option>
+                                    <option value="55">周智仁</option>
+                                    <option value="56">黄衡慧</option>
+                                    <option value="62">朱水珍</option>
+                                    <option value="65">陈曦</option>
+                                    <option value="95">郑忠</option>
+                                    <option value="101">刘珊</option>
+                                    <option value="113">曾记均</option>
+                            </select><div class="layui-unselect layui-form-select"><div class="layui-select-title"><input type="text" placeholder="请选择" value="设计人" readonly="" class="layui-input layui-unselect"><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd lay-value="0" class="layui-this">设计人</dd><dd lay-value="15" class="">摄影测试</dd><dd lay-value="23" class="">房勘拍摄</dd><dd lay-value="25" class="">宁欢</dd><dd lay-value="33" class="">罗德雄</dd><dd lay-value="37" class="">颜军红</dd><dd lay-value="55" class="">周智仁</dd><dd lay-value="56" class="">黄衡慧</dd><dd lay-value="62" class="">朱水珍</dd><dd lay-value="65" class="">陈曦</dd><dd lay-value="95" class="">郑忠</dd><dd lay-value="101" class="">刘珊</dd><dd lay-value="113" class="">曾记均</dd></dl></div>
+        </div>
+        <div class="layui-inline layui-form">
+            <select name="sc_uid" id="sc_uid" lay-filter="test_user">
+                <option value="0">上传人</option>
+                                    <option value="14">张发鑫</option>
+                                    <option value="16">刘熠</option>
+                                    <option value="17">王宇轩</option>
+                                    <option value="18">张宏伟</option>
+                                    <option value="19">程应紫野</option>
+                                    <option value="20">刘书言</option>
+                                    <option value="21">刘娟</option>
+                                    <option value="22">王禹鑫</option>
+                                    <option value="24">蒋松翰</option>
+                                    <option value="26">王原</option>
+                                    <option value="27">夏新婷</option>
+                                    <option value="28">王岳</option>
+                                    <option value="29">刘毅</option>
+                                    <option value="30">姜迪</option>
+                                    <option value="31">张黎香</option>
+                                    <option value="32">黄文财</option>
+                                    <option value="34">卢哲彬</option>
+                                    <option value="35">杨发强</option>
+                                    <option value="36">陈浩</option>
+                                    <option value="40">测试1003</option>
+                                    <option value="45">马文辉</option>
+                                    <option value="46">靳浩然</option>
+                                    <option value="61">张超煜</option>
+                                    <option value="63">马宏泽</option>
+                                    <option value="66">曾纪均</option>
+                                    <option value="70">武凯</option>
+                                    <option value="72">夏威</option>
+                                    <option value="73">曾滢波</option>
+                                    <option value="79">胡鹏程</option>
+                                    <option value="81">杨雯</option>
+                                    <option value="82">王健宇</option>
+                                    <option value="87">廖柔刚</option>
+                                    <option value="88">王超</option>
+                                    <option value="89">刘锦涛</option>
+                                    <option value="90">童大根</option>
+                                    <option value="92">冯李文</option>
+                                    <option value="98">刘敬儒</option>
+                                    <option value="99">吴谋康</option>
+                                    <option value="100">贺志</option>
+                                    <option value="103">郑忠</option>
+                                    <option value="108">测试鲁班</option>
+                                    <option value="109">黄红</option>
+                                    <option value="110">唐洲</option>
+                                    <option value="111">李港</option>
+                                    <option value="149">李浩楠</option>
+                                    <option value="150">樊淑钦</option>
+                                    <option value="151">郭蕾</option>
+                                    <option value="167">宾姗</option>
+                            </select><div class="layui-unselect layui-form-select"><div class="layui-select-title"><input type="text" placeholder="请选择" value="上传人" readonly="" class="layui-input layui-unselect"><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd lay-value="0" class="layui-this">上传人</dd><dd lay-value="14" class="">张发鑫</dd><dd lay-value="16" class="">刘熠</dd><dd lay-value="17" class="">王宇轩</dd><dd lay-value="18" class="">张宏伟</dd><dd lay-value="19" class="">程应紫野</dd><dd lay-value="20" class="">刘书言</dd><dd lay-value="21" class="">刘娟</dd><dd lay-value="22" class="">王禹鑫</dd><dd lay-value="24" class="">蒋松翰</dd><dd lay-value="26" class="">王原</dd><dd lay-value="27" class="">夏新婷</dd><dd lay-value="28" class="">王岳</dd><dd lay-value="29" class="">刘毅</dd><dd lay-value="30" class="">姜迪</dd><dd lay-value="31" class="">张黎香</dd><dd lay-value="32" class="">黄文财</dd><dd lay-value="34" class="">卢哲彬</dd><dd lay-value="35" class="">杨发强</dd><dd lay-value="36" class="">陈浩</dd><dd lay-value="40" class="">测试1003</dd><dd lay-value="45" class="">马文辉</dd><dd lay-value="46" class="">靳浩然</dd><dd lay-value="61" class="">张超煜</dd><dd lay-value="63" class="">马宏泽</dd><dd lay-value="66" class="">曾纪均</dd><dd lay-value="70" class="">武凯</dd><dd lay-value="72" class="">夏威</dd><dd lay-value="73" class="">曾滢波</dd><dd lay-value="79" class="">胡鹏程</dd><dd lay-value="81" class="">杨雯</dd><dd lay-value="82" class="">王健宇</dd><dd lay-value="87" class="">廖柔刚</dd><dd lay-value="88" class="">王超</dd><dd lay-value="89" class="">刘锦涛</dd><dd lay-value="90" class="">童大根</dd><dd lay-value="92" class="">冯李文</dd><dd lay-value="98" class="">刘敬儒</dd><dd lay-value="99" class="">吴谋康</dd><dd lay-value="100" class="">贺志</dd><dd lay-value="103" class="">郑忠</dd><dd lay-value="108" class="">测试鲁班</dd><dd lay-value="109" class="">黄红</dd><dd lay-value="110" class="">唐洲</dd><dd lay-value="111" class="">李港</dd><dd lay-value="149" class="">李浩楠</dd><dd lay-value="150" class="">樊淑钦</dd><dd lay-value="151" class="">郭蕾</dd><dd lay-value="167" class="">宾姗</dd></dl></div>
+        </div>
+        <div class="layui-inline layui-form">
+            <select name="city" id="city" lay-filter="test_user">
+                <option value="0">城市</option>
+                                    <option value="长沙">长沙</option>
+                            </select><div class="layui-unselect layui-form-select"><div class="layui-select-title"><input type="text" placeholder="请选择" value="城市" readonly="" class="layui-input layui-unselect"><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd lay-value="0" class="layui-this">城市</dd><dd lay-value="长沙" class="">长沙</dd></dl></div>
+        </div>
+        
+        <div class="layui-inline">
+            <label class="layui-form-label">全景时间</label>
+            <div class="layui-input-block">
+                <input type="text" class="layui-input" id="startTime" placeholder="开始时间" lay-key="1">
+                <input type="text" class="layui-input" id="endTime" placeholder="结束时间" lay-key="2">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">同步时间</label>
+            <div class="layui-input-block">
+                <input type="text" class="layui-input" id="startTimes" placeholder="开始时间" lay-key="3">
+                <input type="text" class="layui-input" id="endTimes" placeholder="结束时间" lay-key="4">
+            </div>
+        </div>
+
+
+        <button class="layui-btn" id="search" data-type="reload">搜索</button>
+                <a href="/houseadmin/pano/index.html" class="layui-btn">刷新</a>
+    </div>
+    <div class="layui-btn-container" style="margin-top:20px;">
+        <a href="javascript:void(0)" class="layui-btn" id="order_type" data-value="1">待处理</a>
+        <a href="javascript:void(0)" class="layui-btn layui-btn-primary" id="order_types" data-value="2">全部</a>
+    </div>
+    <table class="layui-table" id="order" lay-filter="order"></table><div class="layui-form layui-border-box layui-table-view" lay-filter="LAY-table-1" lay-id="order" style=" "><div class="layui-table-box"><div class="layui-table-header"><table cellspacing="0" cellpadding="0" border="0" class="layui-table"><thead><tr><th data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0"><span>城市</span></div></th><th data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1"><span>楼盘名称</span></div></th><th data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2"><span>房源编号</span></div></th><th data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3"><span>摄影师</span></div></th><th data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"><span>设计师</span></div></th><th data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"><span>上传人</span></div></th><th data-field="status" data-key="1-0-6" class=""><div class="layui-table-cell laytable-cell-1-0-6"><span>全景状态</span></div></th><th data-field="hxt_tb" data-key="1-0-7" class=""><div class="layui-table-cell laytable-cell-1-0-7"><span>户型图</span></div></th><th data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"><span>朝向</span></div></th><th data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9"><span>卧室(室)</span></div></th><th data-field="image_time" data-key="1-0-10" class=""><div class="layui-table-cell laytable-cell-1-0-10"><span>全景时间</span></div></th><th data-field="tb_time" data-key="1-0-11" class=""><div class="layui-table-cell laytable-cell-1-0-11"><span>同步时间</span></div></th><th data-field="12" data-key="1-0-12" class=" layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12" align="center"><span>操作</span></div></th></tr></thead></table></div><div class="layui-table-body layui-table-main"><table cellspacing="0" cellpadding="0" border="0" class="layui-table"><tbody><tr data-index="0"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">名富公寓</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS260803911587</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">1</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=596736" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="1"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">卓越洋湖晴翠</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS250926038282</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">1</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=412672" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="2"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">恒伟西雅韵</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS250706293365</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">3</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=361984" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="3"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">凯乐国际城</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS251024083204</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">2</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=457217" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="4"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">名富公寓</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS260523357115</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">1</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=551426" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="5"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">华远华时代</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS260525714066</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">2</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=562434" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="6"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">宇成开福广场</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS251114188421</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">1</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=443650" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="7"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">新湘路社区</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS250917228670</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">3</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=454402" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="8"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">福泽园</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS260318852672</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">3</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=509443" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="9"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">邮电建工局（跃进湖邮电工程局宿舍）</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS251210321527</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">3</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=459524" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="10"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">建发养云</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS260319546353</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">5</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=509444" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="11"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">雅居乐依云小镇</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS250530307494</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">5</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=336645" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="12"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">北辰三角洲D2区</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS251204701625</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">3</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=459782" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="13"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">保利天汇</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS250930074806</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">4</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=415752" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr><tr data-index="14"><td data-field="city" data-key="1-0-0" class=""><div class="layui-table-cell laytable-cell-1-0-0">长沙</div></td><td data-field="house_name" data-key="1-0-1" class=""><div class="layui-table-cell laytable-cell-1-0-1">四方锦城</div></td><td data-field="house_nums" data-key="1-0-2" class=""><div class="layui-table-cell laytable-cell-1-0-2">HS250429359382</div></td><td data-field="realname" data-key="1-0-3" class=""><div class="layui-table-cell laytable-cell-1-0-3">贺志</div></td><td data-field="fb_name" data-key="1-0-4" class=""><div class="layui-table-cell laytable-cell-1-0-4"></div></td><td data-field="sc_name" data-key="1-0-5" class=""><div class="layui-table-cell laytable-cell-1-0-5"></div></td><td data-field="status" data-key="1-0-6" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-6">  <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>  </div></td><td data-field="hxt_tb" data-key="1-0-7" data-off="true" class=""><div class="layui-table-cell laytable-cell-1-0-7">  <div class="layui-table-cell laytable-cell-1-type">同步</div>  </div></td><td data-field="toward" data-key="1-0-8" class=""><div class="layui-table-cell laytable-cell-1-0-8"></div></td><td data-field="room" data-key="1-0-9" class=""><div class="layui-table-cell laytable-cell-1-0-9">2</div></td><td data-field="image_time" data-key="1-0-10" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-10"></div></td><td data-field="tb_time" data-key="1-0-11" data-content="" class=""><div class="layui-table-cell laytable-cell-1-0-11"></div></td><td data-field="12" data-key="1-0-12" align="center" data-off="true" class="layui-table-col-special"><div class="layui-table-cell laytable-cell-1-0-12">  <a href="/houseadmin/pano/image.html?order_id=614154" class="layui-btn layui-btn-xs">上传</a> <!-- <a href="javascript:void(0)" class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a> -->  <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a> </div></td></tr></tbody></table></div></div><div class="layui-table-page"><div id="layui-table-page1"><div class="layui-box layui-laypage layui-laypage-default" id="layui-laypage-1"><a href="javascript:;" class="layui-laypage-prev layui-disabled" data-page="0"><i class="layui-icon"></i></a><span class="layui-laypage-curr"><em class="layui-laypage-em"></em><em>1</em></span><a href="javascript:;" data-page="2">2</a><a href="javascript:;" data-page="3">3</a><span class="layui-laypage-spr">…</span><a href="javascript:;" class="layui-laypage-last" title="尾页" data-page="23">23</a><a href="javascript:;" class="layui-laypage-next" data-page="2"><i class="layui-icon"></i></a><span class="layui-laypage-skip">到第<input type="text" min="1" value="1" class="layui-input">页<button type="button" class="layui-laypage-btn">确定</button></span><span class="layui-laypage-count">共 343 条</span><span class="layui-laypage-limits"><select lay-ignore=""><option value="10">10 条/页</option><option value="20">20 条/页</option><option value="30">30 条/页</option><option value="40">40 条/页</option><option value="50">50 条/页</option><option value="60">60 条/页</option><option value="70">70 条/页</option><option value="80">80 条/页</option><option value="90">90 条/页</option></select></span></div></div></div><style>.laytable-cell-1-0-0{ width: 110px; }.laytable-cell-1-0-1{ width: 120px; }.laytable-cell-1-0-2{ width: 160px; }.laytable-cell-1-0-3{ width: 110px; }.laytable-cell-1-0-4{ width: 90px; }.laytable-cell-1-0-5{ width: 90px; }.laytable-cell-1-0-6{ width: 105px; }.laytable-cell-1-0-7{ width: 105px; }.laytable-cell-1-0-8{ width: 60px; }.laytable-cell-1-0-9{ width: 90px; }.laytable-cell-1-0-10{ width: 180px; }.laytable-cell-1-0-11{ width: 180px; }.laytable-cell-1-0-12{ width: 400px; }</style></div>
+</div>
+
+
+
+<script type="text/html" id="order_status">
+            {{# if(d.status==1){ }}
+                <div class="layui-table-cell laytable-cell-1-type" style="">未上传</div>
+            {{# }else if(d.status==2){ }}
+                <div class="layui-table-cell laytable-cell-1-type" style="color:green;">已上传</div>
+            {{# }else if(d.status==3){ }}
+                <div class="layui-table-cell laytable-cell-1-type" style="color:#009688;">已发布</div>
+            {{# }else if(d.status==4){ }}
+                <div class="layui-table-cell laytable-cell-1-type" style="color:red;">已下架</div>
+            {{# }else{  }}
+                <div class="layui-table-cell laytable-cell-1-type" style="color:#009688;">已同步</div>    
+            {{# } }}
+</script>
+<script type="text/html" id="hxt_tb">
+            {{# if(d.hxt_tb==1){ }}
+                <div class="layui-table-cell laytable-cell-1-type" >同步</div>
+            {{# }else{  }}
+                <div class="layui-table-cell laytable-cell-1-type" >不同步</div>    
+            {{# } }}
+</script>
+<script type="text/html" id="action">
+    {{# if(d.status==1){ }}
+        <a href="/houseadmin/pano/image.html?order_id={{d.id}}" class="layui-btn layui-btn-xs" >上传</a>
+        <!-- <a href="javascript:void(0)"  class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order" >删除</a>  -->
+    {{# }else if(d.status==2){ }}
+        <a href="/houseadmin/pano/image.html?order_id={{d.id}}" class="layui-btn layui-btn-xs" >上传</a>
+          
+            {{# if(d.mark==1){ }}
+                <a href="javascript:void(0)" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="cancel_mark" >取消标记</a>
+            {{# } }}
+            {{# }else if(d.status==3){ }}
+          
+            <a href="/home/index/house_index.html?house_nums={{d.house_nums}}" target="view_window" class="layui-btn layui-btn-xs layui-btn-xs" >预览</a> 
+            <a href="/home/index/down_hxt.html?house_nums={{d.house_nums}}" target="view_window" class="layui-btn layui-btn-xs layui-btn-warm js-hxt-btn" >户型图</a>
+                <!-- <a href="/home/index/hxt.html?order_id={{d.id}}" target="view_window" class="layui-btn layui-btn-xs " >查看</a> -->
+    {{# }else if(d.status==5){ }}
+                    <a href="javascript:void(0)" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="invalid" >无效</a>
+                <a href="/home/index/house_index.html?house_nums={{d.house_nums}}" target="view_window" class="layui-btn layui-btn-xs layui-btn-xs" >预览</a> 
+        <a href="/home/index/tb_hxt.html?house_nums={{d.house_nums}}" target="view_window" class="layui-btn layui-btn-xs layui-btn-warm js-hxt-btn" >户型图</a> 
+            {{# }else{  }}
+        <a href="javascript:void(0)"  class="layui-btn layui-btn-warm layui-btn-xs" lay-event="del_order">删除</a> 
+    {{# } }}
+    <a href="javascript:void(0)" class="layui-btn layui-btn-xs" lay-event="detail">详情</a>
+</script>
+
+<script type="text/javascript" src="/static/plugins/layui/layui.js"></script>
+
+<div style="display:none;"><script type="text/javascript" src="https://s11.cnzz.com/z_stat.php?id=1259448652&amp;web_id=1259448652"></script><script src="https://c.cnzz.com/c.js?web_id=1259448652&amp;t=z" charset="utf-8" type="text/javascript"></script><a href="https://www.cnzz.com/stat/website.php?web_id=1259448652" target="_blank" title="站长统计">站长统计</a></div>
+<script>
+    layui.use(['table','form','laydate','upload'], function() {
+        var table = layui.table,laydate = layui.laydate,form = layui.form, $ = layui.jquery,upload = layui.upload;
+        var mark = 0;
+        var lastHxtClickTime = 0;
+        var hxtClickInterval = 5000;
+        var tableIn = table.render({
+            id: 'order',
+            elem: '#order',
+            url: '/houseadmin/pano/index.html',
+            method: 'post',
+            page: true,
+            cols: [[
+                /*{checkbox:true,fixed: true},*/
+               /* {field: 'id', title: '编号', width: 80, fixed: true},*/
+               {field: 'city', title: '城市', width: 110},
+                {field: 'house_name', title: '楼盘名称', width: 120},
+                {field: 'house_nums', title: '房源编号', width: 160},
+                
+                {field: 'realname', title: '摄影师', width: 110},
+                {field: 'fb_name', title: '设计师', width: 90},
+                {field: 'sc_name', title: '上传人', width: 90},
+                {field: 'status', title: '全景状态', width: 105,toolbar: '#order_status'},
+                {field: 'hxt_tb', title: '户型图', width: 105,toolbar: '#hxt_tb'},
+                {field: 'toward', title: '朝向', width: 60},
+                {field: 'room', title: '卧室(室)', width: 90},
+                {field: 'image_time', title: '全景时间',width: 180,
+                        templet: function(d){
+                            if (d.image_time) {
+                                return layui.util.toDateString(d.image_time*1000, 'yyyy-MM-dd HH:mm:ss');
+                            } else {
+                                return '';
+                            }
+                        }
+                },
+                {field: 'tb_time', title: '同步时间',width: 180,
+                        templet: function(d){
+                            if (d.tb_time) {
+                                return layui.util.toDateString(d.tb_time*1000, 'yyyy-MM-dd HH:mm:ss');
+                            } else {
+                                return '';
+                            }
+                        }
+                },
+                /*{field: 'create_time', title: '创建时间',templet:"<div>{{layui.util.toDateString(d.create_time*1000, 'yyyy-MM-dd HH:mm:ss')}}</div>", width: 180},*/
+                {width: 400, title: '操作',align: 'center', toolbar: '#action'}
+            ]],
+            done: function(res, curr, count){
+                mark = res.mark;
+                // 设置背景颜色
+                res.data.forEach(function(item,index,self){
+                    // 判断想要改变的条件
+                    if(item.mark == '1'){
+                        // 给 表格设置背景色
+                        $('.layui-table').find('tr[data-index ='+index+']').css("background-color","#FFFFE0");
+                    }
+                });
+            },
+            limit: 15 //每页默认显示的数量
+        });
+
+        $(document).on('click', '.js-hxt-btn, a[href*="/home/index/tb_hxt"], a[href*="/home/index/down_hxt"]', function(e) {
+            var now = Date.now();
+            var diff = now - lastHxtClickTime;
+            if (diff < hxtClickInterval) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                layer.msg('户型图生成较耗时，请' + Math.ceil((hxtClickInterval - diff) / 1000) + '秒后再试', {time: 1600, icon: 0});
+                return false;
+            }
+            lastHxtClickTime = now;
+        });
+       
+        // 时间范围
+        laydate.render({
+            elem: '#startTime'
+        });
+        laydate.render({
+            elem: '#endTime'
+        });
+        // 时间范围
+        laydate.render({
+            elem: '#startTimes'
+        });
+        laydate.render({
+            elem: '#endTimes'
+        });
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#daoru'
+            ,url: '/houseadmin/up_files/file.html'
+            ,accept: 'file' //允许上传的文件类型
+            ,done: function(res){
+                if(res.code>0){
+                    $.post('/houseadmin/order/upfile.html',{'url':res.url}, function (res) {
+                        if (res.code > 0) {
+                            layer.msg(res.msg);
+                        } else {
+                            layer.msg('上传失败');
+                        }
+                    });
+                }else{
+                    //如果上传失败
+                    layer.msg('上传失败');
+                }
+            }
+        });
+
+        table.on('tool(order)', function(obj) {
+            var data = obj.data;
+            if (obj.event === 'dercarriage'){
+                    var loading = layer.load(1, {shade: [0.1, '#fff']});
+                    $.post("dercarriage", {'order_id':data.id}, function (res) {
+                        layer.close(loading);
+                        if (res.code > 0) {
+                            layer.msg(res.msg,{time:1000,icon:1});
+                            tableIn.reload();
+                        } else {
+                            layer.msg(res.msg, {time: 1800, icon: 2});
+                        }
+                    });
+
+            }else if(obj.event === 'new_dercarriage'){
+                    var loading = layer.load(1, {shade: [0.1, '#fff']});
+                    if(data.mark == 1){
+                        layer.msg('当前订单被标记，不可发布', {time: 1800, icon: 2});
+                        return false;
+                    }
+                    $.post("new_dercarriage", {'order_id':data.id}, function (res) {
+                        layer.close(loading);
+                        if (res.code > 0) {
+                            layer.msg(res.msg,{time:1000,icon:1});
+                            layer.close(loading);
+                            // 新增 class
+                            var type = 2;
+                            // 新增 class
+                            $("#order_type").addClass('layui-btn-primary');
+                            // 移除 class
+                            $("#order_types").removeClass('layui-btn-primary');
+                            $('#key').val(data.house_nums)
+                            var key = data.house_nums;
+                            var status = '';
+                            var uid = '';
+                            var fb_uid = '';
+                            var startTime = '';
+                            var endTime = '';
+                            var startTimes = '';
+                            var endTimes = '';
+                            var city = '';
+                            tableIn.reload({where: {key: key,status:status,uid:uid,fb_uid:fb_uid,startTime:startTime,endTime:endTime,startTimes:startTimes,endTimes:endTimes,city:city,type:type}});
+                            //tableIn.reload();
+                        } else {
+                            //console.log(res.obj)
+                            layer.msg(res.msg, {time: 1800, icon: 2});
+                        }
+                    });
+            }else if(obj.event === 'undercarriage'){
+                    var loading = layer.load(1, {shade: [0.1, '#fff']});
+                    $.post("undercarriage",{'order_id':data.id},function(res){
+                        layer.close(loading);
+                        if(res.code===1){
+                            layer.msg(res.msg,{time:1000,icon:1});
+                            tableIn.reload();
+                        }else{
+                            layer.msg(res.msg,{time:1000,icon:2});
+                        }
+                    });
+            }else if(obj.event === 'del_order'){
+                layer.confirm('您确定要删除数据吗？', function(index){
+                    var loading = layer.load(1, {shade: [0.1, '#fff']});
+                    $.post("del_order",{'id':data.id,'house_nums':data.house_nums},function(res){
+                        layer.close(loading);
+                        if(res.code===1){
+                            layer.msg(res.msg,{time:1000,icon:1});
+                            tableIn.reload();
+                        }else{
+                            layer.msg(res.msg,{time:1000,icon:2});
+                        }
+                    });
+                });    
+            }else if(obj.event === 'mark'){
+                if(mark == 2){
+                    layer.msg('标记数量已达上限',{time:1000,icon:2});
+                    return false;
+                }
+                var wp = layer.open({
+                    type: 2, 
+                    title:'即设计师对全景图片有异议,以标记告知摄影师需要对全景图片处理:以及摄影师处理的备注回复记录',
+                    area: ['800px', '600px'],
+                    content: "/houseadmin/pano/mark.html?order_id="+data.id+"&type=1"
+                });
+            }else if(obj.event === 'cancel_mark'){
+                var wp = layer.open({
+                    type: 2, 
+                    title:'即设计师对全景图片有异议,以标记告知摄影师需要对全景图片处理:以及摄影师处理的备注回复记录',
+                    area: ['800px', '600px'],
+                    content: "/houseadmin/pano/mark.html?order_id="+data.id+"&type=2"
+                });
+            }else if(obj.event === 'invalid'){
+                const index = layer.open({
+                    type: 2,
+                    title: '即将房源详情全进及户型图下架;选择重拍，全景状态恢复至未上传状态;选择修改，全泉状态恢复到已上传状态',
+                    area: ['800px', '300px'],
+                    content: "/houseadmin/pano/invalid.html?id="+data.id
+                }); 
+            }else if(obj.event === 'transfer'){
+                const index = layer.open({
+                    type: 2,
+                    title: '转单即设计师订单转移给接受人，由接受设计师完成订单后续流程',
+                    area: ['550px', '500px'],
+                    content: "/houseadmin/pano/transfer.html?id="+data.id+"&house_nums="+data.house_nums+"&house_name="+data.house_name
+                }); 
+            }else if(obj.event === 'detail'){
+                const index = layer.open({
+                    type: 2,
+                    title: '操作详情',
+                    area: ['1000px', '700px'],
+                    content: "/houseadmin/pano/detail.html?id="+data.id+"&house_name="+data.house_name+"&realname="+data.realname+"&create_time="+data.create_time+"&house_nums="+data.house_nums
+                }); 
+            }else if(obj.event === 'synchronous'){
+                const index = layer.open({
+                    type: 2,
+                    title: '同步(既同步到房源详情上呈现)',
+                    area: ['500px', '300px'],
+                    content: "/houseadmin/pano/synchronous.html?username="+data.username+"&house_nums="+data.house_nums
+                }); 
+            }else if(obj.event === 'unsynchronous'){
+                layer.confirm('您确定是否取消同步？', function(index){
+                    const house_nums = data.house_nums;
+                    xiangShiToken = '1760b4a03e80cfbf700abbf8cb6048a0';
+                    $.ajax({  ///xiangshi/unXiangshiSynchronous
+                        url: 'https://api.xhj.com/api/xhj-bms/houseSurveyImg/xiangshi/unXiangshiSynchronous', // 替换成你的API端点
+                        type: 'POST',
+                        data: JSON.stringify({ // 将对象转为字符串
+                            houseSourceNumber: house_nums,
+                            account: "100",
+                            xiangShiToken: "1760b4a03e80cfbf700abbf8cb6048a0"
+                        }),
+                        dataType: 'json', // 期望返回的数据类型
+                        contentType: 'application/json; charset=UTF-8', // 发送JSON数据
+                        success: function(res) {
+                            console.log(res);
+                            //if (res.code == 200) {
+                            if (res.code == 200 && res.success == true) {    
+                                var loading = layer.load(1, {shade: [0.1, '#fff']});
+                                $.post("unsynchronous",{'house_nums':house_nums},function(res){
+                                    layer.close(loading);
+                                    if(res.code===1){
+                                        layer.msg(res.msg,{time:1000,icon:1});
+                                    }else{
+                                        //var loading = layer.load(1, {shade: [0.1, '#fff']});
+                                        //layer.close(loading);
+                                        layer.msg(res.msg, {time: 1000, icon: 2});
+                                    }
+                                });
+                            }else {
+                                
+                                layer.msg(res.msg, {time: 1800, icon: 2});
+                                layer.close(loading);
+                                
+                            }
+                        },
+                        error: function(error) {
+                            console.error('Error:', error);
+                            // 在这里处理错误的情况
+                        }
+                    });
+                });    
+            }else if(obj.event === 'abnormal'){
+                var wp = layer.open({
+                    type: 2, 
+                    title:'即设计师对全景图片有异议，无法处理',
+                    area: ['800px', '600px'],
+                    content: "/houseadmin/pano/abnormal.html?order_id="+data.id+"&house_nums="+data.house_nums
+                });
+            }
+        });
+        //设计师接单
+        $('#receive').on('click', function() {
+            // 提交到方法 默认为本身
+            var loading = layer.load(1, {shade: [0.1, '#fff']});
+            $.post("receive",{group_id:5}, function (res) {
+                layer.close(loading);
+                if (res.code > 0) {
+                    layer.msg(res.msg,{time:1000,icon:1});
+                    tableIn.reload();
+                } else {
+                    layer.msg(res.msg, {time: 1800, icon: 2});
+                }
+            });
+        });
+         //搜索
+        $('#order_type').on('click', function() {
+            var type = $(this).data('value');
+
+            // 新增 class
+            $("#order_types").addClass('layui-btn-primary');
+            // 移除 class
+            $(this).removeClass('layui-btn-primary');
+            var key = $.trim($('#key').val());
+            var status = $('#status').val();
+            var uid = $('#uid').val();
+            var fb_uid = $('#fb_uid').val();
+            var sc_uid = $('#sc_uid').val();
+            var startTime = $('#startTime').val();
+            var endTime = $('#endTime').val();
+            var startTimes = $('#startTimes').val();
+            var endTimes = $('#endTimes').val();
+            var city = $.trim($('#city').val());
+            tableIn.reload({where: {key: key,status:status,uid:uid,fb_uid:fb_uid,sc_uid:sc_uid,startTime:startTime,endTime:endTime,startTimes:startTimes,endTimes:endTimes,city:city,type:type}});
+        });
+
+        //搜索
+        $('#order_types').on('click', function() {
+            var type = $(this).data('value');
+            // 新增 class
+            $("#order_type").addClass('layui-btn-primary');
+            // 移除 class
+            $(this).removeClass('layui-btn-primary');
+            var key = $.trim($('#key').val());
+            var status = $('#status').val();
+            var uid = $('#uid').val();
+            var fb_uid = $('#fb_uid').val();
+            var sc_uid = $('#sc_uid').val();
+            var startTime = $('#startTime').val();
+            var endTime = $('#endTime').val();
+            var startTimes = $('#startTimes').val();
+            var endTimes = $('#endTimes').val();
+            var city = $.trim($('#city').val());
+            tableIn.reload({where: {key: key,status:status,uid:uid,fb_uid:fb_uid,sc_uid:sc_uid,startTime:startTime,endTime:endTime,startTimes:startTimes,endTimes:endTimes,city:city,type:type}});
+        });
+         //搜索
+        $('#search').on('click', function() {
+            var key = $.trim($('#key').val());
+            var status = $('#status').val();
+            var uid = $('#uid').val();
+            var fb_uid = $('#fb_uid').val();
+            var sc_uid = $('#sc_uid').val();
+            var startTime = $('#startTime').val();
+            var endTime = $('#endTime').val();
+            var startTimes = $('#startTimes').val();
+            var endTimes = $('#endTimes').val();
+            var city = $.trim($('#city').val());
+            tableIn.reload({where: {key: key,status:status,uid:uid,fb_uid:fb_uid,sc_uid:sc_uid,startTime:startTime,endTime:endTime,startTimes:startTimes,endTimes:endTimes,city:city}});
+        });
+        
+        
+    });
+</script>
+
+
+</body><div id="codex-browser-sidebar-comments-root" style="position: fixed; inset: 0px; pointer-events: none; z-index: 2147483647;"></div></html>

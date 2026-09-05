@@ -1,6 +1,6 @@
 # 🌌 Xiangshi Platform Assistant · XHJ VR Assistant
 
-[![Version](https://img.shields.io/badge/Version-v5.0.42-00c853?style=for-the-badge)](#versioning-policy)
+[![Version](https://img.shields.io/badge/Version-v6.0.0-0071e3?style=for-the-badge)](#versioning-policy)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
@@ -12,7 +12,7 @@
 [![Themes](https://img.shields.io/badge/Themes-15-ff9800?style=flat-square)](#theme-matrix)
 [![Auto Sync](https://img.shields.io/badge/AutoSync-Batch-7c4dff?style=flat-square)](#feature-panorama)
 [![Auto Verify](https://img.shields.io/badge/AutoVerify-ONNX_Local-00897b?style=flat-square)](#feature-panorama)
-[![Layout Safe](https://img.shields.io/badge/Layout-TopBar_Stable-455a64?style=flat-square)](#latest-update-v5035)
+[![Layout Safe](https://img.shields.io/badge/Layout-Live_DOM_Adapted-455a64?style=flat-square)](#latest-update-v600)
 [![GreasyFork x3](https://img.shields.io/badge/GreasyFork-3_scripts-d32f2f?style=flat-square)](#installation--deployment)
 [![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](#)
 
@@ -23,7 +23,7 @@
 ## 📌 Contents
 
 - [Highlights](#highlights)
-- [Latest Update v5.0.35](#latest-update-v5035)
+- [Latest Update v6.0.0](#latest-update-v600)
 - [Feature Panorama](#feature-panorama)
 - [Theme Matrix](#theme-matrix)
 - [Charts & Diagrams](#charts--diagrams)
@@ -36,17 +36,18 @@
 
 ## Highlights
 
-- Rebuilt visual hierarchy for dense admin pages with consistent HUD aesthetics.
+- Rebuilt visual hierarchy for dense admin pages with Apple-inspired native typography, clear hierarchy, and semantic status colors.
 - Table-first productivity: column persistence, row double-click copy, status highlights.
 - Automation toolkit: auto-sync, smart scaling, upload retry, dynamic observers.
 - Local intelligence: ONNX-based CAPTCHA workflow without external API keys.
 - Cross-context consistency: main pages, modal layers, and iframes stay aligned.
 
-## Latest Update v5.0.42
+## Latest Update v6.0.0
 
-- **Complete Design System Refactor**: Rebuilt the foundation using `ui-ux-pro-max` guidelines for a premium unified visual language.
-- **High-Performance 60fps Motion Engine**: Introduced hardware-accelerated, spring-physics transitions for buttons, cards, and table interactions, replacing legacy scripts.
-- Published as `v5.0.42` with synchronized Git and all Greasy metadata headers.
+- **Re-crawled and re-adapted to the live admin DOM**: Covers the main shell, survey list, panorama list, personal data, profile, and both survey/panorama upload flows.
+- **Apple-inspired Control Center**: Adds theme swatches, smart-scale controls, a percentage slider, and one-click recommended defaults. Apple Light is now the default.
+- **Accessibility and compact-screen improvements**: Keyboard focus, ARIA state, reduced motion, high contrast, and mobile safe areas are supported.
+- **Existing capabilities preserved**: 15 themes, table hooks and column persistence, double-click copy, batch sync, upload counting/retry, smart scaling, and local ONNX CAPTCHA recognition.
 
 ## Feature Panorama
 
@@ -81,7 +82,7 @@
 | Neon Stack | Cyberpunk 2077, Synthwave '84', Star Wars HUD, Future Tech |
 | Material Stack | Glass Morphism, Bauhaus |
 | Nature Stack | Emerald Forest |
-| Light Stack | MacOS Light |
+| Light Stack | Apple Light |
 | Baseline | Default |
 
 ## Charts & Diagrams
@@ -134,6 +135,7 @@ timeline
     5.0.40 : Global typography optimization and theme-exclusive upload FX
     5.0.41 : Unified Design System & High-Performance Motion Engine via ui-ux-pro-max
     5.0.42 : Add-survey-image 'Clear All' button layout optimization
+    6.0.0 : Live-DOM page adapter and Apple-inspired Control Center
 ```
 
 ## Installation & Deployment
@@ -168,7 +170,7 @@ timeline
 
 ## Versioning Policy
 
-- SemVer-style incremental flow: `5.0.8 → 5.0.42`.
+- Semantic versioning flow: `5.0.8 → 6.0.0`.
 - Every release synchronizes:
   - main file `xhj_assistant.user.js`
   - three Greasy distribution files

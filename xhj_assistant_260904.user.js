@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         象视平台助手（563982）
+// @name         象视平台助手（563997）
 // @namespace    http://tampermonkey.net/
-// @version      6.0.1-beta.1
-// @description  基于6.0.0保留现有功能，修正活动页面识别、表单与按钮排版；部分页面已核对，完整线上回归尚未完成。
+// @version      6.0.0
+// @description  象视平台综合辅助工具：保留15套主题、表格增强、批量同步、上传计数、自动缩放与本地验证码识别；v6.0.0 基于最新页面实测重构页面适配层，并换用 Apple 风格无障碍控制中心。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -61,8 +61,7 @@
     const getActivePageProfile = () => {
         const ownProfile = getPageProfile();
         if (ownProfile.id !== 'shell') return ownProfile;
-        const frame = document.querySelector('#admin-body .layui-tab-item.layui-show iframe, .admin-body .layui-tab-item.layui-show iframe')
-            || document.querySelector('#admin-body iframe, .admin-body iframe');
+        const frame = document.querySelector('.admin-body iframe, iframe');
         return frame && frame.src ? getPageProfile(frame.src) : ownProfile;
     };
 
@@ -71,23 +70,6 @@
         document.documentElement.dataset.xhjPage = profile.id;
         if (document.body) document.body.dataset.xhjPage = profile.id;
         return profile;
-    };
-
-    // Move existing controls intact so listeners and workflow state are preserved.
-    const normalizePageLayout = () => {
-        if (getPageProfile().id !== 'house-list') return;
-        const toolbar = document.querySelector('.admin-main .demoTable');
-        const buttons = ['auto-sync-button-v3', 'auto-sync-settings-v3'].map(id => document.getElementById(id)).filter(Boolean);
-        if (!toolbar || !buttons.length) return;
-        let group = toolbar.querySelector('.xhj-workflow-actions');
-        if (!group) {
-            group = document.createElement('div');
-            group.className = 'xhj-workflow-actions';
-            group.setAttribute('role', 'group');
-            group.setAttribute('aria-label', '房勘辅助操作');
-            toolbar.appendChild(group);
-        }
-        buttons.forEach(button => { if (button.parentElement !== group) group.appendChild(button); });
     };
 
     const parseColorChannels = (value, fallback = '22, 27, 34') => {
@@ -2038,7 +2020,7 @@
             html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="lpName"] .layui-table-cell { width: 168px !important; min-width: 168px !important; }
             html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="departmentName"] .layui-table-cell { width: 190px !important; min-width: 190px !important; }
             html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="createDate"] .layui-table-cell,
-            html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="appointmentDate"] .layui-table-cell { width: 180px !important; min-width: 180px !important; white-space: nowrap !important; }
+            html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="appointmentDate"] .layui-table-cell { width: 156px !important; min-width: 156px !important; white-space: nowrap !important; }
             html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="fk_status"] .layui-table-cell { width: 88px !important; min-width: 88px !important; }
 
             /* Stable field selectors observed on the current panorama table. */
@@ -2187,101 +2169,6 @@
                     forced-color-adjust: auto;
                 }
             }
-/* Shared layout contract. Retain Layui's visibility and event bindings. */
-:root {
-    --xhj-control-height: 36px;
-    --xhj-control-gap: 8px;
-    --xhj-control-radius: 8px;
-}
-html[data-xhj-theme="macos-light"] { color-scheme: light; }
-.layui-btn, .el-button, .layui-layer-btn a {
-    box-sizing: border-box;
-    vertical-align: middle;
-    line-height: 1.4 !important;
-    text-align: center;
-}
-.layui-btn:not(.layui-hide):not([hidden]), .el-button:not([hidden]), .layui-layer-btn a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-}
-.layui-btn { min-height: var(--xhj-control-height); padding-block: 6px !important; height: auto; }
-.layui-table .layui-btn { min-height: 32px; padding: 4px 8px !important; }
-.admin-main .demoTable {
-    display: flex; flex-wrap: wrap; align-items: center;
-    gap: var(--xhj-control-gap); margin-bottom: 16px;
-    padding: 12px; border: 1px solid var(--xhj-border);
-    border-radius: 12px; background: var(--xhj-input-bg);
-}
-.admin-main .demoTable > .layui-inline { margin: 0 !important; max-width: 100%; }
-.admin-main .demoTable .layui-input-block { margin-left: 0 !important; }
-.admin-main .demoTable .layui-form-label { float: none; width: auto; padding: 0 8px 0 0; }
-.admin-main .demoTable > .layui-inline:has(> .layui-form-label) { display: inline-flex; align-items: center; }
-.admin-main .demoTable .layui-input { height: var(--xhj-control-height); }
-.xhj-workflow-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; padding-top: 8px; border-top: 1px solid var(--xhj-border); }
-.xhj-workflow-actions > button {
-    position: static !important; min-height: var(--xhj-control-height);
-    margin: 0 !important; padding: 6px 12px !important;
-    font: 500 13px/1.4 -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif !important;
-    letter-spacing: normal !important; box-shadow: none !important;
-    border-radius: var(--xhj-control-radius) !important;
-    background: var(--xhj-input-bg) !important; color: var(--xhj-fg) !important;
-}
-.xhj-workflow-actions > #auto-sync-button-v3 { background: var(--xhj-active-bg) !important; color: var(--xhj-active-fg) !important; }
-html[data-xhj-page="pano-upload"] .admin-main > form.layui-form,
-html[data-xhj-page="detail"] .admin-main > form.layui-form { display: block; }
-html[data-xhj-page="pano-upload"] .layui-form-item > .layui-input-block { min-width: 160px; }
-html[data-xhj-page="house-upload"] .el-dialog { min-width: 0 !important; width: 100% !important; }
-html[data-xhj-page="house-upload"] .el-dialog__body { padding: 16px 20px; }
-html[data-xhj-page="house-upload"] .el-input__inner { font-size: 14px; }
-html[data-xhj-page="house-upload"] .el-dialog__headerbtn { top: 14px; right: 12px; width: 28px; height: 28px; }
-.layui-btn > .layui-icon, .el-button > i { vertical-align: middle; }
-html[data-xhj-page="profile"] .admin-main > form.layui-form {
-    display: block;
-    max-width: 920px;
-    margin-inline: auto;
-    padding: 24px;
-}
-html[data-xhj-page="profile"] .layui-form-item {
-    margin-bottom: 20px;
-}
-html[data-xhj-page="profile"] .layui-form-label {
-    line-height: 20px !important;
-    padding-block: 8px;
-}
-.layui-layer-title { box-sizing: border-box; padding-right: 64px !important; }
-.xhj-header-actions { flex-wrap: wrap; height: auto !important; }
-html[data-xhj-page="house-upload"] .el-dialog__header {
-    flex-wrap: wrap;
-    gap: 12px;
-    padding-right: 48px !important;
-}
-html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-@media (max-width: 720px) {
-    :root { --xhj-control-height: 44px; }
-    html[data-xhj-page="profile"] .admin-main > form.layui-form { padding: 12px; }
-    .xhj-header-actions { width: 100%; margin-left: 0 !important; }
-    .xhj-header-actions > :is(button, .el-button, .uploadBtn) {
-        min-height: 44px !important;
-        height: auto !important;
-    }
-    .layui-table-page { height: auto !important; overflow-x: auto; }
-    .admin-main .demoTable > .layui-inline { width: 100% !important; }
-    .admin-main .demoTable :is(.layui-input, .layui-form-select) { width: 100% !important; }
-    .admin-main .demoTable .layui-inline .layui-inline { max-width: calc(50% - 8px); }
-    .layui-table .layui-btn { min-height: 44px; }
-    html[data-xhj-page="house-upload"] .el-dialog__body { padding: 12px; }
-    html[data-xhj-page="house-upload"] .el-row { flex-wrap: wrap; }
-    html[data-xhj-page="house-upload"] :is(.el-col-6, .el-col-10) { width: 50%; }
-    html[data-xhj-page="house-upload"] .el-form-item__label { float: none; display: block; text-align: left; }
-    html[data-xhj-page="house-upload"] .el-form-item__content { margin-left: 0 !important; }
-    html[data-xhj-page="profile"] .layui-input-4 { width: auto; margin-left: 110px; }
-}
-
 `;
     };
 
@@ -2339,7 +2226,6 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
                 const root = doc.head || doc.documentElement;
                 if (!root) return;
                 doc.documentElement.dataset.xhjTheme = resolvedThemeName;
-                doc.documentElement.dataset.xhjPage = getPageProfile(doc.URL).id;
                 let style = doc.getElementById(IFRAME_STYLE_ID);
                 if (!style) {
                     style = doc.createElement('style');
@@ -2799,12 +2685,8 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
             toggleBtn.focus();
         });
 
-        const shell = document.querySelector('#admin-body, .admin-body');
-        if (shell) {
-            shell.addEventListener('load', updatePageLabel, true);
-            const pageObserver = new MutationObserver(updatePageLabel);
-            pageObserver.observe(shell, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'src'] });
-        }
+        const shellFrame = document.querySelector('.admin-body iframe, iframe');
+        if (shellFrame) shellFrame.addEventListener('load', updatePageLabel, { passive: true });
     };
 
     /* ==========================================================================
@@ -3031,8 +2913,8 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
     const applyScale = () => {
         if (!document.body) return;
         // 实测上传/详情 iframe 对 DPI 敏感，按路由配置明确禁用，避免依赖页面标题文案。
-        const noScaleProfiles = new Set(['shell', 'house-upload', 'pano-upload', 'pano-images', 'detail']);
-        if (window.innerWidth <= 720 || noScaleProfiles.has(getPageProfile().id)) {
+        const noScaleProfiles = new Set(['house-upload', 'pano-upload', 'pano-images', 'detail']);
+        if (noScaleProfiles.has(getPageProfile().id)) {
             document.body.style.zoom = '';
             return;
         }
@@ -3046,7 +2928,7 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
         const baseWidth = window.screen.width;
         // 计算缩放比例：(当前窗口宽度 / 屏幕宽度) * 自定义比例 (默认120%)
         const userRatio = getScaleRatio();
-        const scale = Math.max(0.85, Math.min(userRatio, (window.innerWidth / Math.max(1, baseWidth)) * userRatio));
+        const scale = (window.innerWidth / baseWidth) * userRatio;
         
         document.body.style.zoom = scale;
     };
@@ -3718,7 +3600,6 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
         requestAnimationFrame(() => {
             dynamicFlags.framePending = false;
             dynamicFlags.lastRunAt = performance.now();
-            normalizePageLayout();
             updateImageCounter(); // 6. 图片计数更新
 
             // 1. 识别表格类型 & 注入列宽样式
@@ -3789,7 +3670,7 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
                                      text-align: center !important;
                                  }
                                  body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-btn {
-                                     padding: 0 5px !important; height: auto !important; min-height: var(--xhj-control-height, 36px) !important; line-height: 1.4 !important;
+                                     padding: 0 5px !important; height: 22px !important; line-height: 22px !important;
                                      font-size: 12px !important; margin: 2px !important; min-width: unset !important;
                                  }
                                  body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-btn i {
@@ -4380,7 +4261,6 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
             if (isScaleEnabled()) applyScale();
             createUI();
             initSyncButtons();
-            normalizePageLayout();
         };
 
         if (document.readyState === 'loading') {

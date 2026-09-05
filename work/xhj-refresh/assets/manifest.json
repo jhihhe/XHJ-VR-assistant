@@ -1,0 +1,45 @@
+{
+  "assets": [
+    {
+      "contentType": "text/css",
+      "id": "775bf65bef0daa05",
+      "kind": "stylesheet",
+      "name": "layui.css",
+      "path": "/var/folders/2w/2kyryrnx0tq8j1nys4vy3ck40000gn/T/browser-use/assets/1ddde2f6-07ce-4bf2-b55a-94b0bb4786a8/775bf65bef0daa05.css",
+      "url": "https://vr.xhj.com/static/plugins/layui/css/layui.css"
+    },
+    {
+      "contentType": "text/css",
+      "id": "19895008f7d041a6",
+      "kind": "stylesheet",
+      "name": "global.css",
+      "path": "/var/folders/2w/2kyryrnx0tq8j1nys4vy3ck40000gn/T/browser-use/assets/1ddde2f6-07ce-4bf2-b55a-94b0bb4786a8/19895008f7d041a6.css",
+      "url": "https://vr.xhj.com/static/admin/css/global.css"
+    },
+    {
+      "contentType": "text/css",
+      "id": "ca8c3900ca129094",
+      "kind": "stylesheet",
+      "name": "font.css",
+      "path": "/var/folders/2w/2kyryrnx0tq8j1nys4vy3ck40000gn/T/browser-use/assets/1ddde2f6-07ce-4bf2-b55a-94b0bb4786a8/ca8c3900ca129094.css",
+      "url": "https://vr.xhj.com/static/common/css/font.css"
+    },
+    {
+      "contentType": "font/ttf",
+      "id": "dd00644e639251af",
+      "kind": "font",
+      "name": "IcoMoon-Free.ttf",
+      "path": "/var/folders/2w/2kyryrnx0tq8j1nys4vy3ck40000gn/T/browser-use/assets/1ddde2f6-07ce-4bf2-b55a-94b0bb4786a8/dd00644e639251af.ttf",
+      "url": "https://vr.xhj.com/static/common/font/IcoMoon-Free.ttf"
+    },
+    {
+      "contentType": "text/css",
+      "id": "01fce5bb484863b9",
+      "kind": "stylesheet",
+      "name": "layer.css",
+      "path": "/var/folders/2w/2kyryrnx0tq8j1nys4vy3ck40000gn/T/browser-use/assets/1ddde2f6-07ce-4bf2-b55a-94b0bb4786a8/01fce5bb484863b9.css",
+      "url": "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/layer.css?v=3.1.1"
+    }
+  ],
+  "failures": []
+}

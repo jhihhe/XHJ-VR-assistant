@@ -1,6 +1,6 @@
 # 🌌 象视平台助手 · XHJ VR Assistant
 
-[![Version](https://img.shields.io/badge/Version-v5.0.42-00c853?style=for-the-badge)](#版本策略)
+[![Version](https://img.shields.io/badge/Version-v6.0.0-0071e3?style=for-the-badge)](#版本策略)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
@@ -12,7 +12,7 @@
 [![Themes](https://img.shields.io/badge/Themes-15-ff9800?style=flat-square)](#主题矩阵)
 [![Auto Sync](https://img.shields.io/badge/AutoSync-Batch-7c4dff?style=flat-square)](#功能全景)
 [![Auto Verify](https://img.shields.io/badge/AutoVerify-ONNX_Local-00897b?style=flat-square)](#功能全景)
-[![Layout Safe](https://img.shields.io/badge/Layout-TopBar_Stable-455a64?style=flat-square)](#最新更新-v5041)
+[![Layout Safe](https://img.shields.io/badge/Layout-Live_DOM_Adapted-455a64?style=flat-square)](#最新更新-v600)
 [![GreasyFork x3](https://img.shields.io/badge/GreasyFork-3_scripts-d32f2f?style=flat-square)](#安装部署)
 [![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](#)
 
@@ -24,7 +24,7 @@
 ## 📌 目录
 
 - [项目亮点](#项目亮点)
-- [最新更新 v5.0.40](#最新更新-v5040)
+- [最新更新 v6.0.0](#最新更新-v600)
 - [功能全景](#功能全景)
 - [主题矩阵](#主题矩阵)
 - [图形图表](#图形图表)
@@ -37,17 +37,18 @@
 
 ## 项目亮点
 
-- 高密度后台页面的视觉重构：统一 HUD 风格，重点信息更醒目。
+- 高密度后台页面的视觉重构：Apple 风格的原生字体、清晰层级与语义状态色。
 - 表格工作流增强：列配置保存、双击复制、状态高亮、操作区排版优化。
 - 自动化能力集成：一键同步、自动缩放、上传重试、动态状态监测。
 - 本地智能识别：ONNX 验证码识别链路，无需外部 API Key。
 - 跨上下文一致：主页面、弹窗、iframe 风格与交互保持统一。
 
-## 最新更新 v5.0.42
+## 最新更新 v6.0.0
 
-- **设计系统全面重构**：基于 `ui-ux-pro-max` 规范重构，实现了统一的高级视觉语言。
-- **高性能 60fps 动效引擎**：为按钮、卡片、输入框与表格引入物理回弹级的反馈动效与 Shimmer 加载过渡。
-- 同步发布 `v5.0.42`，统一脚本头部元数据与文档版本信息。
+- **按最新线上页面重新适配**：覆盖主控制台、房勘列表、售房全景、个人数据、个人资料以及房勘/全景上传页。
+- **Apple 风格控制中心**：新增主题色卡、自动缩放开关、滑杆和一键恢复推荐设置，默认启用 Apple Light。
+- **可访问性与窄屏优化**：支持键盘焦点、ARIA 状态、减少动效、高对比度与移动端安全区。
+- **完整保留原有能力**：15 套主题、表格 Hook/列状态持久化、双击复制、批量同步、上传计数/重试、自动缩放与 ONNX 验证码识别。
 
 ## 功能全景
 
@@ -82,7 +83,7 @@
 | 霓虹系 | Cyberpunk 2077、Synthwave '84'、Star Wars HUD、Future Tech |
 | 质感系 | Glass Morphism、Bauhaus |
 | 自然系 | Emerald Forest |
-| 浅色系 | MacOS Light |
+| 浅色系 | Apple Light |
 | 基线 | Default |
 
 ## 图形图表
@@ -136,6 +137,7 @@ timeline
     5.0.40 : 全局排版优化与15套主题上传状态专属光效适配
     5.0.41 : 基于 ui-ux-pro-max 重构设计系统与 60fps 动效引擎
     5.0.42 : 新增房堪图弹窗「一键清除」按钮位置优化，提升操作连贯性
+    6.0.0 : 基于线上 DOM 重构页面适配层与 Apple 风格控制中心
 ```
 
 ## 安装部署
@@ -170,7 +172,7 @@ timeline
 
 ## 版本策略
 
-- 采用语义化小版本递进：`5.0.8 → 5.0.42`。
+- 采用语义化版本：`5.0.8 → 6.0.0`。
 - 每次发布同步更新：
   - 主脚本 `xhj_assistant.user.js`
   - Greasy 三脚本 `xhj_assistant_534783.user.js / xhj_assistant_563982.user.js / xhj_assistant_563997.user.js`

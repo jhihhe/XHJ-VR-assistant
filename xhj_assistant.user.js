@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         象视平台助手（563997）
 // @namespace    http://tampermonkey.net/
-// @version      5.0.42
-// @description  象视平台综合辅助工具：包含多款皮肤切换（MacOS Light/Dracula/Midnight/Synthwave/Bauhaus等）、UI 深度美化 (Pro级配色/3D立体视效)、iframe 样式同步、以及自动化同步操作功能。v5.0.42: 引入 ui-ux-pro-max 设计系统重写全局排版与动效引擎 (60fps)。
+// @version      6.0.1-beta.1
+// @description  基于6.0.0保留现有功能，修正活动页面识别、表单与按钮排版；部分页面已核对，完整线上回归尚未完成。
 // @author       Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
@@ -29,6 +29,7 @@
     const STYLE_ID = 'xhj-custom-skin-style';
     const CRITICAL_STYLE_ID = 'xhj-critical-style';
     const IFRAME_STYLE_ID = 'xhj-iframe-theme-style';
+    const CONTROL_CENTER_STYLE_ID = 'xhj-control-center-style';
     const ENABLE_CLICK_RIPPLE = false;
     const ENABLE_ADVANCED_CLICK_ANIMATION = false;
     const CLICK_FEEDBACK_MIN_INTERVAL = 90;
@@ -36,6 +37,58 @@
     const DYNAMIC_MIN_RUN_GAP = 120;
     const STATUS_STYLE_SELECTOR = '.layui-table-cell, .layui-upload-list span, .status-text, .layui-btn, .layui-badge';
     const DYNAMIC_OBSERVER_RELEVANT_SELECTOR = '.layui-layer, .el-dialog, .layui-table, .layui-table-view, .layui-upload-list, #uploader-list, iframe, .layui-layer-content';
+
+    // 2026-09-04 实测路由：Layui 主壳 + Layui 列表 + Element UI 房勘上传 iframe + Layui 2.6 全景上传 iframe。
+    const PAGE_PROFILES = Object.freeze([
+        { id: 'login', label: '登录页', match: path => path.includes('/houseadmin/login/') },
+        { id: 'house-upload', label: '房勘上传', match: path => path.includes('/houseadmin/house/add_fk_image.html') },
+        { id: 'pano-upload', label: '全景上传', match: path => path.includes('/houseadmin/pano/add_image.html') },
+        { id: 'pano-images', label: '全景图管理', match: path => path.includes('/houseadmin/pano/image.html') },
+        { id: 'house-list', label: '房勘列表', match: path => path.includes('/houseadmin/house/index.html') },
+        { id: 'pano-list', label: '售房全景', match: path => path.includes('/houseadmin/pano/index.html') },
+        { id: 'personal-data', label: '个人数据', match: path => path.includes('/houseadmin/pano/everybody.html') },
+        { id: 'profile', label: '个人资料', match: path => path.includes('/houseadmin/user/index.html') },
+        { id: 'shell', label: '控制面板', match: path => /^\/houseadmin\/index(?:\/index\.html)?\/?$/.test(path) },
+        { id: 'detail', label: '详情页', match: path => /\/(?:detail|transfer|invalid|cancel)\.html$/.test(path) }
+    ]);
+
+    const getPageProfile = (url = window.location.href) => {
+        let pathname = '';
+        try { pathname = new URL(url, window.location.origin).pathname; } catch (e) { pathname = window.location.pathname; }
+        return PAGE_PROFILES.find(profile => profile.match(pathname)) || { id: 'other', label: '象视页面' };
+    };
+
+    const getActivePageProfile = () => {
+        const ownProfile = getPageProfile();
+        if (ownProfile.id !== 'shell') return ownProfile;
+        const frame = document.querySelector('#admin-body .layui-tab-item.layui-show iframe, .admin-body .layui-tab-item.layui-show iframe')
+            || document.querySelector('#admin-body iframe, .admin-body iframe');
+        return frame && frame.src ? getPageProfile(frame.src) : ownProfile;
+    };
+
+    const stampPageContext = () => {
+        const profile = getPageProfile();
+        document.documentElement.dataset.xhjPage = profile.id;
+        if (document.body) document.body.dataset.xhjPage = profile.id;
+        return profile;
+    };
+
+    // Move existing controls intact so listeners and workflow state are preserved.
+    const normalizePageLayout = () => {
+        if (getPageProfile().id !== 'house-list') return;
+        const toolbar = document.querySelector('.admin-main .demoTable');
+        const buttons = ['auto-sync-button-v3', 'auto-sync-settings-v3'].map(id => document.getElementById(id)).filter(Boolean);
+        if (!toolbar || !buttons.length) return;
+        let group = toolbar.querySelector('.xhj-workflow-actions');
+        if (!group) {
+            group = document.createElement('div');
+            group.className = 'xhj-workflow-actions';
+            group.setAttribute('role', 'group');
+            group.setAttribute('aria-label', '房勘辅助操作');
+            toolbar.appendChild(group);
+        }
+        buttons.forEach(button => { if (button.parentElement !== group) group.appendChild(button); });
+    };
 
     const parseColorChannels = (value, fallback = '22, 27, 34') => {
         if (typeof value !== 'string') return fallback;
@@ -338,20 +391,20 @@
             }
         },
         'macos-light': {
-            name: 'MacOS Light (Clean)',
+            name: 'Apple Light (Recommended)',
             vars: {
                 '--xhj-bg': '#F5F5F7',
                 '--xhj-fg': '#1D1D1F',
-                '--xhj-header-bg': 'rgba(255, 255, 255, 0.6)',
-                '--xhj-side-bg': 'rgba(235, 235, 240, 0.85)', /* Finder Sidebar Gray */
-                '--xhj-active-bg': '#007AFF',
+                '--xhj-header-bg': 'rgba(255, 255, 255, 0.82)',
+                '--xhj-side-bg': 'rgba(242, 242, 247, 0.92)',
+                '--xhj-active-bg': '#0071E3',
                 '--xhj-active-fg': '#FFFFFF',
-                '--xhj-border': 'rgba(0, 0, 0, 0.1)',
-                '--xhj-hover-bg': 'rgba(0, 0, 0, 0.05)',
+                '--xhj-border': 'rgba(60, 60, 67, 0.18)',
+                '--xhj-hover-bg': 'rgba(0, 113, 227, 0.08)',
                 '--xhj-input-bg': '#FFFFFF',
-                '--xhj-table-head': 'rgba(0, 0, 0, 0.02)',
-                '--xhj-glow-color': 'rgba(0, 122, 255, 0.2)',
-                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.05)',
+                '--xhj-table-head': '#F2F2F7',
+                '--xhj-glow-color': 'rgba(0, 113, 227, 0.18)',
+                '--xhj-shadow-color': 'rgba(0, 0, 0, 0.08)',
                 '--xhj-uploading-color': '#FF9500',
                 '--xhj-uploading-shadow': 'rgba(255, 149, 0, 0.2)',
                 '--xhj-success-color': '#34C759',
@@ -363,7 +416,7 @@
     // [v2.2 优化] 立即注入关键 CSS，防止闪烁 (Anti-Flash)
     const injectCriticalCSS = () => {
         try {
-            const savedTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
+            const savedTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'macos-light';
             if (savedTheme === 'default') return;
 
             const theme = themes[savedTheme];
@@ -574,12 +627,11 @@
         `;
 
         return `
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
             ${extraCss}
             
             /* 1. 极致排版与字体优化 (Premium Typography) */
             html, body, .layui-table, .layui-btn, .layui-input, .layui-form-label, .layui-layer-title, .el-dialog__title {
-                font-family: ${vars['--xhj-special-font'] || "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif"} !important;
+                font-family: ${vars['--xhj-special-font'] || "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif"} !important;
                 -webkit-font-smoothing: antialiased !important;
                 -moz-osx-font-smoothing: grayscale !important;
                 text-rendering: optimizeLegibility !important;
@@ -1853,6 +1905,383 @@
             body, .layui-table, .layui-input, .layui-btn, .layui-layer-title {
                 font-variant-numeric: tabular-nums;
             }
+
+            /* =========================================================================
+               [v6.0.0] Apple-inspired refinement based on the live 2026-09-04 DOM crawl
+               ========================================================================= */
+            html {
+                color-scheme: light dark;
+            }
+
+            body,
+            .layui-table,
+            .layui-input,
+            .layui-btn,
+            .layui-form-label,
+            .layui-layer-title,
+            .el-button,
+            .el-input__inner,
+            .el-dialog__title {
+                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Segoe UI", sans-serif !important;
+                line-height: 1.45;
+            }
+
+            .layui-btn,
+            .el-button,
+            .layui-layer-btn a {
+                min-height: 32px;
+                border-radius: 8px !important;
+                letter-spacing: 0 !important;
+                text-transform: none !important;
+                box-shadow: none !important;
+            }
+
+            .layui-btn:not(.layui-btn-disabled):hover,
+            .el-button:not(.is-disabled):hover,
+            .layui-card:hover,
+            .el-card:hover {
+                transform: none !important;
+            }
+
+            .layui-btn-danger,
+            .el-button--danger {
+                background: #d70015 !important;
+                color: #fff !important;
+            }
+
+            .layui-btn-warm,
+            .el-button--warning {
+                background: #a65300 !important;
+                color: #fff !important;
+            }
+
+            :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+                outline: 3px solid var(--xhj-active-bg, #0071e3) !important;
+                outline-offset: 2px !important;
+            }
+
+            .layui-layout-admin .layui-header {
+                border-bottom: 1px solid var(--xhj-border) !important;
+                box-shadow: 0 1px 0 rgba(255,255,255,0.08), 0 8px 28px rgba(0,0,0,0.08) !important;
+            }
+
+            .layui-layout-admin .layui-side,
+            .layui-layout-admin .layui-side-scroll {
+                border-inline-end: 1px solid var(--xhj-border) !important;
+            }
+
+            .admin-main {
+                box-sizing: border-box;
+                padding: 12px 14px !important;
+            }
+
+            .admin-main > form.layui-form {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+                margin-block-end: 12px;
+                padding: 10px;
+                border: 1px solid var(--xhj-border);
+                border-radius: 12px;
+                background: color-mix(in srgb, var(--xhj-input-bg) 92%, transparent);
+            }
+
+            .admin-main > form.layui-form .layui-inline {
+                margin: 0 !important;
+            }
+
+            .layui-input,
+            .layui-select,
+            .layui-textarea,
+            .el-input__inner,
+            .el-textarea__inner {
+                min-height: 34px;
+                border-radius: 8px !important;
+            }
+
+            .layui-table-view,
+            .el-table {
+                overflow: hidden;
+                border: 1px solid var(--xhj-border) !important;
+                border-radius: 12px !important;
+                box-shadow: 0 8px 28px rgba(0,0,0,0.06) !important;
+            }
+
+            .layui-table-header th,
+            .el-table th {
+                min-height: 38px;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+            }
+
+            .layui-table-body td,
+            .el-table td {
+                min-height: 38px;
+            }
+
+            .layui-table-body .layui-table-cell,
+            .layui-table-header .layui-table-cell {
+                box-sizing: border-box;
+                padding-inline: 10px !important;
+            }
+
+            .layui-table-page {
+                min-height: 46px;
+                padding-block: 6px !important;
+                border-top-color: var(--xhj-border) !important;
+            }
+
+            /* Stable field selectors observed on the current house survey table. */
+            html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="stateName"] .layui-table-cell { width: 88px !important; min-width: 88px !important; }
+            html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="houseSourceNumber"] .layui-table-cell { width: 152px !important; min-width: 152px !important; }
+            html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="lpName"] .layui-table-cell { width: 168px !important; min-width: 168px !important; }
+            html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="departmentName"] .layui-table-cell { width: 190px !important; min-width: 190px !important; }
+            html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="createDate"] .layui-table-cell,
+            html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="appointmentDate"] .layui-table-cell { width: 180px !important; min-width: 180px !important; white-space: nowrap !important; }
+            html[data-xhj-page="house-list"] body.xhj-table-survey :is(th, td)[data-field="fk_status"] .layui-table-cell { width: 88px !important; min-width: 88px !important; }
+
+            /* Stable field selectors observed on the current panorama table. */
+            html[data-xhj-page="pano-list"] body.xhj-table-sales :is(th, td)[data-field="city"] .layui-table-cell { width: 72px !important; min-width: 72px !important; }
+            html[data-xhj-page="pano-list"] body.xhj-table-sales :is(th, td)[data-field="house_name"] .layui-table-cell { width: 168px !important; min-width: 168px !important; }
+            html[data-xhj-page="pano-list"] body.xhj-table-sales :is(th, td)[data-field="house_nums"] .layui-table-cell { width: 152px !important; min-width: 152px !important; }
+            html[data-xhj-page="pano-list"] body.xhj-table-sales :is(th, td)[data-field="realname"] .layui-table-cell,
+            html[data-xhj-page="pano-list"] body.xhj-table-sales :is(th, td)[data-field="fb_name"] .layui-table-cell,
+            html[data-xhj-page="pano-list"] body.xhj-table-sales :is(th, td)[data-field="sc_name"] .layui-table-cell { width: 88px !important; min-width: 88px !important; }
+            html[data-xhj-page="pano-list"] body.xhj-table-sales :is(th, td)[data-field="image_time"] .layui-table-cell,
+            html[data-xhj-page="pano-list"] body.xhj-table-sales :is(th, td)[data-field="tb_time"] .layui-table-cell { width: 152px !important; min-width: 152px !important; white-space: nowrap !important; }
+
+            .layui-layer,
+            .el-dialog {
+                border-radius: 16px !important;
+                box-shadow: 0 24px 70px rgba(0,0,0,0.24) !important;
+            }
+
+            .layui-layer-title,
+            .el-dialog__header {
+                min-height: 48px;
+                border-bottom: 1px solid var(--xhj-border) !important;
+            }
+
+            html[data-xhj-page="house-upload"] .el-dialog__header {
+                position: sticky;
+                top: 0;
+                z-index: 5;
+                background: var(--xhj-input-bg) !important;
+            }
+
+            html[data-xhj-page="house-upload"] :is(.upimg, .imgstyle, .imgstyle_img),
+            html[data-xhj-page="pano-images"] .layui-table img {
+                border-radius: 8px !important;
+            }
+
+            /* The recommended theme removes legacy HUD decoration without changing the other 14 themes. */
+            html[data-xhj-theme="macos-light"],
+            html[data-xhj-theme="macos-light"] body {
+                background-image: none !important;
+            }
+
+            html[data-xhj-theme="macos-light"] :is(
+                .layui-card-header, .layui-layer-title, .layui-form-label, .el-form-item__label,
+                .el-dialog__title, .topbox_item, .layui-nav-tree .layui-nav-item a,
+                .layui-tab-title li, .layui-laypage a, .layui-laypage span,
+                .layui-input, .layui-select, .layui-textarea, .el-input__inner,
+                .el-textarea__inner, .layui-table-cell
+            ) {
+                color: var(--xhj-fg) !important;
+                letter-spacing: normal !important;
+                text-shadow: none !important;
+                -webkit-text-stroke: 0 !important;
+            }
+
+            html[data-xhj-theme="macos-light"] :is(.layui-header, .layui-card)::after,
+            html[data-xhj-theme="macos-light"] .layui-card::before {
+                content: none !important;
+            }
+
+            html[data-xhj-theme="macos-light"] :is(.layui-card, .layui-panel, .layui-layer, .layui-layer-page, .layui-table-view) {
+                background: rgba(255,255,255,.92) !important;
+                border-color: var(--xhj-border) !important;
+                -webkit-backdrop-filter: saturate(160%) blur(18px) !important;
+                backdrop-filter: saturate(160%) blur(18px) !important;
+            }
+
+            html[data-xhj-theme="macos-light"] .layui-table :is(th, td) .layui-table-cell {
+                margin: 0 !important;
+                padding: 8px 10px !important;
+                border: 0 !important;
+                border-image: none !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                color: var(--xhj-fg) !important;
+                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Segoe UI", sans-serif !important;
+            }
+
+            html[data-xhj-theme="macos-light"] .layui-table td {
+                border-bottom: 1px solid var(--xhj-border) !important;
+                background: rgba(255,255,255,.82) !important;
+            }
+
+            html[data-xhj-theme="macos-light"] .layui-table tbody tr:nth-child(even) td {
+                background: rgba(242,242,247,.72) !important;
+            }
+
+            html[data-xhj-theme="macos-light"] :is(.layui-table-hover, .layui-table-click, .layui-table tbody tr:hover) > td {
+                background: rgba(0,113,227,.08) !important;
+            }
+
+            html[data-xhj-theme="macos-light"] :is(.layui-btn, .el-button, .layui-layer-btn a) {
+                letter-spacing: normal !important;
+                text-shadow: none !important;
+                -webkit-text-stroke: 0 !important;
+                background-image: none !important;
+                box-shadow: none !important;
+            }
+
+            html[data-xhj-theme="macos-light"] :is(.layui-input, .layui-select, .layui-textarea, .el-input__inner, .el-textarea__inner) {
+                border: 1px solid var(--xhj-border) !important;
+                border-image: none !important;
+                background: #fff !important;
+                box-shadow: inset 0 1px 2px rgba(0,0,0,.04) !important;
+            }
+
+            html[data-xhj-theme="macos-light"] :is(.layui-input, .layui-textarea, .el-input__inner, .el-textarea__inner)::placeholder {
+                color: #6e6e73 !important;
+                letter-spacing: normal !important;
+            }
+
+            html[data-xhj-theme="macos-light"] :is(.xhj-3d-counter, .xhj-counter-text) {
+                text-shadow: none !important;
+                filter: none !important;
+            }
+
+            @media (max-width: 720px) {
+                .admin-main { padding: 8px !important; }
+                .admin-main > form.layui-form { align-items: stretch; }
+                .admin-main > form.layui-form .layui-inline { width: 100%; }
+                .admin-main > form.layui-form .layui-input,
+                .admin-main > form.layui-form .layui-form-select { width: 100% !important; }
+                .layui-btn, .el-button, .layui-layer-btn a { min-height: 44px; }
+                .layui-layer { max-width: calc(100vw - 24px) !important; }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .layui-btn, .el-button, .layui-card, .el-card, .layui-input, .layui-select,
+                .layui-layer, .xhj-click-feedback, .xhj-ripple-effect {
+                    animation-duration: 0.01ms !important;
+                    animation-iteration-count: 1 !important;
+                    transition-duration: 0.01ms !important;
+                    scroll-behavior: auto !important;
+                    will-change: auto !important;
+                }
+            }
+
+            @media (prefers-contrast: more) {
+                :root { --xhj-border: currentColor; }
+                :where(.layui-btn, .el-button, .layui-input, .el-input__inner) { border-width: 2px !important; }
+            }
+
+            @media (forced-colors: active) {
+                :where(.layui-btn, .el-button, .layui-input, .el-input__inner, .layui-table-view) {
+                    forced-color-adjust: auto;
+                }
+            }
+/* Shared layout contract. Retain Layui's visibility and event bindings. */
+:root {
+    --xhj-control-height: 36px;
+    --xhj-control-gap: 8px;
+    --xhj-control-radius: 8px;
+}
+html[data-xhj-theme="macos-light"] { color-scheme: light; }
+.layui-btn, .el-button, .layui-layer-btn a {
+    box-sizing: border-box;
+    vertical-align: middle;
+    line-height: 1.4 !important;
+    text-align: center;
+}
+.layui-btn:not(.layui-hide):not([hidden]), .el-button:not([hidden]), .layui-layer-btn a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.layui-btn { min-height: var(--xhj-control-height); padding-block: 6px !important; height: auto; }
+.layui-table .layui-btn { min-height: 32px; padding: 4px 8px !important; }
+.admin-main .demoTable {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: var(--xhj-control-gap); margin-bottom: 16px;
+    padding: 12px; border: 1px solid var(--xhj-border);
+    border-radius: 12px; background: var(--xhj-input-bg);
+}
+.admin-main .demoTable > .layui-inline { margin: 0 !important; max-width: 100%; }
+.admin-main .demoTable .layui-input-block { margin-left: 0 !important; }
+.admin-main .demoTable .layui-form-label { float: none; width: auto; padding: 0 8px 0 0; }
+.admin-main .demoTable > .layui-inline:has(> .layui-form-label) { display: inline-flex; align-items: center; }
+.admin-main .demoTable .layui-input { height: var(--xhj-control-height); }
+.xhj-workflow-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; padding-top: 8px; border-top: 1px solid var(--xhj-border); }
+.xhj-workflow-actions > button {
+    position: static !important; min-height: var(--xhj-control-height);
+    margin: 0 !important; padding: 6px 12px !important;
+    font: 500 13px/1.4 -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif !important;
+    letter-spacing: normal !important; box-shadow: none !important;
+    border-radius: var(--xhj-control-radius) !important;
+    background: var(--xhj-input-bg) !important; color: var(--xhj-fg) !important;
+}
+.xhj-workflow-actions > #auto-sync-button-v3 { background: var(--xhj-active-bg) !important; color: var(--xhj-active-fg) !important; }
+html[data-xhj-page="pano-upload"] .admin-main > form.layui-form,
+html[data-xhj-page="detail"] .admin-main > form.layui-form { display: block; }
+html[data-xhj-page="pano-upload"] .layui-form-item > .layui-input-block { min-width: 160px; }
+html[data-xhj-page="house-upload"] .el-dialog { min-width: 0 !important; width: 100% !important; }
+html[data-xhj-page="house-upload"] .el-dialog__body { padding: 16px 20px; }
+html[data-xhj-page="house-upload"] .el-input__inner { font-size: 14px; }
+html[data-xhj-page="house-upload"] .el-dialog__headerbtn { top: 14px; right: 12px; width: 28px; height: 28px; }
+.layui-btn > .layui-icon, .el-button > i { vertical-align: middle; }
+html[data-xhj-page="profile"] .admin-main > form.layui-form {
+    display: block;
+    max-width: 920px;
+    margin-inline: auto;
+    padding: 24px;
+}
+html[data-xhj-page="profile"] .layui-form-item {
+    margin-bottom: 20px;
+}
+html[data-xhj-page="profile"] .layui-form-label {
+    line-height: 20px !important;
+    padding-block: 8px;
+}
+.layui-layer-title { box-sizing: border-box; padding-right: 64px !important; }
+.xhj-header-actions { flex-wrap: wrap; height: auto !important; }
+html[data-xhj-page="house-upload"] .el-dialog__header {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-right: 48px !important;
+}
+html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+@media (max-width: 720px) {
+    :root { --xhj-control-height: 44px; }
+    html[data-xhj-page="profile"] .admin-main > form.layui-form { padding: 12px; }
+    .xhj-header-actions { width: 100%; margin-left: 0 !important; }
+    .xhj-header-actions > :is(button, .el-button, .uploadBtn) {
+        min-height: 44px !important;
+        height: auto !important;
+    }
+    .layui-table-page { height: auto !important; overflow-x: auto; }
+    .admin-main .demoTable > .layui-inline { width: 100% !important; }
+    .admin-main .demoTable :is(.layui-input, .layui-form-select) { width: 100% !important; }
+    .admin-main .demoTable .layui-inline .layui-inline { max-width: calc(50% - 8px); }
+    .layui-table .layui-btn { min-height: 44px; }
+    html[data-xhj-page="house-upload"] .el-dialog__body { padding: 12px; }
+    html[data-xhj-page="house-upload"] .el-row { flex-wrap: wrap; }
+    html[data-xhj-page="house-upload"] :is(.el-col-6, .el-col-10) { width: 50%; }
+    html[data-xhj-page="house-upload"] .el-form-item__label { float: none; display: block; text-align: left; }
+    html[data-xhj-page="house-upload"] .el-form-item__content { margin-left: 0 !important; }
+    html[data-xhj-page="profile"] .layui-input-4 { width: auto; margin-left: 110px; }
+}
+
 `;
     };
 
@@ -1871,8 +2300,11 @@
     };
 
     const applyTheme = (themeName) => {
-        const theme = themes[themeName] || themes['default'];
+        const theme = themes[themeName] || themes['macos-light'];
         const css = getCssTemplate(theme.vars);
+        const resolvedThemeName = themes[themeName] ? themeName : 'macos-light';
+        document.documentElement.dataset.xhjTheme = resolvedThemeName;
+        if (document.body) document.body.dataset.xhjTheme = resolvedThemeName;
 
         const style = ensureMainStyleNode();
         style.textContent = css;
@@ -1880,6 +2312,7 @@
         // 强制给 body 加背景，防止闪烁
         const setBodyBg = () => {
              if (document.body) {
+                 document.body.dataset.xhjTheme = resolvedThemeName;
                  document.body.style.backgroundColor = theme.vars['--xhj-bg'] || '';
                  document.body.style.setProperty('background-color', theme.vars['--xhj-bg'] || '', 'important');
              }
@@ -1899,11 +2332,14 @@
             try {
                 const doc = iframe.contentDocument;
                 if (!doc) return;
-                const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
-                const theme = themes[currentTheme] || themes['default'];
+                const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'macos-light';
+                const resolvedThemeName = themes[currentTheme] ? currentTheme : 'macos-light';
+                const theme = themes[resolvedThemeName];
                 const css = getCssTemplate(theme.vars);
                 const root = doc.head || doc.documentElement;
                 if (!root) return;
+                doc.documentElement.dataset.xhjTheme = resolvedThemeName;
+                doc.documentElement.dataset.xhjPage = getPageProfile(doc.URL).id;
                 let style = doc.getElementById(IFRAME_STYLE_ID);
                 if (!style) {
                     style = doc.createElement('style');
@@ -1912,6 +2348,7 @@
                 }
                 style.textContent = css;
                 if (doc.body) {
+                    doc.body.dataset.xhjTheme = resolvedThemeName;
                     doc.body.style.setProperty('background-color', theme.vars['--xhj-bg'] || '', 'important');
                 }
             } catch (e) {}
@@ -1940,97 +2377,321 @@
         });
     });
 
+    const injectControlCenterStyles = () => {
+        if (document.getElementById(CONTROL_CENTER_STYLE_ID)) return;
+        const style = document.createElement('style');
+        style.id = CONTROL_CENTER_STYLE_ID;
+        style.textContent = `
+            #xhj-theme-dock {
+                position: fixed !important;
+                inset: auto max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) auto !important;
+                z-index: 2147483645 !important;
+                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Segoe UI", sans-serif !important;
+                color: var(--xhj-fg, #1d1d1f) !important;
+            }
+            #xhj-theme-dock *, #xhj-theme-dock *::before, #xhj-theme-dock *::after { box-sizing: border-box; }
+            #xhj-theme-dock [hidden] { display: none !important; }
+            #xhj-theme-dock .xhj-sr-only {
+                position: absolute !important; width: 1px !important; height: 1px !important;
+                padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+                clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
+            }
+            #xhj-theme-dock .xhj-control-toggle {
+                display: grid !important; place-items: center !important;
+                width: 50px !important; height: 50px !important; padding: 0 !important;
+                margin-inline-start: auto !important; border: 1px solid rgba(255,255,255,.42) !important;
+                border-radius: 15px !important;
+                color: var(--xhj-active-fg, #fff) !important;
+                background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,0)), var(--xhj-active-bg, #0071e3) !important;
+                box-shadow: 0 10px 28px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.34) !important;
+                cursor: pointer !important; transform: none !important;
+                transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
+                -webkit-tap-highlight-color: transparent;
+            }
+            #xhj-theme-dock .xhj-control-toggle:hover,
+            #xhj-theme-dock .xhj-control-toggle:focus-visible {
+                filter: brightness(1.06) !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 13px 32px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.4) !important;
+            }
+            #xhj-theme-dock .xhj-control-toggle:active { transform: scale(.96) !important; }
+            #xhj-theme-dock .xhj-control-toggle svg { width: 23px; height: 23px; pointer-events: none; }
+            #xhj-theme-dock .xhj-control-panel {
+                position: absolute !important; inset: auto 0 64px auto !important;
+                width: min(352px, calc(100vw - 24px)) !important;
+                max-height: min(690px, calc(100vh - 100px)) !important;
+                overflow: auto !important; overscroll-behavior: contain;
+                padding: 14px !important;
+                border: 1px solid color-mix(in srgb, var(--xhj-border, #d2d2d7) 76%, white) !important;
+                border-radius: 20px !important;
+                color: var(--xhj-fg, #1d1d1f) !important;
+                background: color-mix(in srgb, var(--xhj-input-bg, #fff) 88%, transparent) !important;
+                box-shadow: 0 24px 70px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.28) !important;
+                -webkit-backdrop-filter: saturate(180%) blur(24px) !important;
+                backdrop-filter: saturate(180%) blur(24px) !important;
+                opacity: 0 !important;
+                transform: translateY(10px) scale(.98) !important;
+                transform-origin: bottom right !important;
+                pointer-events: none !important;
+                transition: opacity 180ms ease, transform 180ms ease !important;
+            }
+            #xhj-theme-dock .xhj-control-panel.is-open {
+                opacity: 1 !important; transform: translateY(0) scale(1) !important; pointer-events: auto !important;
+            }
+            #xhj-theme-dock .xhj-control-header {
+                display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+                padding: 2px 2px 12px; border-bottom: 1px solid var(--xhj-border, #d2d2d7);
+            }
+            #xhj-theme-dock .xhj-control-title { margin: 0; color: inherit; font-size: 16px; line-height: 1.3; font-weight: 650; }
+            #xhj-theme-dock .xhj-control-subtitle { margin: 3px 0 0; color: color-mix(in srgb, currentColor 68%, transparent); font-size: 12px; line-height: 1.35; }
+            #xhj-theme-dock .xhj-control-status {
+                flex: none; padding: 4px 8px; border-radius: 999px;
+                color: var(--xhj-active-bg, #0071e3); background: rgba(var(--xhj-active-bg-rgb, 0,113,227), .12);
+                font-size: 11px; font-weight: 650;
+            }
+            #xhj-theme-dock .xhj-section-label {
+                display: block; margin: 12px 2px 8px; color: color-mix(in srgb, currentColor 68%, transparent);
+                font-size: 11px; line-height: 1.2; font-weight: 650; letter-spacing: .04em;
+            }
+            #xhj-theme-dock .xhj-theme-grid {
+                display: grid; grid-template-columns: 1fr 1fr; gap: 7px;
+            }
+            #xhj-theme-dock .xhj-theme-option {
+                display: grid !important; grid-template-columns: 22px minmax(0, 1fr) 16px !important;
+                align-items: center !important; gap: 8px !important;
+                width: 100% !important; min-height: 42px !important; margin: 0 !important; padding: 7px 9px !important;
+                border: 1px solid var(--xhj-border, #d2d2d7) !important; border-radius: 11px !important;
+                color: inherit !important; background: color-mix(in srgb, var(--xhj-input-bg, #fff) 80%, transparent) !important;
+                box-shadow: none !important; cursor: pointer !important; text-align: start !important;
+                font: inherit !important; font-size: 12px !important; letter-spacing: 0 !important;
+                transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease !important;
+            }
+            #xhj-theme-dock .xhj-theme-option:hover,
+            #xhj-theme-dock .xhj-theme-option:focus-visible {
+                border-color: var(--xhj-active-bg, #0071e3) !important;
+                background: rgba(var(--xhj-active-bg-rgb, 0,113,227), .09) !important;
+                transform: none !important; filter: none !important;
+            }
+            #xhj-theme-dock .xhj-theme-option[aria-pressed="true"] {
+                border-color: var(--xhj-active-bg, #0071e3) !important;
+                background: rgba(var(--xhj-active-bg-rgb, 0,113,227), .14) !important;
+            }
+            #xhj-theme-dock .xhj-theme-swatch {
+                width: 22px; height: 22px; border: 1px solid rgba(127,127,127,.28); border-radius: 7px;
+                background: linear-gradient(135deg, var(--swatch-bg, #f5f5f7) 0 50%, var(--swatch-accent, #0071e3) 50% 100%);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.32);
+            }
+            #xhj-theme-dock .xhj-theme-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            #xhj-theme-dock .xhj-theme-check { color: var(--xhj-active-bg, #0071e3); font-size: 14px; opacity: 0; }
+            #xhj-theme-dock .xhj-theme-option[aria-pressed="true"] .xhj-theme-check { opacity: 1; }
+            #xhj-theme-dock .xhj-control-divider { height: 1px !important; margin: 12px 0 !important; background: var(--xhj-border, #d2d2d7) !important; }
+            #xhj-theme-dock .xhj-scale-card {
+                display: grid !important; grid-template-columns: 1fr auto !important; gap: 8px 12px !important;
+                width: 100% !important; margin: 0 !important; padding: 11px !important;
+                border: 1px solid var(--xhj-border, #d2d2d7) !important; border-radius: 13px !important;
+                background: color-mix(in srgb, var(--xhj-input-bg, #fff) 80%, transparent) !important;
+            }
+            #xhj-theme-dock .xhj-scale-option {
+                align-self: center; min-height: 32px; padding: 0 !important; border: 0 !important;
+                color: inherit !important; background: transparent !important; box-shadow: none !important;
+                cursor: pointer; text-align: start; font: inherit !important; font-size: 13px !important; font-weight: 600 !important;
+            }
+            #xhj-theme-dock .xhj-switch-track {
+                position: relative; width: 42px; height: 24px; border-radius: 999px;
+                background: color-mix(in srgb, currentColor 22%, transparent); transition: background-color 150ms ease;
+            }
+            #xhj-theme-dock .xhj-switch-track::after {
+                content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+                border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.24); transition: transform 150ms ease;
+            }
+            #xhj-theme-dock .xhj-scale-option[aria-checked="true"] + .xhj-switch-track { background: var(--xhj-active-bg, #34c759); }
+            #xhj-theme-dock .xhj-scale-option[aria-checked="true"] + .xhj-switch-track::after { transform: translateX(18px); }
+            #xhj-theme-dock .xhj-scale-controls { grid-column: 1 / -1; display: grid !important; grid-template-columns: 32px 1fr 44px 32px; align-items: center; gap: 7px !important; }
+            #xhj-theme-dock .xhj-scale-controls[aria-disabled="true"] { opacity: .45 !important; pointer-events: none !important; }
+            #xhj-theme-dock .xhj-scale-step {
+                width: 32px !important; height: 32px !important; padding: 0 !important; border: 1px solid var(--xhj-border, #d2d2d7) !important;
+                border-radius: 8px !important; color: inherit !important; background: rgba(127,127,127,.1) !important;
+                box-shadow: none !important; cursor: pointer; font: inherit !important; font-size: 16px !important;
+            }
+            #xhj-theme-dock .xhj-scale-range { width: 100%; accent-color: var(--xhj-active-bg, #0071e3); }
+            #xhj-theme-dock .xhj-scale-value { min-width: 44px; color: color-mix(in srgb, currentColor 74%, transparent); font-size: 12px; text-align: center; font-variant-numeric: tabular-nums; }
+            #xhj-theme-dock .xhj-control-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+            #xhj-theme-dock .xhj-control-hint { margin: 0; color: color-mix(in srgb, currentColor 62%, transparent); font-size: 11px; line-height: 1.35; }
+            #xhj-theme-dock .xhj-reset-button {
+                flex: none; min-height: 32px; padding: 0 10px; border: 1px solid var(--xhj-border, #d2d2d7); border-radius: 8px;
+                color: inherit; background: rgba(127,127,127,.09); cursor: pointer; font: inherit; font-size: 12px; font-weight: 600;
+            }
+            #xhj-theme-dock :where(button, input):focus-visible { outline: 3px solid var(--xhj-active-bg, #0071e3) !important; outline-offset: 2px !important; }
+            .xhj-toast {
+                position: fixed; inset: max(16px, env(safe-area-inset-top)) auto auto 50%; z-index: 2147483647;
+                max-width: min(420px, calc(100vw - 24px)); padding: 10px 14px; border: 1px solid var(--xhj-border, #d2d2d7);
+                border-radius: 12px; color: var(--xhj-fg, #1d1d1f); background: color-mix(in srgb, var(--xhj-input-bg, #fff) 90%, transparent);
+                box-shadow: 0 14px 38px rgba(0,0,0,.2); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+                font: 500 13px/1.4 -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", sans-serif;
+                opacity: 0; transform: translate(-50%, -8px); transition: opacity 180ms ease, transform 180ms ease; pointer-events: none;
+            }
+            .xhj-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+            @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+                #xhj-theme-dock .xhj-control-panel, .xhj-toast { background: var(--xhj-input-bg, #fff) !important; }
+            }
+            @media (max-width: 600px) {
+                #xhj-theme-dock { inset: auto max(10px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) auto !important; }
+                #xhj-theme-dock .xhj-control-panel { width: min(352px, calc(100vw - 20px)) !important; max-height: calc(100vh - 82px) !important; inset-block-end: 60px !important; }
+                #xhj-theme-dock .xhj-control-toggle { width: 48px !important; height: 48px !important; }
+                #xhj-theme-dock .xhj-theme-option, #xhj-theme-dock .xhj-scale-option, #xhj-theme-dock .xhj-scale-step, #xhj-theme-dock .xhj-reset-button { min-height: 44px !important; }
+            }
+            @media (max-width: 360px) { #xhj-theme-dock .xhj-theme-grid { grid-template-columns: 1fr; } }
+            @media (prefers-reduced-motion: reduce) {
+                #xhj-theme-dock *, #xhj-theme-dock *::before, #xhj-theme-dock *::after, .xhj-toast {
+                    animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important;
+                }
+            }
+            @media (prefers-contrast: more) {
+                #xhj-theme-dock .xhj-control-panel, #xhj-theme-dock button { border-width: 2px !important; }
+            }
+            @media (forced-colors: active) {
+                #xhj-theme-dock, #xhj-theme-dock *, .xhj-toast { forced-color-adjust: auto; }
+            }
+            @media print { #xhj-theme-dock, .xhj-toast { display: none !important; } }
+        `;
+        (document.head || document.documentElement).appendChild(style);
+    };
+
     const createUI = () => {
         if (window.top !== window.self) return;
+        if (document.getElementById('xhj-theme-dock')) return;
+        injectControlCenterStyles();
 
         const container = document.createElement('div');
         container.id = 'xhj-theme-dock';
-        container.style.cssText = `position: fixed; bottom: 24px; right: 24px; z-index: 99999; font-family: 'Inter', sans-serif;`;
+        container.className = 'xhj-control-center';
 
         const toggleBtn = document.createElement('button');
-        toggleBtn.textContent = '◉';
-        toggleBtn.style.cssText = `
-            width: 60px; height: 60px; border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 45%), linear-gradient(145deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.92), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.42));
-            color: var(--xhj-active-fg); border: 1px solid rgba(255,255,255,0.35);
-            font-size: 22px; cursor: pointer; box-shadow: 0 0 28px var(--xhj-glow-color), inset 0 0 20px rgba(255,255,255,0.12);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-            z-index: 100000;
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'xhj-control-toggle';
+        toggleBtn.setAttribute('aria-label', '打开象视助手控制中心');
+        toggleBtn.setAttribute('aria-haspopup', 'dialog');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.setAttribute('aria-controls', 'xhj-control-panel');
+        toggleBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h10M18 7h2M4 17h2M10 17h10M4 12h4M12 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="16" cy="7" r="2" fill="currentColor"/>
+                <circle cx="8" cy="17" r="2" fill="currentColor"/>
+                <circle cx="10" cy="12" r="2" fill="currentColor"/>
+            </svg>
+            <span class="xhj-sr-only">象视助手</span>
         `;
-        
+
         const menu = document.createElement('div');
-        menu.style.cssText = `
-            position: absolute; bottom: 80px; right: 0;
-            background: linear-gradient(160deg, rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.94), rgba(5, 12, 22, 0.9));
-            border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.38); border-radius: 14px;
-            padding: 12px; box-shadow: 0 18px 45px rgba(0,0,0,0.68), inset 0 0 0 1px rgba(255,255,255,0.08);
-            display: none; width: 240px; transform-origin: bottom right;
-            opacity: 0; transform: scale(0.86) translateY(22px);
-            transition: opacity 0.2s ease, transform 0.2s ease;
-        `;
+        menu.id = 'xhj-control-panel';
+        menu.className = 'xhj-control-panel';
+        menu.setAttribute('role', 'dialog');
+        menu.setAttribute('aria-modal', 'false');
+        menu.setAttribute('aria-labelledby', 'xhj-control-title');
+        menu.hidden = true;
+
+        const header = document.createElement('div');
+        header.className = 'xhj-control-header';
+        const headingWrap = document.createElement('div');
+        const heading = document.createElement('h2');
+        heading.id = 'xhj-control-title';
+        heading.className = 'xhj-control-title';
+        heading.textContent = '象视助手';
+        const subtitle = document.createElement('p');
+        subtitle.className = 'xhj-control-subtitle';
+        const updatePageLabel = () => { subtitle.textContent = `当前：${getActivePageProfile().label}`; };
+        updatePageLabel();
+        headingWrap.append(heading, subtitle);
+        const status = document.createElement('span');
+        status.className = 'xhj-control-status';
+        status.textContent = '已增强';
+        status.setAttribute('role', 'status');
+        header.append(headingWrap, status);
+        menu.appendChild(header);
+
+        const themeLabel = document.createElement('span');
+        themeLabel.className = 'xhj-section-label';
+        themeLabel.textContent = '外观主题';
+        menu.appendChild(themeLabel);
+
+        const themeGrid = document.createElement('div');
+        themeGrid.className = 'xhj-theme-grid';
+        const selectedTheme = () => localStorage.getItem(SKIN_STORAGE_KEY) || 'macos-light';
+        const updateThemeSelection = () => {
+            themeGrid.querySelectorAll('.xhj-theme-option').forEach(option => {
+                option.setAttribute('aria-pressed', String(option.dataset.theme === selectedTheme()));
+            });
+        };
 
         Object.keys(themes).forEach(key => {
             const btn = document.createElement('button');
             btn.className = 'xhj-theme-option';
-            btn.textContent = themes[key].name;
-            btn.style.cssText = `
-                display: block; width: 100%; padding: 10px 14px; margin-bottom: 8px;
-                border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25);
-                background: linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.12), transparent);
-                cursor: pointer; text-align: left; border-radius: 10px; color: #d4f0ff;
-                transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease; font-size: 14px; font-weight: 500;
-                position: relative; overflow: hidden;
-            `;
-            
-            // 按钮悬停特效
-            btn.onmouseenter = () => {
-                btn.style.background = 'linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.36), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.12))';
-                btn.style.color = '#fff';
-                btn.style.boxShadow = '0 10px 20px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.12) inset';
-                btn.style.borderColor = 'rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.58)';
-            };
-            btn.onmouseleave = () => {
-                btn.style.background = 'linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.12), transparent)';
-                btn.style.color = '#d4f0ff';
-                btn.style.boxShadow = 'none';
-                btn.style.borderColor = 'rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25)';
-            };
+            btn.type = 'button';
+            btn.dataset.theme = key;
+            btn.title = themes[key].name;
+            btn.setAttribute('aria-pressed', String(key === selectedTheme()));
+            const swatch = document.createElement('span');
+            swatch.className = 'xhj-theme-swatch';
+            swatch.setAttribute('aria-hidden', 'true');
+            swatch.style.setProperty('--swatch-bg', themes[key].vars['--xhj-bg'] || '#f5f5f7');
+            swatch.style.setProperty('--swatch-accent', themes[key].vars['--xhj-active-bg'] || '#0071e3');
+            const name = document.createElement('span');
+            name.className = 'xhj-theme-name';
+            name.textContent = themes[key].name.replace(/\s*\([^)]*\)\s*$/, '');
+            const check = document.createElement('span');
+            check.className = 'xhj-theme-check';
+            check.setAttribute('aria-hidden', 'true');
+            check.textContent = '✓';
+            btn.append(swatch, name, check);
 
-            btn.onclick = () => { switchTheme(key); toggleMenu(false); };
-            menu.appendChild(btn);
+            btn.onclick = () => {
+                switchTheme(key);
+                updateThemeSelection();
+                status.textContent = '主题已更新';
+            };
+            themeGrid.appendChild(btn);
         });
+        menu.appendChild(themeGrid);
 
         // --- 分割线 ---
         const divider = document.createElement('div');
-        divider.style.cssText = 'height: 1px; background: linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.05), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.5), rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.05)); margin: 10px 0;';
+        divider.className = 'xhj-control-divider';
         menu.appendChild(divider);
 
         // --- 自动缩放开关与调节 ---
         const scaleContainer = document.createElement('div');
-        scaleContainer.style.cssText = `
-            display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 14px; margin-bottom: 6px;
-            border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.25); border-radius: 10px; box-sizing: border-box;
-            background: linear-gradient(90deg, rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.1), transparent);
-        `;
+        scaleContainer.className = 'xhj-scale-card';
 
         const scaleBtn = document.createElement('button');
         scaleBtn.className = 'xhj-scale-option';
+        scaleBtn.type = 'button';
+        scaleBtn.setAttribute('role', 'switch');
         
         const scaleControls = document.createElement('div');
-        scaleControls.style.cssText = 'display: flex; align-items: center; gap: 6px;';
+        scaleControls.className = 'xhj-scale-controls';
+
+        const switchTrack = document.createElement('span');
+        switchTrack.className = 'xhj-switch-track';
+        switchTrack.setAttribute('aria-hidden', 'true');
+
+        const rangeInput = document.createElement('input');
+        rangeInput.className = 'xhj-scale-range';
+        rangeInput.type = 'range';
+        rangeInput.min = '50';
+        rangeInput.max = '200';
+        rangeInput.step = '5';
+        rangeInput.setAttribute('aria-label', '页面缩放比例');
         
         const updateScaleUI = () => {
-            scaleBtn.textContent = isScaleEnabled() ? '自动缩放(已开)' : '自动缩放(已关)';
-            scaleBtn.style.color = isScaleEnabled() ? '#42efaf' : '#d4f0ff';
+            const enabled = isScaleEnabled();
+            scaleBtn.textContent = '自动缩放';
+            scaleBtn.setAttribute('aria-checked', String(enabled));
             ratioText.textContent = Math.round(getScaleRatio() * 100) + '%';
-            scaleControls.style.opacity = isScaleEnabled() ? '1' : '0.5';
-            scaleControls.style.pointerEvents = isScaleEnabled() ? 'auto' : 'none';
+            rangeInput.value = String(Math.round(getScaleRatio() * 100));
+            scaleControls.setAttribute('aria-disabled', String(!enabled));
         };
 
-        scaleBtn.style.cssText = `
-            background: transparent; border: none; cursor: pointer; color: #d4f0ff;
-            font-size: 14px; font-weight: 500; padding: 0; outline: none; transition: color 0.2s;
-        `;
         scaleBtn.onclick = () => {
             toggleScale(!isScaleEnabled());
             updateScaleUI();
@@ -2038,7 +2699,9 @@
 
         const minusBtn = document.createElement('button');
         minusBtn.textContent = '-';
-        minusBtn.style.cssText = 'background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 4px; width: 24px; height: 24px; cursor: pointer;';
+        minusBtn.type = 'button';
+        minusBtn.className = 'xhj-scale-step';
+        minusBtn.setAttribute('aria-label', '减小缩放比例');
         minusBtn.onclick = () => {
             let r = getScaleRatio() - 0.05;
             if(r < 0.5) r = 0.5;
@@ -2048,11 +2711,14 @@
         };
 
         const ratioText = document.createElement('span');
-        ratioText.style.cssText = 'color: #d4f0ff; font-size: 13px; min-width: 36px; text-align: center;';
+        ratioText.className = 'xhj-scale-value';
+        ratioText.setAttribute('aria-live', 'polite');
 
         const plusBtn = document.createElement('button');
         plusBtn.textContent = '+';
-        plusBtn.style.cssText = 'background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 4px; width: 24px; height: 24px; cursor: pointer;';
+        plusBtn.type = 'button';
+        plusBtn.className = 'xhj-scale-step';
+        plusBtn.setAttribute('aria-label', '增大缩放比例');
         plusBtn.onclick = () => {
             let r = getScaleRatio() + 0.05;
             if(r > 2.0) r = 2.0;
@@ -2061,50 +2727,84 @@
             updateScaleUI();
         };
 
-        scaleControls.appendChild(minusBtn);
-        scaleControls.appendChild(ratioText);
-        scaleControls.appendChild(plusBtn);
+        rangeInput.addEventListener('input', () => {
+            setScaleRatio(Number(rangeInput.value) / 100);
+            applyScale();
+            ratioText.textContent = `${rangeInput.value}%`;
+        });
+        rangeInput.addEventListener('change', () => showToast(`缩放比例已设为 ${rangeInput.value}%`));
+
+        scaleControls.append(minusBtn, rangeInput, ratioText, plusBtn);
 
         scaleContainer.appendChild(scaleBtn);
+        scaleContainer.appendChild(switchTrack);
         scaleContainer.appendChild(scaleControls);
         
         updateScaleUI();
         menu.appendChild(scaleContainer);
 
+        const footer = document.createElement('div');
+        footer.className = 'xhj-control-footer';
+        const hint = document.createElement('p');
+        hint.className = 'xhj-control-hint';
+        hint.textContent = '设置会自动同步到同域 iframe';
+        const resetBtn = document.createElement('button');
+        resetBtn.type = 'button';
+        resetBtn.className = 'xhj-reset-button';
+        resetBtn.textContent = '恢复推荐';
+        resetBtn.onclick = () => {
+            switchTheme('macos-light');
+            setScaleRatio(1.2);
+            toggleScale(true);
+            updateThemeSelection();
+            updateScaleUI();
+            status.textContent = '已恢复推荐';
+        };
+        footer.append(hint, resetBtn);
+        menu.appendChild(footer);
+
         const toggleMenu = (show) => {
             if (show) {
-                menu.style.display = 'block';
-                // 强制重绘
+                menu.hidden = false;
                 menu.offsetHeight;
-                menu.style.opacity = '1';
-                menu.style.transform = 'scale(1) translateY(0)';
+                menu.classList.add('is-open');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+                toggleBtn.setAttribute('aria-label', '关闭象视助手控制中心');
             } else {
-                menu.style.opacity = '0';
-                menu.style.transform = 'scale(0.8) translateY(20px)';
+                menu.classList.remove('is-open');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+                toggleBtn.setAttribute('aria-label', '打开象视助手控制中心');
                 setTimeout(() => {
-                    if (menu.style.opacity === '0') menu.style.display = 'none';
-                }, 300);
+                    if (!menu.classList.contains('is-open')) {
+                        menu.hidden = true;
+                    }
+                }, 200);
             }
         };
 
         toggleBtn.onclick = () => {
-            const isVisible = menu.style.display === 'block' && menu.style.opacity !== '0';
+            const isVisible = menu.classList.contains('is-open');
             toggleMenu(!isVisible);
         };
-        
-        // 鼠标悬停旋转特效
-        toggleBtn.onmouseenter = () => {
-            toggleBtn.style.transform = 'rotate(180deg) scale(1.1)';
-            toggleBtn.style.boxShadow = '0 0 36px var(--xhj-glow-color), inset 0 0 24px rgba(255,255,255,0.2)';
-        };
-        toggleBtn.onmouseleave = () => {
-            toggleBtn.style.transform = 'rotate(0deg) scale(1)';
-            toggleBtn.style.boxShadow = '0 0 28px var(--xhj-glow-color), inset 0 0 18px rgba(255,255,255,0.12)';
-        };
-
         container.appendChild(menu);
         container.appendChild(toggleBtn);
         document.body.appendChild(container);
+
+        document.addEventListener('pointerdown', event => {
+            if (menu.classList.contains('is-open') && !container.contains(event.target)) toggleMenu(false);
+        }, true);
+        document.addEventListener('keydown', event => {
+            if (event.key !== 'Escape' || !menu.classList.contains('is-open')) return;
+            toggleMenu(false);
+            toggleBtn.focus();
+        });
+
+        const shell = document.querySelector('#admin-body, .admin-body');
+        if (shell) {
+            shell.addEventListener('load', updatePageLabel, true);
+            const pageObserver = new MutationObserver(updatePageLabel);
+            pageObserver.observe(shell, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'src'] });
+        }
     };
 
     /* ==========================================================================
@@ -2329,14 +3029,10 @@
 
     // 设置缩放
     const applyScale = () => {
-        // v1.40: 针对全景图管理-上传页面禁用自动缩放 (解决DPI异常问题)
-        // 识别策略：检查URL或标题是否包含"新增"、"上传"、"操作详情"等关键词
-        if (window.location.href.includes('/add') || 
-            window.location.href.includes('/upload') || 
-            document.title.includes('新增') || 
-            document.title.includes('上传') ||
-            document.title.includes('操作详情') ||
-            window.location.href.includes('/detail')) {
+        if (!document.body) return;
+        // 实测上传/详情 iframe 对 DPI 敏感，按路由配置明确禁用，避免依赖页面标题文案。
+        const noScaleProfiles = new Set(['shell', 'house-upload', 'pano-upload', 'pano-images', 'detail']);
+        if (window.innerWidth <= 720 || noScaleProfiles.has(getPageProfile().id)) {
             document.body.style.zoom = '';
             return;
         }
@@ -2346,17 +3042,11 @@
             return;
         }
         
-        // 如果是 iframe 弹窗内的页面（通过 window.self !== window.top 判断），并且标题包含"详情"、"新增"等，也不缩放
-        if (window.self !== window.top && (document.title.includes('详情') || document.title.includes('新增'))) {
-            document.body.style.zoom = '';
-            return;
-        }
-        
         // 使用当前屏幕分辨率宽度作为基准
         const baseWidth = window.screen.width;
         // 计算缩放比例：(当前窗口宽度 / 屏幕宽度) * 自定义比例 (默认120%)
         const userRatio = getScaleRatio();
-        const scale = (window.innerWidth / baseWidth) * userRatio;
+        const scale = Math.max(0.85, Math.min(userRatio, (window.innerWidth / Math.max(1, baseWidth)) * userRatio));
         
         document.body.style.zoom = scale;
     };
@@ -2377,25 +3067,19 @@
 
     // 简单的 Toast 提示
     const showToast = (msg) => {
+        injectControlCenterStyles();
+        document.querySelectorAll('.xhj-toast').forEach(node => node.remove());
         const toast = document.createElement('div');
+        toast.className = 'xhj-toast';
         toast.textContent = msg;
-        toast.style.cssText = `
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(140deg, rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.96), rgba(var(--xhj-header-bg-rgb, 22, 27, 34), 0.72));
-            color: var(--xhj-fg, #fff); padding: 12px 22px;
-            border: 1px solid rgba(var(--xhj-active-bg-rgb, 189, 147, 249), 0.48);
-            border-radius: 999px; z-index: 9999999; font-size: 13px;
-            box-shadow: 0 12px 24px rgba(0,0,0,0.34), inset 0 0 0 1px rgba(255,255,255,0.09); pointer-events: none;
-            letter-spacing: 0.06em; text-transform: uppercase;
-            opacity: 0; transition: opacity 0.3s;
-        `;
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
         document.body.appendChild(toast);
-        // 强制重绘
         toast.offsetHeight;
-        toast.style.opacity = '1';
+        toast.classList.add('is-visible');
         setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
+            toast.classList.remove('is-visible');
+            setTimeout(() => toast.remove(), 220);
         }, 2000);
     };
 
@@ -3034,23 +3718,25 @@
         requestAnimationFrame(() => {
             dynamicFlags.framePending = false;
             dynamicFlags.lastRunAt = performance.now();
+            normalizePageLayout();
             updateImageCounter(); // 6. 图片计数更新
 
             // 1. 识别表格类型 & 注入列宽样式
+            const pageProfile = stampPageContext();
             const headers = document.querySelectorAll('.layui-table-header th');
             if (headers.length > 0) {
                 const headerTexts = Array.from(headers).map(th => th.textContent.trim());
                 const body = document.body;
                 
                 // 房堪列表
-                if (headerTexts.some(t => t.includes('申请门店')) && (headerTexts.some(t => t.includes('房勘状态')) || headerTexts.some(t => t.includes('房堪状态')))) {
+                if (pageProfile.id === 'house-list' || (headerTexts.some(t => t.includes('申请门店')) && (headerTexts.some(t => t.includes('房勘状态')) || headerTexts.some(t => t.includes('房堪状态'))))) {
                     if (!body.classList.contains('xhj-table-survey')) {
                         body.classList.add('xhj-table-survey');
                         body.classList.remove('xhj-table-sales');
                     }
                 } 
                 // 售房全景
-                else if (headerTexts.some(t => t.includes('全景状态')) && headerTexts.some(t => t.includes('户型图'))) {
+                else if (pageProfile.id === 'pano-list' || (headerTexts.some(t => t.includes('全景状态')) && headerTexts.some(t => t.includes('户型图')))) {
                     if (!body.classList.contains('xhj-table-sales')) {
                         body.classList.add('xhj-table-sales');
                         body.classList.remove('xhj-table-survey');
@@ -3078,14 +3764,14 @@
                     };
 
                     injectColStyle('全景状态', 84, 'status');
-                    injectColStyle('设计师', 80, 'designer');
-                    injectColStyle('上传人', 72, 'uploader');
+                    injectColStyle('设计师', 88, 'designer');
+                    injectColStyle('上传人', 88, 'uploader');
                     injectColStyle('户型图', 80, 'floorplan');
-                    injectColStyle('城市', 70, 'city');
+                    injectColStyle('城市', 72, 'city');
                     injectColStyle('朝向', 60, 'orientation');
                     injectColStyle('卧室', 84, 'bedroom');
-                    injectColStyle('全景时间', 90, 'pano-time', 'nowrap');
-                    injectColStyle('同步时间', 90, 'sync-time', 'nowrap');
+                    injectColStyle('全景时间', 152, 'pano-time', 'nowrap');
+                    injectColStyle('同步时间', 152, 'sync-time', 'nowrap');
                     
                     // 操作列特殊处理
                     const actionIndex = headerTexts.findIndex(t => t === '操作');
@@ -3098,12 +3784,12 @@
                              style.textContent = `
                                  body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-table-cell,
                                  body.xhj-table-sales .layui-table th:nth-child(${cssIndex}) .layui-table-cell {
-                                     min-width: 228px !important; width: 228px !important;
+                                     min-width: 260px !important; width: 260px !important;
                                      padding: 0 4px !important;
                                      text-align: center !important;
                                  }
                                  body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-btn {
-                                     padding: 0 5px !important; height: 22px !important; line-height: 22px !important;
+                                     padding: 0 5px !important; height: auto !important; min-height: var(--xhj-control-height, 36px) !important; line-height: 1.4 !important;
                                      font-size: 12px !important; margin: 2px !important; min-width: unset !important;
                                  }
                                  body.xhj-table-sales .layui-table tr td:nth-child(${cssIndex}) .layui-btn i {
@@ -3173,7 +3859,7 @@
                 const text = cell.textContent.trim();
                 if (!text || text.length > 20) return;
                 
-                const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
+                const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'macos-light';
                 const statusThemePalette = {
                     'bauhaus': { uploading: { color: '#E31C25', shadow: 'transparent', mode: 'bauhaus-sharp' }, success: { color: '#1C4DE3', shadow: 'transparent', mode: 'bauhaus-sharp' } },
                     'default': { uploading: { color: '#ff7a59', shadow: 'rgba(255, 122, 89, 0.3)', mode: 'soft-matte' }, success: { color: '#2ec4b6', shadow: 'rgba(46, 196, 182, 0.3)', mode: 'soft-matte' } },
@@ -3605,6 +4291,7 @@
 
 
     const initClickFeedback = () => {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         if (document.getElementById('xhj-click-feedback-style')) return;
         const style = document.createElement('style');
         style.id = 'xhj-click-feedback-style';
@@ -3626,7 +4313,7 @@
                 100% { opacity: 0; transform: translate(-50%, -50%) scale(3.2); }
             }
         `;
-        document.head.appendChild(style);
+        (document.head || document.documentElement).appendChild(style);
         let lastFeedbackTs = 0;
         document.addEventListener('pointerdown', (e) => {
             if (e.button !== 0) return;
@@ -3643,19 +4330,13 @@
     };
 
     const init = () => {
-        const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'dracula';
+        const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'macos-light';
+        stampPageContext();
+        injectControlCenterStyles();
         applyTheme(currentTheme);
         initThemeObserver();
         initClickFeedback();
 
-        // 识别 iframe 并添加标识类 (用于 CSS 底部填充)
-        if (window.top !== window.self) {
-            document.body.classList.add('xhj-iframe-body');
-        } else if (document.querySelector('.layui-layout-admin')) {
-            document.body.classList.add('xhj-admin-top-body');
-            document.documentElement.classList.add('xhj-admin-top-root');
-        }
-        
         // (已移除重复的全局点击特效事件，由 CSS 或上方统一处理)
 
         // 2. 动态内容处理 (核心优化)
@@ -3688,8 +4369,18 @@
 
         // 5. 初始化 UI 和 自动同步按钮
         const initDOM = () => {
+            stampPageContext();
+            // @run-at document-start 时 body 可能尚未建立，上下文类统一在 DOM 就绪后添加。
+            if (window.top !== window.self) {
+                document.body.classList.add('xhj-iframe-body');
+            } else if (document.querySelector('.layui-layout-admin')) {
+                document.body.classList.add('xhj-admin-top-body');
+                document.documentElement.classList.add('xhj-admin-top-root');
+            }
+            if (isScaleEnabled()) applyScale();
             createUI();
             initSyncButtons();
+            normalizePageLayout();
         };
 
         if (document.readyState === 'loading') {
@@ -4053,7 +4744,7 @@
             const style = document.createElement('style');
             style.type = 'text/css';
             style.innerHTML = css;
-            document.head.appendChild(style);
+            (document.head || document.documentElement).appendChild(style);
         }
     }
 

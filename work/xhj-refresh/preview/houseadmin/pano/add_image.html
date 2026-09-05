@@ -1,0 +1,104 @@
+<html><head><meta content="default-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'none'; form-action 'none'; img-src 'self' data:" http-equiv="Content-Security-Policy"/><script>localStorage.setItem('xhj_auto_scale_enabled','false');</script><script src="/xhj_assistant_260905.user.js"></script><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>
+<meta charset="utf-8"/>
+<title>象视平台后台管理</title>
+<meta content="webkit" name="renderer"/>
+<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport"/>
+<meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="telephone=no" name="format-detection"/>
+<link href="/work/xhj-refresh/preview/assets/775bf65bef0d-layui.css" media="all" rel="stylesheet"/>
+<link href="/work/xhj-refresh/preview/assets/19895008f7d0-global.css" media="all" rel="stylesheet"/>
+<link href="/work/xhj-refresh/preview/assets/ca8c3900ca12-font.css" media="all" rel="stylesheet"/>
+<link href="/work/xhj-refresh/preview/assets/4ac4adabc178-laydate.css" id="layuicss-laydate" media="all" rel="stylesheet"/><link href="/work/xhj-refresh/preview/assets/70af05f31848-layer.css" id="layuicss-layer" media="all" rel="stylesheet"/><link href="/work/xhj-refresh/preview/assets/e46f72318f6e-code.css" id="layuicss-skincodecss" media="all" rel="stylesheet"/></head>
+<body class="skin-0">
+<style type="text/css">
+        .layui-form-item .layui-input-inline {
+            width: 100px;
+        }
+</style>
+<div class="admin-main layui-anim layui-anim-upbit ng-scope" ng-app="hd" ng-controller="ctrl">
+<form class="layui-form layui-form-pane ng-pristine ng-valid" onsubmit="return false">
+<div class="layui-form-item">
+<label class="layui-form-label">类型</label>
+<div class="layui-input-block">
+<input checked="" name="type" title="全景图" type="radio" value="1"/><div class="layui-unselect layui-form-radio layui-form-radioed"><i class="layui-anim layui-icon"></i><div>全景图</div></div>
+<input name="type" title="全景视频" type="radio" value="2"/><div class="layui-unselect layui-form-radio"><i class="layui-anim layui-icon"></i><div>全景视频</div></div>
+<input name="type" title="3D模型" type="radio" value="3"/><div class="layui-unselect layui-form-radio"><i class="layui-anim layui-icon"></i><div>3D模型</div></div>
+</div>
+</div>
+<div class="layui-form-item">
+<label class="layui-form-label">楼层</label>
+<div class="layui-input-block" style="width: 20%">
+<select name="storey">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select><div class="layui-unselect layui-form-select"><div class="layui-select-title"><input class="layui-input layui-unselect" placeholder="请选择" readonly="" type="text" value="1"/><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd class="layui-this" lay-value="1">1</dd><dd class="" lay-value="2">2</dd><dd class="" lay-value="3">3</dd><dd class="" lay-value="4">4</dd><dd class="" lay-value="5">5</dd></dl></div>
+</div>
+</div>
+<div id="uploader-list">
+<!-- <div class="layui-form-item" >
+                <div class="layui-input-inline">
+                    <select  name="image_name'+nums+'"  >
+                        <option value="" >位置</option>
+                        <option value="客厅" >客厅</option>
+                        <option value="餐厅" >餐厅</option>
+                        <option value="主卧" >卧室</option>
+                        <option value="走廊" >走廊</option>
+                        <option value="厨房" >厨房</option>
+                        <option value="书房" >书房</option>
+                        <option value="卫生间" >卫生间</option>
+                        <option value="阳台" >阳台</option>
+                        <option value="其它" >其它</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select  name="image_nums'+nums+'"  >
+                        <option value="" >序号</option>
+                        <option value="1" >1</option>
+                        <option value="2" >2</option>
+                        <option value="3" >3</option>
+                        <option value="4" >4</option>
+                        <option value="5" >5</option>
+                    </select>
+                    
+                </div>
+
+                <div class="layui-input-inline">
+                    <input type="text" name="image_area'+nums+'" placeholder="面积" class="layui-input">
+                </div>
+
+                <div style="margin-top: 18px;width: 120px;" class="layui-input-inline layui-progress" lay-showpercent="true">
+                  <div class="layui-progress-bar" lay-filter="demo1" lay-percent="20%"></div>
+                </div>
+
+                <div class="layui-upload-list">
+                    <img class="layui-upload-img" src='/uploads/20210918/3658cd06a1754781c57d65afd6976f84.jpg'>
+                    <a class="layui-btn update" data-id="" style="margin-left:5px" >上传</a>
+                </div>
+            </div> -->
+</div>
+<div class="layui-form-item">
+<label class="layui-form-label">新增</label>
+<div class="layui-input-block">
+<div class="layui-upload">
+<button class="layui-btn layui-btn-primary" id="test2" type="button"><i class="icon icon-upload3"></i>选择文件</button><input accept="" class="layui-upload-file" multiple="" name="file" type="file"/>
+</div>
+</div>
+<div class="layui-form-mid layui-word-aux">
+                单次选择上限35张，图片格式：jpg，分辨率比例为2:1，图片文件大小限制50M以内
+            </div>
+</div>
+<div class="layui-form-item">
+<div class="layui-input-block">
+<button class="layui-btn" lay-filter="submit" lay-submit="" type="button">关闭</button>
+</div>
+</div>
+</form>
+</div>
+
+
+</body></html>

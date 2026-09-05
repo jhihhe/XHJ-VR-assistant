@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         象视平台助手（563982）
+// @name         象视平台助手 · 重新适配预览版
 // @namespace    http://tampermonkey.net/
 // @version      6.0.1-beta.1
 // @description  基于6.0.0保留现有功能，修正活动页面识别、表单与按钮排版；部分页面已核对，完整线上回归尚未完成。

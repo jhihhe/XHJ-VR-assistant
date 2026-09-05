@@ -1,0 +1,94 @@
+/* Shared layout contract. Retain Layui's visibility and event bindings. */
+:root {
+    --xhj-control-height: 36px;
+    --xhj-control-gap: 8px;
+    --xhj-control-radius: 8px;
+}
+html[data-xhj-theme="macos-light"] { color-scheme: light; }
+.layui-btn, .el-button, .layui-layer-btn a {
+    box-sizing: border-box;
+    vertical-align: middle;
+    line-height: 1.4 !important;
+    text-align: center;
+}
+.layui-btn:not(.layui-hide):not([hidden]), .el-button:not([hidden]), .layui-layer-btn a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.layui-btn { min-height: var(--xhj-control-height); padding-block: 6px !important; height: auto; }
+.layui-table .layui-btn { min-height: 32px; padding: 4px 8px !important; }
+.admin-main .demoTable {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: var(--xhj-control-gap); margin-bottom: 16px;
+    padding: 12px; border: 1px solid var(--xhj-border);
+    border-radius: 12px; background: var(--xhj-input-bg);
+}
+.admin-main .demoTable > .layui-inline { margin: 0 !important; max-width: 100%; }
+.admin-main .demoTable .layui-input-block { margin-left: 0 !important; }
+.admin-main .demoTable .layui-form-label { float: none; width: auto; padding: 0 8px 0 0; }
+.admin-main .demoTable > .layui-inline:has(> .layui-form-label) { display: inline-flex; align-items: center; }
+.admin-main .demoTable .layui-input { height: var(--xhj-control-height); }
+.xhj-workflow-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; padding-top: 8px; border-top: 1px solid var(--xhj-border); }
+.xhj-workflow-actions > button {
+    position: static !important; min-height: var(--xhj-control-height);
+    margin: 0 !important; padding: 6px 12px !important;
+    font: 500 13px/1.4 -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif !important;
+    letter-spacing: normal !important; box-shadow: none !important;
+    border-radius: var(--xhj-control-radius) !important;
+    background: var(--xhj-input-bg) !important; color: var(--xhj-fg) !important;
+}
+.xhj-workflow-actions > #auto-sync-button-v3 { background: var(--xhj-active-bg) !important; color: var(--xhj-active-fg) !important; }
+html[data-xhj-page="pano-upload"] .admin-main > form.layui-form,
+html[data-xhj-page="detail"] .admin-main > form.layui-form { display: block; }
+html[data-xhj-page="pano-upload"] .layui-form-item > .layui-input-block { min-width: 160px; }
+html[data-xhj-page="house-upload"] .el-dialog { min-width: 0 !important; width: 100% !important; }
+html[data-xhj-page="house-upload"] .el-dialog__body { padding: 16px 20px; }
+html[data-xhj-page="house-upload"] .el-input__inner { font-size: 14px; }
+html[data-xhj-page="house-upload"] .el-dialog__headerbtn { top: 14px; right: 12px; width: 28px; height: 28px; }
+.layui-btn > .layui-icon, .el-button > i { vertical-align: middle; }
+html[data-xhj-page="profile"] .admin-main > form.layui-form {
+    display: block;
+    max-width: 920px;
+    margin-inline: auto;
+    padding: 24px;
+}
+html[data-xhj-page="profile"] .layui-form-item {
+    margin-bottom: 20px;
+}
+html[data-xhj-page="profile"] .layui-form-label {
+    line-height: 20px !important;
+    padding-block: 8px;
+}
+.layui-layer-title { box-sizing: border-box; padding-right: 64px !important; }
+.xhj-header-actions { flex-wrap: wrap; height: auto !important; }
+html[data-xhj-page="house-upload"] .el-dialog__header {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-right: 48px !important;
+}
+html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+@media (max-width: 720px) {
+    :root { --xhj-control-height: 44px; }
+    html[data-xhj-page="profile"] .admin-main > form.layui-form { padding: 12px; }
+    .xhj-header-actions { width: 100%; margin-left: 0 !important; }
+    .xhj-header-actions > :is(button, .el-button, .uploadBtn) {
+        min-height: 44px !important;
+        height: auto !important;
+    }
+    .layui-table-page { height: auto !important; overflow-x: auto; }
+    .admin-main .demoTable > .layui-inline { width: 100% !important; }
+    .admin-main .demoTable :is(.layui-input, .layui-form-select) { width: 100% !important; }
+    .admin-main .demoTable .layui-inline .layui-inline { max-width: calc(50% - 8px); }
+    .layui-table .layui-btn { min-height: 44px; }
+    html[data-xhj-page="house-upload"] .el-dialog__body { padding: 12px; }
+    html[data-xhj-page="house-upload"] .el-row { flex-wrap: wrap; }
+    html[data-xhj-page="house-upload"] :is(.el-col-6, .el-col-10) { width: 50%; }
+    html[data-xhj-page="house-upload"] .el-form-item__label { float: none; display: block; text-align: left; }
+    html[data-xhj-page="house-upload"] .el-form-item__content { margin-left: 0 !important; }
+    html[data-xhj-page="profile"] .layui-input-4 { width: auto; margin-left: 110px; }
+}

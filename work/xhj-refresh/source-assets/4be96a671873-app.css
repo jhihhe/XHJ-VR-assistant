@@ -1,0 +1,159 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+.topbox{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    height: 32px;
+    width: 160px;
+    background-color: #edeef1;
+    border-radius: 30px;
+    margin: 0 auto;
+	margin-bottom: 20px;
+}
+.topbox_item{
+    text-decoration: none;
+    line-height: 32px;
+    font-size: 13px;
+    color: #101d37;
+    text-align: center;
+	cursor: pointer;
+}
+.isAction{
+    border-radius: 30px;
+    background-color: #4057e7;
+    color: white;
+    width: 88px !important;
+    height: 32px;
+}
+.topboxs {
+  padding-right: 15px;
+  margin-bottom: 20px;
+}
+.topboxss {
+  padding-left: 15px;
+}
+.el-dialog__body{
+	padding-top: 10px;
+}
+.el-dialog{
+	min-width: 800px;
+}
+.el-form-item__label{
+	font-size: 12px !important;
+}
+.addxxx {
+    float: right;
+    display: block;
+    height: 32px;
+    width: 32px;
+    color: blue;
+    border: 1px solid blue;
+    text-align: center;
+    line-height: 32px;
+    padding: 0px;
+    border-radius: 5px;
+    font-size: 30px;
+    direction: none;
+    outline: none;
+}
+a{
+    text-decoration: none;
+}
+.picture-add {
+    border: 1px solid #dfdfdf;
+    display: inline-block;
+    border-radius: 4px 4px 4px 4px;
+}
+.schoolTu_top {
+    display: inline-block;
+    height: 50px;
+    text-align: right;
+    padding-right: 13px;
+    width: 80px;
+}
+.botimg {
+    height: 15px;
+    width: 100%;
+}
+.boxformuploads {
+    position: relative;
+    /* padding: 0 20px; */
+    margin: 20px 68px 20px 90px;
+}
+.mySwipers,.mySwiper {
+    overflow: hidden;
+}
+.swiper-button-prev, .swiper-button-next {
+    width: 27px;
+    height: 44px;
+    /* margin-top: -22px; */
+    z-index: 10;
+    cursor: pointer;
+    background-size: 11px 23px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.swiper-slide {
+    width: 177px !important;
+    height: 20% !important;
+    margin-right: 10px !important;
+}
+.swiper-button-next {
+    position: absolute;
+    top: 33%;
+    right: -25px;
+    -webkit-transform: translate(50%, 0);
+    transform: translate(50%, 0);
+}
+.swiper-button-prev {
+    position: absolute;
+    top: 33%;
+    left: -50px;
+    -webkit-transform: translate(50%, 0);
+    transform: translate(50%, 0);
+}
+.swiper-button-next:after, .swiper-button-prev:after{
+	font-size: 18px;
+}
+.width_xxx {
+  // width: 805px;
+  display: flex;
+}
+.upimg {
+  width: 108px;
+  height: 74px;
+  /* padding: 5px; */
+  border: 1px solid #f1f3f8;
+  display: inline-block;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.upimg img{
+	width: 108px;
+	height: 74px;
+	object-fit: cover;
+}
+.upimg img.sonbox {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  color: red;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+.el-icon-plus{
+	width: 108px !important;
+	height: 74px !important;
+    line-height: 74px !important;
+}
+.uploadBtn{
+	margin-top: 20px;
+}

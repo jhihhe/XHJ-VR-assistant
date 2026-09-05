@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>象视助手本地回归预览</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; font: 14px/1.5 Arial, sans-serif; color: #555; background: #fff; }
+        .layui-layout-admin { min-height: 100vh; }
+        .layui-header { height: 60px; padding: 0 24px; display: flex; align-items: center; background: #393d49; color: #fff; }
+        .layui-side { position: fixed; inset: 60px auto 0 0; width: 200px; padding: 16px; background: #393d49; color: #fff; }
+        .layui-body { margin-left: 200px; padding: 16px; }
+        .admin-main > form { display: flex; gap: 8px; margin-bottom: 14px; }
+        .layui-input, select { width: 180px; height: 34px; padding: 0 10px; border: 1px solid #ddd; }
+        .layui-btn { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 13px; border: 0; color: #fff; background: #009688; cursor: pointer; }
+        .layui-btn-warm { background: #ffb800; }
+        .layui-btn-danger { background: #ff5722; }
+        .layui-table-view { width: 100%; overflow-x: auto; }
+        .layui-table { width: 100%; min-width: 1180px; border-collapse: collapse; }
+        .layui-table th, .layui-table td { height: 42px; padding: 0; border: 1px solid #e6e6e6; text-align: left; }
+        .layui-table-cell { padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .layui-table-page { padding: 10px; border: 1px solid #eee; }
+    </style>
+    <!-- Intentionally loaded before <body> to mirror Tampermonkey's @run-at document-start. -->
+    <script src="../xhj_assistant.user.js"></script>
+</head>
+<body>
+    <div class="layui-layout-admin">
+        <header class="layui-header"><strong>象视平台</strong></header>
+        <aside class="layui-side">房勘管理<br><br>全景管理<br><br>数据中心<br><br>个人中心
+        </aside>
+        <main class="layui-body">
+            <div class="admin-main">
+                <form class="layui-form">
+                    <div class="layui-inline"><input class="layui-input" placeholder="房源编号"></div>
+                    <div class="layui-inline"><select><option>订单状态</option><option>已接单</option></select></div>
+                    <button class="layui-btn" type="button">搜索</button>
+                    <button class="layui-btn" type="button">重置</button>
+                </form>
+                <div class="layui-table-view" lay-id="order">
+                    <div class="layui-table-header">
+                        <table class="layui-table"><thead><tr>
+                            <th data-field="stateName"><div class="layui-table-cell">订单状态</div></th>
+                            <th data-field="houseSourceNumber"><div class="layui-table-cell">房源编号</div></th>
+                            <th data-field="lpName"><div class="layui-table-cell">楼盘名称</div></th>
+                            <th data-field="creatorName"><div class="layui-table-cell">申请人</div></th>
+                            <th data-field="departmentName"><div class="layui-table-cell">申请门店</div></th>
+                            <th data-field="createDate"><div class="layui-table-cell">申请时间</div></th>
+                            <th data-field="appointmentDate"><div class="layui-table-cell">预约时间</div></th>
+                            <th data-field="fk_status"><div class="layui-table-cell">房勘状态</div></th>
+                            <th data-field="8"><div class="layui-table-cell">操作</div></th>
+                        </tr></thead></table>
+                    </div>
+                    <div class="layui-table-body"><table class="layui-table"><tbody>
+                        <tr><td data-field="stateName"><div class="layui-table-cell">已接单</div></td><td data-field="houseSourceNumber"><div class="layui-table-cell">HS260904000001</div></td><td data-field="lpName"><div class="layui-table-cell">示例楼盘</div></td><td data-field="creatorName"><div class="layui-table-cell">申请人</div></td><td data-field="departmentName"><div class="layui-table-cell">示例门店业务组</div></td><td data-field="createDate"><div class="layui-table-cell">2026-09-04 12:00:00</div></td><td data-field="appointmentDate"><div class="layui-table-cell">2026-09-05 10:00:00</div></td><td data-field="fk_status"><div class="layui-table-cell">未上传</div></td><td data-field="8"><div class="layui-table-cell"><button class="layui-btn" type="button">上传</button> <button class="layui-btn layui-btn-warm" type="button">同步</button> <button class="layui-btn layui-btn-danger" type="button">无效</button></div></td></tr>
+                        <tr><td data-field="stateName"><div class="layui-table-cell">有效</div></td><td data-field="houseSourceNumber"><div class="layui-table-cell">HS260904000002</div></td><td data-field="lpName"><div class="layui-table-cell">另一个楼盘</div></td><td data-field="creatorName"><div class="layui-table-cell">申请人</div></td><td data-field="departmentName"><div class="layui-table-cell">示例门店业务组</div></td><td data-field="createDate"><div class="layui-table-cell">2026-09-04 11:30:00</div></td><td data-field="appointmentDate"><div class="layui-table-cell">2026-09-06 09:00:00</div></td><td data-field="fk_status"><div class="layui-table-cell">已上传</div></td><td data-field="8"><div class="layui-table-cell"><button class="layui-btn" type="button">详情</button></div></td></tr>
+                    </tbody></table></div>
+                    <div class="layui-table-page">上一页　 1　2　3　下一页　共 15245 条</div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

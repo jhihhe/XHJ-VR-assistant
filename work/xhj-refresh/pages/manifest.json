@@ -1,0 +1,80 @@
+{
+  "https://vr.xhj.com/houseadmin/index": {
+    "file": "houseadmin_index-1c59e180.html",
+    "sha256": "32cd6ef168aac6856fefb027275ec6b05d146f30ba5bc56400d4c75051cee273",
+    "bytes": 9507,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/house/index.html": {
+    "file": "houseadmin_house_index.html-3ffcb73c.html",
+    "sha256": "f69208a07c395e79d71e056de90217b1cf9e27ac3024aa279d76a8ace41ea9bb",
+    "bytes": 91927,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/house/add_fk_image.html?id=null&lpid=8987&oid=891142&saleOrRentid=2994397&housetype=1&housesourceid=9798695&houseSourceNumber=HS260905390635": {
+    "file": "houseadmin_house_add_fk_image.html-92399b84.html",
+    "sha256": "6f5185a09c1d799e68f904f33a5171f0a5c3a91fc40a5c4276d4ca7172c590d7",
+    "bytes": 40235,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/pano/index.html": {
+    "file": "houseadmin_pano_index.html-4c8e1b77.html",
+    "sha256": "35d98c7035cd263a5c98c204aafabe6d8515b6bb26f5794caff4c6f42daefe73",
+    "bytes": 74771,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/pano/image.html?order_id=596736": {
+    "file": "houseadmin_pano_image.html-5fe1b855.html",
+    "sha256": "32f35c2ca3a4cdda1fc59fd74f23b886df23dbfbc21348deef39f3e5d78ec1d0",
+    "bytes": 15617,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/pano/add_image.html?order_id=596736": {
+    "file": "houseadmin_pano_add_image.html-fb5fda95.html",
+    "sha256": "a55c71aec743f31c4753c08ed4f2ad99d80f4fc9702601800ab40b75060c203d",
+    "bytes": 19377,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/pano/everybody.html": {
+    "file": "houseadmin_pano_everybody.html-1ddf9d3c.html",
+    "sha256": "ef7abd2f284871f8ea797941cb91342aefbf024b923dfe9143e4503dcd9d5c91",
+    "bytes": 8683,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/user/index.html": {
+    "file": "houseadmin_user_index.html-dc90b89f.html",
+    "sha256": "20f64cd86077a8279d7ad6e36ee516067248ade09313c154123bae00f662b8e0",
+    "bytes": 10490,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/house/detail.html?createDate=2026-09-05%2016:02:21&tel=18670319183&departmentName=XHJ%E6%98%86%E7%8E%89%E5%9B%BD%E9%99%85%E5%BA%97B%E5%BA%97D%E4%B8%9A%E5%8A%A1%E7%BB%84&creatorName=%E8%B5%B5%E4%B8%96%E5%8B%87&photographyDate=2026-09-05%2016:35:26&lpName=%E5%A4%8D%E5%9C%B0%E5%B4%91%E7%8E%89%E5%9B%BD%E9%99%85%E4%B8%80%E6%9C%9F&id=891142": {
+    "file": "houseadmin_house_detail.html-be773eac.html",
+    "sha256": "0f98022c364287c2b84c9a237c9950ab246f90794446354280bec2a07b792b7b",
+    "bytes": 8547,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/house/transfer.html?id=891142&houseSourceNumber=HS260905390635&lpName=%E5%A4%8D%E5%9C%B0%E5%B4%91%E7%8E%89%E5%9B%BD%E9%99%85%E4%B8%80%E6%9C%9F": {
+    "file": "houseadmin_house_transfer.html-e9d4fad3.html",
+    "sha256": "29433d49ca4cc74115d6d2e9ce8a9b9d1bfa1f8609b95851e75b64021ce6e38d",
+    "bytes": 6373,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/house/cancel.html?id=891142&tel=18670319183&photographyUserName=%E8%B4%BA%E5%BF%97": {
+    "file": "houseadmin_house_cancel.html-c00867ba.html",
+    "sha256": "5336a27f3a9a21b342d34bfe0ea02fddfb8483226044528e9a8f4378c7ba854e",
+    "bytes": 5042,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/house/invalid.html?id=5558582&house_nums=HS260805501640&key=": {
+    "file": "houseadmin_house_invalid.html-dc07c30b.html",
+    "sha256": "deea6d2dcf5d874fd4f8ef2591bbe4f97c5049e8d2b60297d4d0fb4eb7a11a47",
+    "bytes": 3931,
+    "kind": "rendered DOM including inline scripts"
+  },
+  "https://vr.xhj.com/houseadmin/pano/detail.html?id=596736&house_name=%E5%90%8D%E5%AF%8C%E5%85%AC%E5%AF%93&realname=%E8%B4%BA%E5%BF%97&create_time=1785724779&house_nums=HS260803911587": {
+    "file": "houseadmin_pano_detail.html-ca1a6c8d.html",
+    "sha256": "6f3f33c070215fa85849b719a19b46ba4af210e764bf1e4769c12d2c37bc5b32",
+    "bytes": 7114,
+    "kind": "rendered DOM including inline scripts"
+  }
+}

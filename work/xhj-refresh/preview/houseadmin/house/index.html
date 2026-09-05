@@ -1,0 +1,393 @@
+<html><head><meta content="default-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'none'; form-action 'none'; img-src 'self' data:" http-equiv="Content-Security-Policy"/><script>localStorage.setItem('xhj_auto_scale_enabled','false');</script><script src="/xhj_assistant_260905.user.js"></script>
+<meta charset="utf-8"/>
+<title>象视平台后台管理</title>
+<meta content="webkit" name="renderer"/>
+<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport"/>
+<meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="telephone=no" name="format-detection"/>
+<link href="/work/xhj-refresh/preview/assets/775bf65bef0d-layui.css" media="all" rel="stylesheet"/>
+<link href="/work/xhj-refresh/preview/assets/19895008f7d0-global.css" media="all" rel="stylesheet"/>
+<link href="/work/xhj-refresh/preview/assets/ca8c3900ca12-font.css" media="all" rel="stylesheet"/>
+<link href="/work/xhj-refresh/preview/assets/01fce5bb4848-layer.css" id="layuicss-layer" media="all" rel="stylesheet"/><link href="/work/xhj-refresh/preview/assets/6817bef72f32-laydate.css" id="layuicss-laydate" media="all" rel="stylesheet"/></head>
+<body class="skin-0">
+<style type="text/css">
+    .layui-layer-btn .layui-layer-btn1 {
+        background-color: #1E9FFF;
+        color: #fff;
+    }
+    .layui-layer-btn .layui-layer-btn0 {
+        background-color: #fff;
+        color: #333;
+    }
+    /* 自定义标题字体颜色 */
+    .layui-layer-title {
+      color: red; /* 设置标题字体颜色为红色 */
+      background-color: #f5f5f5; /* 背景色 */
+      border-bottom: 1px solid #d2d2d2; /* 边框 */
+    }
+</style>
+<div class="admin-main layui-anim layui-anim-upbit">
+<form class="layui-form" disabled="" onsubmit="return false">
+<div class="demoTable">
+<div class="layui-inline">
+<input class="layui-input" id="key" name="key" placeholder="房源编号" value=""/>
+</div>
+<div class="layui-inline layui-form">
+<select id="status" lay-filter="test_user" lay-search="" name="status">
+<option value="">订单状态</option>
+<option value="0">无效</option>
+<option value="1">有效</option>
+<option value="2">待接单</option>
+<option value="3">已接单</option>
+<option value="4">取消</option>
+<option value="5">举报</option>
+</select><div class="layui-form-select"><div class="layui-select-title"><input class="layui-input" placeholder="订单状态" type="text" value=""/><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd class="layui-select-tips" lay-value="">订单状态</dd><dd class="" lay-value="0">无效</dd><dd class="" lay-value="1">有效</dd><dd class="" lay-value="2">待接单</dd><dd class="" lay-value="3">已接单</dd><dd class="" lay-value="4">取消</dd><dd class="" lay-value="5">举报</dd></dl></div>
+</div>
+<div class="layui-inline layui-form">
+<select id="fuzong" lay-filter="province" lay-search="" name="province">
+<option value="0">副总区</option>
+<option value="100035">河西姚以副总区</option>
+<option value="110736">行政综合管理部副总区-撤销</option>
+<option value="110741">廖利双副总区</option>
+<option value="100047">株洲副总区</option>
+<option value="100066">雨花城南区(刘政)</option>
+<option value="100067">星沙区(王明琪/邱广武)</option>
+<option value="100068">雨花红星区(汤冰)</option>
+<option value="100069">岳麓望城区(姚苡/张建勇)</option>
+<option value="100070">湘江新区(周科峰)</option>
+<option value="100071">开福区(杨武/邓志宏)</option>
+<option value="100072">芙蓉城东区(彭万)</option>
+<option value="100073">天心城东区(陈伟艳)</option>
+<option value="100074">中心直辖区(罗峰)</option>
+<option value="100075">天心省府区(杨理)</option>
+<option value="101645">测试副总1</option>
+<option value="107246">想到家刘政副总区</option>
+<option value="107247">想到家彭万副总区</option>
+<option value="107259">XMH西点军团(姚苡)</option>
+<option value="107260">XMH赤焰军团(杨武/邓志宏)</option>
+<option value="107261">XMH东南战区(彭万)</option>
+<option value="107262">XMH金刚团(陈伟艳)</option>
+<option value="107263">XMH中央军团(罗峰)</option>
+<option value="107264">XMH省府军团(杨理)</option>
+<option value="107265">XMH岳麓新区(周科峰)</option>
+<option value="107266">XMH野狼团(刘政)</option>
+<option value="107267">XMH火箭军团(王明琪/邱广武)</option>
+<option value="107268">XMH红星军团(汤冰)</option>
+<option value="108461">芙蓉尚东区(钟志)</option>
+<option value="108589">XMH加盟副总区</option>
+<option value="108644">XMH钟志副总区</option>
+<option value="108966">胡炜副总区</option>
+<option value="108967">李静伟副总区</option>
+<option value="108968">刘星乐副总区</option>
+<option value="108969">倪倩副总区</option>
+<option value="108970">阳树林副总区</option>
+<option value="108971">张正方副总区</option>
+<option value="108973">刘锦宏副总区</option>
+<option value="108974">文国旗副总区</option>
+<option value="108975">张得亮副总区</option>
+<option value="108976">付永强副总区</option>
+<option value="108977">聂宁副总区</option>
+<option value="108978">匡杰雄副总区</option>
+<option value="108979">廖春燕副总区</option>
+<option value="108981">赵超贵副总区</option>
+<option value="109391">姚铭副总区</option>
+<option value="109527">株洲测试副总区</option>
+<option value="109541">马喜副总区</option>
+<option value="109542">石若男副总区</option>
+<option value="109543">何鹏副总区</option>
+<option value="109544">曾蓉副总区</option>
+<option value="109545">汪遥副总区</option>
+<option value="109546">王德志副总区</option>
+<option value="109547">李润副总区-撤销</option>
+<option value="109548">陈梦洁副总区</option>
+<option value="109549">伍亮副总区</option>
+<option value="109550">杨雅婷副总区-撤销</option>
+<option value="109551">何丹副总区-撤销</option>
+<option value="109552">戴鲁副总区</option>
+<option value="109553">程杰副总区-撤销</option>
+<option value="109554">朱海燕副总区-撤销</option>
+<option value="109786">觅租副总区-撤销</option>
+<option value="109792">定娟副总区</option>
+<option value="109793">龚雷副总区</option>
+<option value="109795">李淼副总区</option>
+<option value="109796">钟伟副总区</option>
+<option value="109797">陈东一副总区</option>
+<option value="109798">陈台香副总区</option>
+<option value="109799">沈杨副总区</option>
+<option value="109800">周波副总区</option>
+<option value="109876">XMH周波副总区</option>
+<option value="109877">XMH陈东一副总区</option>
+<option value="109878">XMH陈台香副总区</option>
+<option value="109880">XMH龚雷副总区</option>
+<option value="109881">XMH定娟副总区</option>
+<option value="109883">XMH钟伟副总区</option>
+<option value="109884">XMH李淼副总区</option>
+<option value="109933">运营副总区-撤销</option>
+<option value="109941">王德志副总区</option>
+<option value="109942">宋海钦副总区(常德)</option>
+<option value="109957">黄兴望副总区1</option>
+<option value="109958">廖小艳副总区1</option>
+<option value="109979">武磨副总区-撤销</option>
+<option value="109980">张英副总区-撤销</option>
+<option value="109994">张兵副总区</option>
+<option value="109995">肖耀南副总区</option>
+<option value="109996">宋绍镰副总区</option>
+<option value="110014">刘云华副总区</option>
+<option value="110030">高翔副总区</option>
+<option value="110034">刘星乐/刘阳胜副总区</option>
+<option value="110038">李远超副总区</option>
+<option value="110044">宋海钦/颜彪副总区(娄底)</option>
+<option value="110106">郁仙枝副总区</option>
+<option value="110129">李龙副总区(衡阳)</option>
+<option value="110143">宋海钦副总区（怀化）</option>
+<option value="110147">杨理副总区</option>
+<option value="110214">海口测试副总</option>
+<option value="110238">杨世晓副总区</option>
+<option value="110247">株洲副总区</option>
+<option value="110261">武汉测试副总</option>
+<option value="110274">贵阳测试副总</option>
+<option value="110286">XMH桃源副总区</option>
+<option value="110313">网络营销部副总区-撤销</option>
+<option value="110327">职能绩效副总区-撤销</option>
+<option value="110329">杨怀远副总区-撤销</option>
+<option value="110330">朱红虎副总区</option>
+<option value="110384">湘潭测试副总</option>
+<option value="110426">李静伟/荣兵副总区</option>
+<option value="110427">李静伟/吴邦/廖金花副总区</option>
+<option value="110428">白双灵副总区</option>
+<option value="110429">邹春花副总区</option>
+<option value="110432">高翔/文国旗副总区1</option>
+<option value="110439">赵群/游永红副总区</option>
+<option value="110440">李静伟/潘朝辉副总区</option>
+<option value="110441">左蓉副总区</option>
+<option value="110470">沈天文副总区</option>
+<option value="110484">赵群/李伟副总区</option>
+<option value="110510">新房职能部门副总区-撤销</option>
+<option value="110553">XMH沈天文副总区</option>
+<option value="110570">文境麟副总区</option>
+<option value="110581">益阳测试副总</option>
+<option value="110600">陈祥副总区</option>
+<option value="110667">刘桥辉副总区</option>
+<option value="110692">袁总直管区</option>
+<option value="110698">觅租运营副总区</option>
+<option value="110715">吴闪红副总区</option>
+<option value="110726">王鸿副总区</option>
+<option value="110744">朱凯副总区</option>
+<option value="110747">鄢欢副总区-撤销</option>
+<option value="110753">觅租副总区</option>
+<option value="110756">自营副总区</option>
+<option value="110808">AI智能中心副总区(职能)-撤销</option>
+<option value="110826">股东绩效部副总区-撤销</option>
+<option value="110887">后勤中心副总区-撤销</option>
+<option value="110891">唐建超副总区</option>
+<option value="110919">霞辉按揭副总区-撤销</option>
+<option value="110938">网络维护部副总区-撤销</option>
+<option value="110942">客服部副总区-撤销</option>
+<option value="110963">明宾副总区</option>
+<option value="110966">招募中心副总区-撤销</option>
+<option value="110972">郭军副总区1</option>
+<option value="110975">刘凯副总区1</option>
+<option value="110978">陈武副总区</option>
+<option value="110981">市府望城区(张建勇)-撤销</option>
+<option value="111002">袁昊玢副总区-撤销</option>
+<option value="111014">职能副总区-撤销</option>
+<option value="111064">想到家V副总一区-撤销</option>
+<option value="111131">选址部副总区-撤销</option>
+<option value="111134">采购部副总区-撤销</option>
+<option value="111148">房勘部副总区-撤销</option>
+<option value="111152">楼盘品服部副总区</option>
+<option value="111176">XMH王启碌副总区</option>
+<option value="111246">陈台香副总区(长沙)</option>
+<option value="111247">龚雷副总区(长沙)</option>
+<option value="111326">品牌部副总区-撤销</option>
+<option value="111347">XMH王启碌三亚副总区(加盟)</option>
+<option value="111457">品质监察部副总区-撤销</option>
+<option value="111579">新媒体副总区</option>
+<option value="111693">廖春燕直属副总区</option>
+<option value="111801">星居文化副总区-撤销</option>
+<option value="111877">刘绘鹏副总区</option>
+<option value="111881">马凯副总区</option>
+<option value="111935">赵群/李伟副总区(长沙)-撤销</option>
+<option value="111939">张正方副总区(长沙)</option>
+<option value="111958">王德志副总区(长沙)</option>
+<option value="112033">文阳副总区</option>
+<option value="112034">阳峰副总区(岳阳)</option>
+<option value="112037">廖小艳副总区</option>
+<option value="112080">总经办副总区-撤销</option>
+<option value="112154">想到家易联副总区</option>
+<option value="112356">XD加盟副总区(加盟)</option>
+<option value="112394">俞立君副总区</option>
+<option value="112597">陆名伟副总区</option>
+<option value="112611">姜柏宇/尹甜娟副总区</option>
+<option value="112816">刘锦宏直属副总区</option>
+<option value="112825">程杰副总区(长沙)</option>
+<option value="112898">XMH醴陵罗文副总区(加盟)</option>
+<option value="112922">FYY周希副总区(加盟)</option>
+<option value="112939">小象佳缘副总区-撤销</option>
+<option value="113004">唐高波实习副总区</option>
+<option value="113018">XMH唐高波副总区</option>
+<option value="113059">XMH周波副总区1</option>
+<option value="113076">颜彪副总区(娄底)</option>
+<option value="113112">黄兴望副总区</option>
+<option value="113177">郭军副总区</option>
+<option value="113182">李静伟直属副总区</option>
+<option value="113186">赵群/李伟直属副总区</option>
+<option value="113193">旷双平副总区</option>
+<option value="113195">文国旗直属副总区</option>
+<option value="113208">刘凯副总区</option>
+<option value="113302">陈台香副总区(常德)</option>
+<option value="113398">CY副总区-撤销</option>
+<option value="113424">XD王启禄副总区</option>
+<option value="113584">沈天文副总区(长沙)</option>
+<option value="113669">ZY三亚高同青副总区(加盟)</option>
+<option value="113781">朱红虎副总区（XMH）-撤销</option>
+<option value="113824">赵芳副总区（XMH)-撤销</option>
+<option value="113834">龚永升副总区（XMH)-撤销</option>
+<option value="113859">宋维副总区</option>
+<option value="113878">李龙副总区(常德)</option>
+<option value="113983">XH三亚高同青副总区(加盟)</option>
+<option value="114043">邹泽意副总区（XMH)-撤销</option>
+<option value="114134">颜彪/宋海钦副总区(加盟)</option>
+<option value="114149">张研副总区</option>
+<option value="114212">沈天文副总区(常德)</option>
+<option value="114235">XMH沈天文副总区(加盟)</option>
+<option value="114359">赵雯副总区（XMH）-撤销</option>
+<option value="114420">吴津仪副总区（XMH）</option>
+<option value="114482">张武义副总区</option>
+<option value="114543">XMH邯郸副总区(邯郸)</option>
+<option value="114661">黄河副总区(XMH）-撤销</option>
+<option value="114703">总经办副总区(邯郸)</option>
+<option value="114710">XMH新房部-副总区（邯郸）</option>
+<option value="114716">XMH培训部-副总区（邯郸）</option>
+<option value="114724">XD胡波/刘新宇副总区(加盟)</option>
+<option value="114730">XMH行政部（邯郸）</option>
+<option value="114731">XMH行政部-副总区（邯郸）</option>
+<option value="114740">XMH财务部-副总区（邯郸）</option>
+<option value="114779">象盒找铺副总区</option>
+<option value="114809">XMH资源管控部（邯郸）</option>
+<option value="114844">曹曦副总区（XMH）-撤销</option>
+<option value="114948">肖兵副总区（XMH）-撤销</option>
+<option value="114957">XMH房勘部（邯郸）</option>
+<option value="114958">XMH房勘部（邯郸）-副总区</option>
+<option value="114995">李晓娇副总区</option>
+<option value="114996">刘迪妮副总区</option>
+<option value="115025">XMH汉谷-副总区（邯郸）</option>
+<option value="115180">石若男副总区（XMH)-撤销</option>
+<option value="115239">测试副总2副总区</option>
+<option value="115293">燕郊副总区</option>
+<option value="115410">总部（湘潭）王德志副总区</option>
+<option value="115696">燕郊副总区(加盟)</option>
+<option value="116278">王明副总区</option>
+<option value="116349">刘新宇副总区</option>
+<option value="116545">杨柳实习副总区</option>
+<option value="116551">上海总部运营区(龙祥)</option>
+<option value="116746">宝山运营区(胡麒)</option>
+<option value="116788">浦东运营区(龙祥)</option>
+<option value="116928">松江运营区</option>
+<option value="116951">静安运营区</option>
+<option value="117070">黄浦运营区</option>
+<option value="117091">XMH琼海副总区</option>
+<option value="117164">闵行运营区</option>
+<option value="117174">胡波副总区</option>
+<option value="117237">XHJ贵阳公司-撤销副总区</option>
+<option value="117423">徐汇运营区</option>
+<option value="117805">王启禄副总区</option>
+<option value="117806">吴耀星副总区</option>
+<option value="107012">新房刘政副总区</option>
+<option value="107013">新房星沙副总区</option>
+<option value="107014">新房汤冰副总区</option>
+<option value="107015">新房彭万副总区</option>
+<option value="107016">新房陈伟艳副总区</option>
+<option value="107017">新房罗峰副总区</option>
+<option value="107018">新房杨理副总区</option>
+<option value="107019">新房姚苡副总区</option>
+<option value="107020">新房周科峰副总区</option>
+<option value="107021">新房开福副总区</option>
+<option value="108477">新房副总区</option>
+<option value="108478">测试</option>
+<option value="108479">测试</option>
+<option value="108484">新房钟志副总区</option>
+<option value="110759">新房张兵副总区</option>
+<option value="110760">新房宋绍镰副总区</option>
+<option value="110856">新房沈天文副总区</option>
+<option value="110868">新房项目部副总区(武汉)</option>
+<option value="110982">新房张建勇副总区</option>
+<option value="111098">娄底市场副总区</option>
+<option value="32695">新房市场部</option>
+<option value="110860">新房项目助理部(益阳)</option>
+<option value="110865">新房项目助理部(武汉)</option>
+<option value="113438">新房项目助理部(常德)</option>
+<option value="117625">测试租户副总</option>
+<option value="110485">商业部副总区</option>
+<option value="110719">测试副总区</option>
+<option value="117678">天宇地产副总</option>
+<option value="117688">星辉地产副总</option>
+<option value="117737">0721副总</option>
+</select><div class="layui-form-select"><div class="layui-select-title"><input class="layui-input" placeholder="请选择" type="text" value="副总区"/><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd class="layui-this" lay-value="0">副总区</dd><dd class="" lay-value="100035">河西姚以副总区</dd><dd class="" lay-value="110736">行政综合管理部副总区-撤销</dd><dd class="" lay-value="110741">廖利双副总区</dd><dd class="" lay-value="100047">株洲副总区</dd><dd class="" lay-value="100066">雨花城南区(刘政)</dd><dd class="" lay-value="100067">星沙区(王明琪/邱广武)</dd><dd class="" lay-value="100068">雨花红星区(汤冰)</dd><dd class="" lay-value="100069">岳麓望城区(姚苡/张建勇)</dd><dd class="" lay-value="100070">湘江新区(周科峰)</dd><dd class="" lay-value="100071">开福区(杨武/邓志宏)</dd><dd class="" lay-value="100072">芙蓉城东区(彭万)</dd><dd class="" lay-value="100073">天心城东区(陈伟艳)</dd><dd class="" lay-value="100074">中心直辖区(罗峰)</dd><dd class="" lay-value="100075">天心省府区(杨理)</dd><dd class="" lay-value="101645">测试副总1</dd><dd class="" lay-value="107246">想到家刘政副总区</dd><dd class="" lay-value="107247">想到家彭万副总区</dd><dd class="" lay-value="107259">XMH西点军团(姚苡)</dd><dd class="" lay-value="107260">XMH赤焰军团(杨武/邓志宏)</dd><dd class="" lay-value="107261">XMH东南战区(彭万)</dd><dd class="" lay-value="107262">XMH金刚团(陈伟艳)</dd><dd class="" lay-value="107263">XMH中央军团(罗峰)</dd><dd class="" lay-value="107264">XMH省府军团(杨理)</dd><dd class="" lay-value="107265">XMH岳麓新区(周科峰)</dd><dd class="" lay-value="107266">XMH野狼团(刘政)</dd><dd class="" lay-value="107267">XMH火箭军团(王明琪/邱广武)</dd><dd class="" lay-value="107268">XMH红星军团(汤冰)</dd><dd class="" lay-value="108461">芙蓉尚东区(钟志)</dd><dd class="" lay-value="108589">XMH加盟副总区</dd><dd class="" lay-value="108644">XMH钟志副总区</dd><dd class="" lay-value="108966">胡炜副总区</dd><dd class="" lay-value="108967">李静伟副总区</dd><dd class="" lay-value="108968">刘星乐副总区</dd><dd class="" lay-value="108969">倪倩副总区</dd><dd class="" lay-value="108970">阳树林副总区</dd><dd class="" lay-value="108971">张正方副总区</dd><dd class="" lay-value="108973">刘锦宏副总区</dd><dd class="" lay-value="108974">文国旗副总区</dd><dd class="" lay-value="108975">张得亮副总区</dd><dd class="" lay-value="108976">付永强副总区</dd><dd class="" lay-value="108977">聂宁副总区</dd><dd class="" lay-value="108978">匡杰雄副总区</dd><dd class="" lay-value="108979">廖春燕副总区</dd><dd class="" lay-value="108981">赵超贵副总区</dd><dd class="" lay-value="109391">姚铭副总区</dd><dd class="" lay-value="109527">株洲测试副总区</dd><dd class="" lay-value="109541">马喜副总区</dd><dd class="" lay-value="109542">石若男副总区</dd><dd class="" lay-value="109543">何鹏副总区</dd><dd class="" lay-value="109544">曾蓉副总区</dd><dd class="" lay-value="109545">汪遥副总区</dd><dd class="" lay-value="109546">王德志副总区</dd><dd class="" lay-value="109547">李润副总区-撤销</dd><dd class="" lay-value="109548">陈梦洁副总区</dd><dd class="" lay-value="109549">伍亮副总区</dd><dd class="" lay-value="109550">杨雅婷副总区-撤销</dd><dd class="" lay-value="109551">何丹副总区-撤销</dd><dd class="" lay-value="109552">戴鲁副总区</dd><dd class="" lay-value="109553">程杰副总区-撤销</dd><dd class="" lay-value="109554">朱海燕副总区-撤销</dd><dd class="" lay-value="109786">觅租副总区-撤销</dd><dd class="" lay-value="109792">定娟副总区</dd><dd class="" lay-value="109793">龚雷副总区</dd><dd class="" lay-value="109795">李淼副总区</dd><dd class="" lay-value="109796">钟伟副总区</dd><dd class="" lay-value="109797">陈东一副总区</dd><dd class="" lay-value="109798">陈台香副总区</dd><dd class="" lay-value="109799">沈杨副总区</dd><dd class="" lay-value="109800">周波副总区</dd><dd class="" lay-value="109876">XMH周波副总区</dd><dd class="" lay-value="109877">XMH陈东一副总区</dd><dd class="" lay-value="109878">XMH陈台香副总区</dd><dd class="" lay-value="109880">XMH龚雷副总区</dd><dd class="" lay-value="109881">XMH定娟副总区</dd><dd class="" lay-value="109883">XMH钟伟副总区</dd><dd class="" lay-value="109884">XMH李淼副总区</dd><dd class="" lay-value="109933">运营副总区-撤销</dd><dd class="" lay-value="109941">王德志副总区</dd><dd class="" lay-value="109942">宋海钦副总区(常德)</dd><dd class="" lay-value="109957">黄兴望副总区1</dd><dd class="" lay-value="109958">廖小艳副总区1</dd><dd class="" lay-value="109979">武磨副总区-撤销</dd><dd class="" lay-value="109980">张英副总区-撤销</dd><dd class="" lay-value="109994">张兵副总区</dd><dd class="" lay-value="109995">肖耀南副总区</dd><dd class="" lay-value="109996">宋绍镰副总区</dd><dd class="" lay-value="110014">刘云华副总区</dd><dd class="" lay-value="110030">高翔副总区</dd><dd class="" lay-value="110034">刘星乐/刘阳胜副总区</dd><dd class="" lay-value="110038">李远超副总区</dd><dd class="" lay-value="110044">宋海钦/颜彪副总区(娄底)</dd><dd class="" lay-value="110106">郁仙枝副总区</dd><dd class="" lay-value="110129">李龙副总区(衡阳)</dd><dd class="" lay-value="110143">宋海钦副总区（怀化）</dd><dd class="" lay-value="110147">杨理副总区</dd><dd class="" lay-value="110214">海口测试副总</dd><dd class="" lay-value="110238">杨世晓副总区</dd><dd class="" lay-value="110247">株洲副总区</dd><dd class="" lay-value="110261">武汉测试副总</dd><dd class="" lay-value="110274">贵阳测试副总</dd><dd class="" lay-value="110286">XMH桃源副总区</dd><dd class="" lay-value="110313">网络营销部副总区-撤销</dd><dd class="" lay-value="110327">职能绩效副总区-撤销</dd><dd class="" lay-value="110329">杨怀远副总区-撤销</dd><dd class="" lay-value="110330">朱红虎副总区</dd><dd class="" lay-value="110384">湘潭测试副总</dd><dd class="" lay-value="110426">李静伟/荣兵副总区</dd><dd class="" lay-value="110427">李静伟/吴邦/廖金花副总区</dd><dd class="" lay-value="110428">白双灵副总区</dd><dd class="" lay-value="110429">邹春花副总区</dd><dd class="" lay-value="110432">高翔/文国旗副总区1</dd><dd class="" lay-value="110439">赵群/游永红副总区</dd><dd class="" lay-value="110440">李静伟/潘朝辉副总区</dd><dd class="" lay-value="110441">左蓉副总区</dd><dd class="" lay-value="110470">沈天文副总区</dd><dd class="" lay-value="110484">赵群/李伟副总区</dd><dd class="" lay-value="110510">新房职能部门副总区-撤销</dd><dd class="" lay-value="110553">XMH沈天文副总区</dd><dd class="" lay-value="110570">文境麟副总区</dd><dd class="" lay-value="110581">益阳测试副总</dd><dd class="" lay-value="110600">陈祥副总区</dd><dd class="" lay-value="110667">刘桥辉副总区</dd><dd class="" lay-value="110692">袁总直管区</dd><dd class="" lay-value="110698">觅租运营副总区</dd><dd class="" lay-value="110715">吴闪红副总区</dd><dd class="" lay-value="110726">王鸿副总区</dd><dd class="" lay-value="110744">朱凯副总区</dd><dd class="" lay-value="110747">鄢欢副总区-撤销</dd><dd class="" lay-value="110753">觅租副总区</dd><dd class="" lay-value="110756">自营副总区</dd><dd class="" lay-value="110808">AI智能中心副总区(职能)-撤销</dd><dd class="" lay-value="110826">股东绩效部副总区-撤销</dd><dd class="" lay-value="110887">后勤中心副总区-撤销</dd><dd class="" lay-value="110891">唐建超副总区</dd><dd class="" lay-value="110919">霞辉按揭副总区-撤销</dd><dd class="" lay-value="110938">网络维护部副总区-撤销</dd><dd class="" lay-value="110942">客服部副总区-撤销</dd><dd class="" lay-value="110963">明宾副总区</dd><dd class="" lay-value="110966">招募中心副总区-撤销</dd><dd class="" lay-value="110972">郭军副总区1</dd><dd class="" lay-value="110975">刘凯副总区1</dd><dd class="" lay-value="110978">陈武副总区</dd><dd class="" lay-value="110981">市府望城区(张建勇)-撤销</dd><dd class="" lay-value="111002">袁昊玢副总区-撤销</dd><dd class="" lay-value="111014">职能副总区-撤销</dd><dd class="" lay-value="111064">想到家V副总一区-撤销</dd><dd class="" lay-value="111131">选址部副总区-撤销</dd><dd class="" lay-value="111134">采购部副总区-撤销</dd><dd class="" lay-value="111148">房勘部副总区-撤销</dd><dd class="" lay-value="111152">楼盘品服部副总区</dd><dd class="" lay-value="111176">XMH王启碌副总区</dd><dd class="" lay-value="111246">陈台香副总区(长沙)</dd><dd class="" lay-value="111247">龚雷副总区(长沙)</dd><dd class="" lay-value="111326">品牌部副总区-撤销</dd><dd class="" lay-value="111347">XMH王启碌三亚副总区(加盟)</dd><dd class="" lay-value="111457">品质监察部副总区-撤销</dd><dd class="" lay-value="111579">新媒体副总区</dd><dd class="" lay-value="111693">廖春燕直属副总区</dd><dd class="" lay-value="111801">星居文化副总区-撤销</dd><dd class="" lay-value="111877">刘绘鹏副总区</dd><dd class="" lay-value="111881">马凯副总区</dd><dd class="" lay-value="111935">赵群/李伟副总区(长沙)-撤销</dd><dd class="" lay-value="111939">张正方副总区(长沙)</dd><dd class="" lay-value="111958">王德志副总区(长沙)</dd><dd class="" lay-value="112033">文阳副总区</dd><dd class="" lay-value="112034">阳峰副总区(岳阳)</dd><dd class="" lay-value="112037">廖小艳副总区</dd><dd class="" lay-value="112080">总经办副总区-撤销</dd><dd class="" lay-value="112154">想到家易联副总区</dd><dd class="" lay-value="112356">XD加盟副总区(加盟)</dd><dd class="" lay-value="112394">俞立君副总区</dd><dd class="" lay-value="112597">陆名伟副总区</dd><dd class="" lay-value="112611">姜柏宇/尹甜娟副总区</dd><dd class="" lay-value="112816">刘锦宏直属副总区</dd><dd class="" lay-value="112825">程杰副总区(长沙)</dd><dd class="" lay-value="112898">XMH醴陵罗文副总区(加盟)</dd><dd class="" lay-value="112922">FYY周希副总区(加盟)</dd><dd class="" lay-value="112939">小象佳缘副总区-撤销</dd><dd class="" lay-value="113004">唐高波实习副总区</dd><dd class="" lay-value="113018">XMH唐高波副总区</dd><dd class="" lay-value="113059">XMH周波副总区1</dd><dd class="" lay-value="113076">颜彪副总区(娄底)</dd><dd class="" lay-value="113112">黄兴望副总区</dd><dd class="" lay-value="113177">郭军副总区</dd><dd class="" lay-value="113182">李静伟直属副总区</dd><dd class="" lay-value="113186">赵群/李伟直属副总区</dd><dd class="" lay-value="113193">旷双平副总区</dd><dd class="" lay-value="113195">文国旗直属副总区</dd><dd class="" lay-value="113208">刘凯副总区</dd><dd class="" lay-value="113302">陈台香副总区(常德)</dd><dd class="" lay-value="113398">CY副总区-撤销</dd><dd class="" lay-value="113424">XD王启禄副总区</dd><dd class="" lay-value="113584">沈天文副总区(长沙)</dd><dd class="" lay-value="113669">ZY三亚高同青副总区(加盟)</dd><dd class="" lay-value="113781">朱红虎副总区（XMH）-撤销</dd><dd class="" lay-value="113824">赵芳副总区（XMH)-撤销</dd><dd class="" lay-value="113834">龚永升副总区（XMH)-撤销</dd><dd class="" lay-value="113859">宋维副总区</dd><dd class="" lay-value="113878">李龙副总区(常德)</dd><dd class="" lay-value="113983">XH三亚高同青副总区(加盟)</dd><dd class="" lay-value="114043">邹泽意副总区（XMH)-撤销</dd><dd class="" lay-value="114134">颜彪/宋海钦副总区(加盟)</dd><dd class="" lay-value="114149">张研副总区</dd><dd class="" lay-value="114212">沈天文副总区(常德)</dd><dd class="" lay-value="114235">XMH沈天文副总区(加盟)</dd><dd class="" lay-value="114359">赵雯副总区（XMH）-撤销</dd><dd class="" lay-value="114420">吴津仪副总区（XMH）</dd><dd class="" lay-value="114482">张武义副总区</dd><dd class="" lay-value="114543">XMH邯郸副总区(邯郸)</dd><dd class="" lay-value="114661">黄河副总区(XMH）-撤销</dd><dd class="" lay-value="114703">总经办副总区(邯郸)</dd><dd class="" lay-value="114710">XMH新房部-副总区（邯郸）</dd><dd class="" lay-value="114716">XMH培训部-副总区（邯郸）</dd><dd class="" lay-value="114724">XD胡波/刘新宇副总区(加盟)</dd><dd class="" lay-value="114730">XMH行政部（邯郸）</dd><dd class="" lay-value="114731">XMH行政部-副总区（邯郸）</dd><dd class="" lay-value="114740">XMH财务部-副总区（邯郸）</dd><dd class="" lay-value="114779">象盒找铺副总区</dd><dd class="" lay-value="114809">XMH资源管控部（邯郸）</dd><dd class="" lay-value="114844">曹曦副总区（XMH）-撤销</dd><dd class="" lay-value="114948">肖兵副总区（XMH）-撤销</dd><dd class="" lay-value="114957">XMH房勘部（邯郸）</dd><dd class="" lay-value="114958">XMH房勘部（邯郸）-副总区</dd><dd class="" lay-value="114995">李晓娇副总区</dd><dd class="" lay-value="114996">刘迪妮副总区</dd><dd class="" lay-value="115025">XMH汉谷-副总区（邯郸）</dd><dd class="" lay-value="115180">石若男副总区（XMH)-撤销</dd><dd class="" lay-value="115239">测试副总2副总区</dd><dd class="" lay-value="115293">燕郊副总区</dd><dd class="" lay-value="115410">总部（湘潭）王德志副总区</dd><dd class="" lay-value="115696">燕郊副总区(加盟)</dd><dd class="" lay-value="116278">王明副总区</dd><dd class="" lay-value="116349">刘新宇副总区</dd><dd class="" lay-value="116545">杨柳实习副总区</dd><dd class="" lay-value="116551">上海总部运营区(龙祥)</dd><dd class="" lay-value="116746">宝山运营区(胡麒)</dd><dd class="" lay-value="116788">浦东运营区(龙祥)</dd><dd class="" lay-value="116928">松江运营区</dd><dd class="" lay-value="116951">静安运营区</dd><dd class="" lay-value="117070">黄浦运营区</dd><dd class="" lay-value="117091">XMH琼海副总区</dd><dd class="" lay-value="117164">闵行运营区</dd><dd class="" lay-value="117174">胡波副总区</dd><dd class="" lay-value="117237">XHJ贵阳公司-撤销副总区</dd><dd class="" lay-value="117423">徐汇运营区</dd><dd class="" lay-value="117805">王启禄副总区</dd><dd class="" lay-value="117806">吴耀星副总区</dd><dd class="" lay-value="107012">新房刘政副总区</dd><dd class="" lay-value="107013">新房星沙副总区</dd><dd class="" lay-value="107014">新房汤冰副总区</dd><dd class="" lay-value="107015">新房彭万副总区</dd><dd class="" lay-value="107016">新房陈伟艳副总区</dd><dd class="" lay-value="107017">新房罗峰副总区</dd><dd class="" lay-value="107018">新房杨理副总区</dd><dd class="" lay-value="107019">新房姚苡副总区</dd><dd class="" lay-value="107020">新房周科峰副总区</dd><dd class="" lay-value="107021">新房开福副总区</dd><dd class="" lay-value="108477">新房副总区</dd><dd class="" lay-value="108478">测试</dd><dd class="" lay-value="108479">测试</dd><dd class="" lay-value="108484">新房钟志副总区</dd><dd class="" lay-value="110759">新房张兵副总区</dd><dd class="" lay-value="110760">新房宋绍镰副总区</dd><dd class="" lay-value="110856">新房沈天文副总区</dd><dd class="" lay-value="110868">新房项目部副总区(武汉)</dd><dd class="" lay-value="110982">新房张建勇副总区</dd><dd class="" lay-value="111098">娄底市场副总区</dd><dd class="" lay-value="32695">新房市场部</dd><dd class="" lay-value="110860">新房项目助理部(益阳)</dd><dd class="" lay-value="110865">新房项目助理部(武汉)</dd><dd class="" lay-value="113438">新房项目助理部(常德)</dd><dd class="" lay-value="117625">测试租户副总</dd><dd class="" lay-value="110485">商业部副总区</dd><dd class="" lay-value="110719">测试副总区</dd><dd class="" lay-value="117678">天宇地产副总</dd><dd class="" lay-value="117688">星辉地产副总</dd><dd class="" lay-value="117737">0721副总</dd></dl></div>
+</div>
+<div class="layui-inline layui-form">
+<select id="zongjian" lay-filter="zongjian" lay-search="" name="city">
+<option value="0">总监区</option>
+</select><div class="layui-form-select"><div class="layui-select-title"><input class="layui-input" placeholder="请选择" type="text" value="总监区"/><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd class="layui-this" lay-value="0">总监区</dd></dl></div>
+</div>
+<div class="layui-inline layui-form">
+<select id="zongjians" lay-filter="citys" lay-search="" name="citys">
+<option value="0">实习总监</option>
+</select><div class="layui-form-select"><div class="layui-select-title"><input class="layui-input" placeholder="请选择" type="text" value="实习总监"/><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd class="layui-this" lay-value="0">实习总监</dd></dl></div>
+</div>
+<div class="layui-inline layui-form">
+<select id="departmentID" lay-filter="area" lay-search="" name="area">
+<option value="0">门店</option>
+</select><div class="layui-form-select"><div class="layui-select-title"><input class="layui-input" placeholder="请选择" type="text" value="门店"/><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd class="layui-this" lay-value="0">门店</dd></dl></div>
+</div>
+<div class="layui-inline layui-form">
+<select id="user_id" lay-filter="test_user" name="user_id">
+<option value="0">摄影师</option>
+<option value="4416">刘云华</option>
+<option value="1010433">池慕卉-1001</option>
+<option value="1018452">张发鑫</option>
+<option value="1024121">刘姿</option>
+<option value="1024242">摄影测试</option>
+<option value="1024597">测试鲁班</option>
+<option value="1047823">刘熠</option>
+<option value="1047825">王宇轩</option>
+<option value="1047828">张宏伟</option>
+<option value="1047829">刘毅</option>
+<option value="1047831">刘书言</option>
+<option value="1047832">刘娟</option>
+<option value="1048042">王禹鑫</option>
+<option value="1052313">王岳</option>
+<option value="1070636">黄文财</option>
+<option value="1087560">卢哲彬</option>
+<option value="1088546">陈浩</option>
+<option value="1095942">李港</option>
+<option value="1097082">靳浩然</option>
+<option value="1100328">测试账号</option>
+<option value="1105371">贺志</option>
+<option value="2000066">测试1003</option>
+<option value="2007072">张超煜</option>
+<option value="2008967">夏威</option>
+<option value="2011549">胡鹏程</option>
+<option value="2012141">杨雯</option>
+<option value="2013964">廖柔刚</option>
+<option value="2013966">王超</option>
+<option value="2014027">刘锦涛</option>
+<option value="2014138">童大根</option>
+<option value="2014559">冯李文</option>
+<option value="2018518">刘敬儒</option>
+<option value="2018526">吴谋康</option>
+</select><div class="layui-unselect layui-form-select"><div class="layui-select-title"><input class="layui-input layui-unselect" placeholder="请选择" readonly="" type="text" value="摄影师"/><i class="layui-edge"></i></div><dl class="layui-anim layui-anim-upbit"><dd class="layui-this" lay-value="0">摄影师</dd><dd class="" lay-value="4416">刘云华</dd><dd class="" lay-value="1010433">池慕卉-1001</dd><dd class="" lay-value="1018452">张发鑫</dd><dd class="" lay-value="1024121">刘姿</dd><dd class="" lay-value="1024242">摄影测试</dd><dd class="" lay-value="1024597">测试鲁班</dd><dd class="" lay-value="1047823">刘熠</dd><dd class="" lay-value="1047825">王宇轩</dd><dd class="" lay-value="1047828">张宏伟</dd><dd class="" lay-value="1047829">刘毅</dd><dd class="" lay-value="1047831">刘书言</dd><dd class="" lay-value="1047832">刘娟</dd><dd class="" lay-value="1048042">王禹鑫</dd><dd class="" lay-value="1052313">王岳</dd><dd class="" lay-value="1070636">黄文财</dd><dd class="" lay-value="1087560">卢哲彬</dd><dd class="" lay-value="1088546">陈浩</dd><dd class="" lay-value="1095942">李港</dd><dd class="" lay-value="1097082">靳浩然</dd><dd class="" lay-value="1100328">测试账号</dd><dd class="" lay-value="1105371">贺志</dd><dd class="" lay-value="2000066">测试1003</dd><dd class="" lay-value="2007072">张超煜</dd><dd class="" lay-value="2008967">夏威</dd><dd class="" lay-value="2011549">胡鹏程</dd><dd class="" lay-value="2012141">杨雯</dd><dd class="" lay-value="2013964">廖柔刚</dd><dd class="" lay-value="2013966">王超</dd><dd class="" lay-value="2014027">刘锦涛</dd><dd class="" lay-value="2014138">童大根</dd><dd class="" lay-value="2014559">冯李文</dd><dd class="" lay-value="2018518">刘敬儒</dd><dd class="" lay-value="2018526">吴谋康</dd></dl></div>
+</div>
+<a class="layui-btn" data-type="reload" id="search">搜索</a>
+<a class="layui-btn" href="/houseadmin/house/index.html">重置</a>
+</div></form>
+<table class="layui-table" id="order" lay-filter="order"></table><div class="layui-form layui-border-box layui-table-view" lay-filter="LAY-table-1" lay-id="order" style=" "><div class="layui-table-box"><div class="layui-table-header"><table border="0" cellpadding="0" cellspacing="0" class="layui-table"><thead><tr><th class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><span>订单状态</span></div></th><th class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1"><span>房源编号</span></div></th><th class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2"><span>楼盘名称</span></div></th><th class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3"><span>申请人</span></div></th><th class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4"><span>申请门店</span></div></th><th class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5"><span>申请时间</span></div></th><th class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6"><span>预约时间</span></div></th><th class="" data-field="isKey" data-key="1-0-7"><div class="layui-table-cell laytable-cell-1-0-7"><span>钥匙</span></div></th><th class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8"><span>摄影师</span></div></th><th class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9"><span>上传人</span></div></th><th class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10"><span>电话</span></div></th><th class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><span>房堪状态</span></div></th><th class="layui-table-col-special" data-field="12" data-key="1-0-12"><div align="center" class="layui-table-cell laytable-cell-1-0-12"><span>操作</span></div></th></tr></thead></table></div><div class="layui-table-body layui-table-main"><table border="0" cellpadding="0" cellspacing="0" class="layui-table"><tbody><tr data-index="0"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:#009688">已接单</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260905390635</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">复地崑玉国际一期</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">赵世勇</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ昆玉国际店B店D业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-05 16:02:21</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-06 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7">  是 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9"></div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">18670319183</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:blue">未上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="cancel">取消</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="transfer">转单</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> </div></td></tr><tr data-index="1"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:blue">有效</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260805501640</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">观园国际公寓</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">毛勇</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ东风路店二店B店B业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-05 15:03:24</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-06 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7">  是 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9">贺志</div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">15974196622</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:#009688">已上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" id="add_fk_image" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:void(0)" lay-event="invalid">无效</a> </div></td></tr><tr data-index="2"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:blue">有效</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260905400906</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">蒋家垅社区</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">饶群英</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ滨江世纪城店D店D业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-05 10:32:23</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-06 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7"> 否 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9">贺志</div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">18975876215</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:#009688">已上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" id="add_fk_image" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:void(0)" lay-event="invalid">无效</a> </div></td></tr><tr data-index="3"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:#009688">已接单</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260905165870</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">天健芙蓉盛世一期</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">吴胜群</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ兴汉门店B店G业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-05 10:07:52</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-08 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7">  是 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9"></div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">18273141887</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:blue">未上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="cancel">取消</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="transfer">转单</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> </div></td></tr><tr data-index="4"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:blue">有效</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260902733090</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">金土地第一湾</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">苏爱国</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ第一湾店D店I业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-05 09:26:36</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-06 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7"> 否 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9">贺志</div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">18670311165</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:#009688">已上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" id="add_fk_image" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:void(0)" lay-event="invalid">无效</a> </div></td></tr><tr data-index="5"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:blue">有效</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260905673550</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">观园国际公寓</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">李丹萍</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ芙蓉盛世店C店C业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-05 09:11:28</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-06 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7">  是 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9">贺志</div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">18570030521</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:#009688">已上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" id="add_fk_image" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:void(0)" lay-event="invalid">无效</a> </div></td></tr><tr data-index="6"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:blue">有效</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260825027274</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">海洋半岛（月珑湾）</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">杨红美</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ四方小区店C店C业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-04 22:22:18</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-05 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7">  是 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9">贺志</div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">18817182699</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:#009688">已上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" id="add_fk_image" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:void(0)" lay-event="invalid">无效</a> </div></td></tr><tr data-index="7"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:blue">有效</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260904926642</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">华盛新外滩</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">张良富</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ昆玉国际店二店A店A业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-04 17:46:48</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-05 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7"> 否 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9">贺志</div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">18570067118</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:#009688">已上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" id="add_fk_image" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:void(0)" lay-event="invalid">无效</a> </div></td></tr><tr data-index="8"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:blue">有效</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260904944097</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">建发养云</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">张峰</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ东风路店A店A业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-04 15:20:13</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-05 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7">  是 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9">贺志</div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">19310167252</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:#009688">已上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" id="add_fk_image" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:void(0)" lay-event="invalid">无效</a> </div></td></tr><tr data-index="9"><td class="" data-field="stateName" data-key="1-0-0"><div class="layui-table-cell laytable-cell-1-0-0"><p style="color:blue">有效</p></div></td><td class="" data-field="houseSourceNumber" data-key="1-0-1"><div class="layui-table-cell laytable-cell-1-0-1">HS260904293923</div></td><td class="" data-field="lpName" data-key="1-0-2"><div class="layui-table-cell laytable-cell-1-0-2">天健芙蓉盛世一期</div></td><td class="" data-field="creatorName" data-key="1-0-3"><div class="layui-table-cell laytable-cell-1-0-3">曾贵军</div></td><td class="" data-field="departmentName" data-key="1-0-4"><div class="layui-table-cell laytable-cell-1-0-4">XHJ营盘路店B店F业务组</div></td><td class="" data-field="createDate" data-key="1-0-5"><div class="layui-table-cell laytable-cell-1-0-5">2026-09-04 11:43:09</div></td><td class="" data-field="appointmentDate" data-key="1-0-6"><div class="layui-table-cell laytable-cell-1-0-6">2026-09-05 00:00:00</div></td><td class="" data-field="isKey" data-key="1-0-7" data-off="true"><div class="layui-table-cell laytable-cell-1-0-7"> 否 </div></td><td class="" data-field="photographyUserName" data-key="1-0-8"><div class="layui-table-cell laytable-cell-1-0-8">贺志</div></td><td class="" data-field="uploadName" data-key="1-0-9"><div class="layui-table-cell laytable-cell-1-0-9">贺志</div></td><td class="" data-field="tel" data-key="1-0-10"><div class="layui-table-cell laytable-cell-1-0-10">18570143910</div></td><td class="" data-field="fk_status" data-key="1-0-11"><div class="layui-table-cell laytable-cell-1-0-11"><p style="color:#009688">已上传</p></div></td><td align="center" class="layui-table-col-special" data-field="12" data-key="1-0-12" data-off="true"><div class="layui-table-cell laytable-cell-1-0-12"> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" id="add_fk_image" lay-event="add_fk_image">上传</a> <a class="layui-btn layui-btn-xs" href="javascript:void(0)" lay-event="detail">详情</a> <a class="layui-btn layui-btn-warm layui-btn-xs" href="javascript:void(0)" lay-event="synchronous">同步</a> <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:void(0)" lay-event="invalid">无效</a> </div></td></tr></tbody></table></div></div><div class="layui-table-page"><div id="layui-table-page1"><div class="layui-box layui-laypage layui-laypage-default" id="layui-laypage-1"><a class="layui-laypage-prev layui-disabled" data-page="0" href="javascript:;"><i class="layui-icon"></i></a><span class="layui-laypage-curr"><em class="layui-laypage-em"></em><em>1</em></span><a data-page="2" href="javascript:;">2</a><a data-page="3" href="javascript:;">3</a><span class="layui-laypage-spr">…</span><a class="layui-laypage-last" data-page="1526" href="javascript:;" title="尾页">1526</a><a class="layui-laypage-next" data-page="2" href="javascript:;"><i class="layui-icon"></i></a><span class="layui-laypage-skip">到第<input class="layui-input" min="1" type="text" value="1"/>页<button class="layui-laypage-btn" type="button">确定</button></span><span class="layui-laypage-count">共 15254 条</span><span class="layui-laypage-limits"><select lay-ignore=""><option selected="" value="10">10 条/页</option><option value="20">20 条/页</option><option value="30">30 条/页</option><option value="40">40 条/页</option><option value="50">50 条/页</option><option value="60">60 条/页</option><option value="70">70 条/页</option><option value="80">80 条/页</option><option value="90">90 条/页</option></select></span></div></div></div><style>.laytable-cell-1-0-0{ width: 90px; }.laytable-cell-1-0-1{ width: 150px; }.laytable-cell-1-0-2{ width: 130px; }.laytable-cell-1-0-3{ width: 100px; }.laytable-cell-1-0-4{ width: 150px; }.laytable-cell-1-0-5{ width: 160px; }.laytable-cell-1-0-6{ width: 160px; }.laytable-cell-1-0-7{ width: 60px; }.laytable-cell-1-0-8{ width: 105px; }.laytable-cell-1-0-9{ width: 105px; }.laytable-cell-1-0-10{ width: 120px; }.laytable-cell-1-0-11{ width: 90px; }.laytable-cell-1-0-12{ width: 320px; }</style></div>
+</div>
+
+
+
+<div style="display:none;"><a href="https://www.cnzz.com/stat/website.php?web_id=1259448652" target="_blank" title="站长统计">站长统计</a></div>
+
+</body></html>

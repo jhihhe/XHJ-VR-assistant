@@ -1,0 +1,303 @@
+{
+  "https://unpkg.com/element-ui/lib/theme-chalk/index.css": {
+    "file": "1a7d04345694-index.css",
+    "bytes": 240033,
+    "sha256": "dc86d4797565d05e88d63598128328e2ed6f02f7f6d950a36a1c4ca9eb9c8057",
+    "contentType": "text/css",
+    "resolvedUrl": "https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+  },
+  "https://vr.xhj.com/static/admin/css/global.css": {
+    "file": "19895008f7d0-global.css",
+    "bytes": 25451,
+    "sha256": "876c2f6cbdca20a23a7dee5b36c610e1587160f629f8c830dcc6fb81e64707b2",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/admin/css/global.css"
+  },
+  "https://vr.xhj.com/static/admin/js/index.js": {
+    "file": "eb157b6f0e7b-index.js",
+    "bytes": 5316,
+    "sha256": "1b3f24bb9ee57b5a38689c5da72c84ed3a1b65ae73352a3234ffcb844db437ff",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/admin/js/index.js"
+  },
+  "https://vr.xhj.com/static/common/css/font.css": {
+    "file": "ca8c3900ca12-font.css",
+    "bytes": 30237,
+    "sha256": "20b2483dae949e82f22cc035b4f06d06f9a40b654e546b27587c7bbcde0be49f",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/common/css/font.css"
+  },
+  "https://vr.xhj.com/static/common/js/angular.min.js": {
+    "file": "527583b14689-angular.min.js",
+    "bytes": 167305,
+    "sha256": "2fe14bc751b550c840d5648659d339454396e1528d27e35bce704757892899a3",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/common/js/angular.min.js"
+  },
+  "https://vr.xhj.com/static/fkhouse/css/app.css": {
+    "file": "4be96a671873-app.css",
+    "bytes": 2956,
+    "sha256": "02a32f3b24832c2587d6177aadbfbceffa5c1f369621da032361462eb181c7eb",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/css/app.css"
+  },
+  "https://vr.xhj.com/static/fkhouse/css/swiper.min.css": {
+    "file": "9011361d864d-swiper.min.css",
+    "bytes": 13677,
+    "sha256": "906ba97c9e3365be3f9b418f3d56349e0ec5c128d99b5134c0c586d5a4586f09",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/css/swiper.min.css"
+  },
+  "https://vr.xhj.com/static/fkhouse/js/axios.js": {
+    "file": "8e7d88aef488-axios.js",
+    "bytes": 1563,
+    "sha256": "d9affea57e3b8db6b87a0ff42f10bad5a942180401fecf2c9ba4903929b5c356",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/js/axios.js"
+  },
+  "https://vr.xhj.com/static/fkhouse/js/axios.min.js": {
+    "file": "db4cee3ec0cd-axios.min.js",
+    "bytes": 31841,
+    "sha256": "6344320a86b2437650b11507b52ad3df33c309636b3695759e2ebff3af1a01f9",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/js/axios.min.js"
+  },
+  "https://vr.xhj.com/static/fkhouse/js/element-ui.js": {
+    "file": "eb28679a3005-element-ui.js",
+    "bytes": 664547,
+    "sha256": "a86fe1e81d9080bf0854c4a515e70f63f7a6fdc5cab5b48ce9bb53c808afebb8",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/js/element-ui.js"
+  },
+  "https://vr.xhj.com/static/fkhouse/js/swiper.min.js": {
+    "file": "fa74e9181670-swiper.min.js",
+    "bytes": 140929,
+    "sha256": "36231d9ccbf4581029b3733c99c07b587ce56a7113b74ae7c0c0a083aec38029",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/js/swiper.min.js"
+  },
+  "https://vr.xhj.com/static/fkhouse/js/vue.js": {
+    "file": "7e0e90298c9a-vue.js",
+    "bytes": 433713,
+    "sha256": "9119ce271c14376c71cdbbfcf2a5b6121b5bfa8f34eb3b4d7928aa9bfb0ecfbf",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/js/vue.js"
+  },
+  "https://vr.xhj.com/static/fkhouse/viewer/jquery-3.2.1.min.js": {
+    "file": "6cc8063b8cc9-jquery-3.2.1.min.js",
+    "bytes": 86659,
+    "sha256": "87083882cc6015984eb0411a99d3981817f5dc5c90ba24f0940420c5548d82de",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/viewer/jquery-3.2.1.min.js"
+  },
+  "https://vr.xhj.com/static/fkhouse/viewer/viewer.min.css": {
+    "file": "06a0c5710192-viewer.min.css",
+    "bytes": 7251,
+    "sha256": "9919c5805229168e54b9b99a9bd136e1ceb092285322c8dceee4e04507fb0716",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/viewer/viewer.min.css"
+  },
+  "https://vr.xhj.com/static/fkhouse/viewer/viewer.min.js": {
+    "file": "46f18d4c7c6f-viewer.min.js",
+    "bytes": 90676,
+    "sha256": "0dc3c21184b01c53569741d2c20970a5de489c5ba45dc9f813abbce688143cd9",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/fkhouse/viewer/viewer.min.js"
+  },
+  "https://vr.xhj.com/static/plugins/layui/css/layui.css": {
+    "file": "775bf65bef0d-layui.css",
+    "bytes": 74337,
+    "sha256": "013b6d47529039d31670f5c6f1ab780d1345bb6d1a643beeca1176f6311067b9",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/css/layui.css"
+  },
+  "https://vr.xhj.com/static/plugins/layui/css/modules/laydate/default/laydate.css?v=5.0.9": {
+    "file": "6817bef72f32-laydate.css",
+    "bytes": 7512,
+    "sha256": "2feb6be9bb9eaa0e5c1c8222e0bb4ce3d585f5015248238b44bba8ac346a1eee",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/css/modules/laydate/default/laydate.css?v=5.0.9"
+  },
+  "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/layer.css?v=3.1.1": {
+    "file": "01fce5bb4848-layer.css",
+    "bytes": 14400,
+    "sha256": "6133577aee8bea9e518571972d3a178078ede55b99c35cb5c2fb11bc71da49de",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/layer.css?v=3.1.1"
+  },
+  "https://vr.xhj.com/static/plugins/layui/layui.js": {
+    "file": "a2ab94aa8fc3-layui.js",
+    "bytes": 7600,
+    "sha256": "7091b5d337c0403b986f28731020cf02f6418a9e86b83f7813f27fde13b8324d",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/layui.js"
+  },
+  "https://vr.xhj.com/static/plugins/layui2.6/css/modules/code.css?v=2": {
+    "file": "e46f72318f6e-code.css",
+    "bytes": 1319,
+    "sha256": "3f27194c2e479212781a76f993b778d724ac9838e780b19472c0357cd3081431",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui2.6/css/modules/code.css?v=2"
+  },
+  "https://vr.xhj.com/static/plugins/layui2.6/css/modules/laydate/default/laydate.css?v=5.3.1": {
+    "file": "4ac4adabc178-laydate.css",
+    "bytes": 7365,
+    "sha256": "ab9dbdf922a26509951347fcfa83704d86afd2df855c827740c23df72fd8ab3f",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui2.6/css/modules/laydate/default/laydate.css?v=5.3.1"
+  },
+  "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/layer.css?v=3.5.1": {
+    "file": "70af05f31848-layer.css",
+    "bytes": 14271,
+    "sha256": "5cdf3edb27b0c9f8e48918c486e9ae65a9e5beab806b64c4a7bc5bac53c0f540",
+    "contentType": "text/css",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/layer.css?v=3.5.1"
+  },
+  "https://vr.xhj.com/static/plugins/layui2.6/layui.js": {
+    "file": "c23bf861e6a9-layui.js",
+    "bytes": 291286,
+    "sha256": "92c7997b3dce6ab2368b1bdb34ff4b67ac77957898a126c7eba452a8080bec95",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui2.6/layui.js"
+  },
+  "https://unpkg.com/element-ui/lib/theme-chalk/fonts/element-icons.ttf": {
+    "file": "dbcbb66651c1-element-icons.ttf",
+    "bytes": 55956,
+    "sha256": "a30f5b3ba6a48822eae041e0ca5412a289125e4ba661d047dae565ac43b4a6b2",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://unpkg.com/element-ui/lib/theme-chalk/fonts/element-icons.ttf"
+  },
+  "https://unpkg.com/element-ui/lib/theme-chalk/fonts/element-icons.woff": {
+    "file": "65e85b0b6d99-element-icons.woff",
+    "bytes": 28200,
+    "sha256": "ab40a58972be2ceab32e7e35dab3131b959aae63835d7bda1a79ae51f9a73c17",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://unpkg.com/element-ui/lib/theme-chalk/fonts/element-icons.woff"
+  },
+  "https://vr.xhj.com/static/admin/images/layui/desc.png": {
+    "file": "4a49f3351730-desc.png",
+    "bytes": 1923,
+    "sha256": "71e5892d3849d93fe2d8fb860dc4927fdd307c0a4cbb9155a5f710d11690ae02",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/admin/images/layui/desc.png"
+  },
+  "https://vr.xhj.com/static/common/font/IcoMoon-Free.ttf": {
+    "file": "dd00644e6392-IcoMoon-Free.ttf",
+    "bytes": 130416,
+    "sha256": "10475390fa8c382492c1914aed7d9bc87b5b7900c81e39bb91c1cd677c30f1ad",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/common/font/IcoMoon-Free.ttf"
+  },
+  "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/icon-ext.png": {
+    "file": "aa5417b928fe-icon-ext.png",
+    "bytes": 5911,
+    "sha256": "e2e7a838c43d0a9a9ffc179fc7bd41435883df6f5103a45dc77db4d30c8825e2",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/icon-ext.png"
+  },
+  "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/icon.png": {
+    "file": "592923177719-icon.png",
+    "bytes": 11493,
+    "sha256": "99942159547fc45a02ddeb5af9570b6c870b18c36f83fd53ccb7c0644d346c89",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/icon.png"
+  },
+  "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/loading-0.gif": {
+    "file": "6b2e50f6f81a-loading-0.gif",
+    "bytes": 5793,
+    "sha256": "07236f6814a40623bab43f2043860c97678bc7deedbf06feff92f0d6e6673bf5",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/loading-0.gif"
+  },
+  "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/loading-1.gif": {
+    "file": "b64ba52cc428-loading-1.gif",
+    "bytes": 701,
+    "sha256": "7c6380e9985c8e4982f41f8dba64d6b1c4a7997d0aa635d9f4bb7643ab815248",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/loading-1.gif"
+  },
+  "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/loading-2.gif": {
+    "file": "77345a8934e2-loading-2.gif",
+    "bytes": 1787,
+    "sha256": "16ea0cf66d51efdbbc2a62b11ab0419fa72fb3320844f1d0d710480245ac9925",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/css/modules/layer/default/loading-2.gif"
+  },
+  "https://vr.xhj.com/static/plugins/layui/font/iconfont.eot?v=256": {
+    "file": "cc0d726773f8-iconfont.eot",
+    "bytes": 46684,
+    "sha256": "b0b581b13d886c87a87391c305110268795a4bd7baa9459ca570a86c58bf874b",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/font/iconfont.eot?v=256"
+  },
+  "https://vr.xhj.com/static/plugins/layui/font/iconfont.eot?v=256#iefix": {
+    "file": "b58610965b54-iconfont.eot",
+    "bytes": 46684,
+    "sha256": "b0b581b13d886c87a87391c305110268795a4bd7baa9459ca570a86c58bf874b",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/font/iconfont.eot?v=256#iefix"
+  },
+  "https://vr.xhj.com/static/plugins/layui/font/iconfont.svg?v=256#layui-icon": {
+    "file": "2edb95f944b8-iconfont.svg",
+    "bytes": 306566,
+    "sha256": "78046836d50de3820b644a1a9b51ce2ecf47a35ffcdb572a31efdc859d72741d",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/font/iconfont.svg?v=256#layui-icon"
+  },
+  "https://vr.xhj.com/static/plugins/layui/font/iconfont.ttf?v=256": {
+    "file": "4c49d659b217-iconfont.ttf",
+    "bytes": 46508,
+    "sha256": "16cde01229a31bba3526a149d3c51ba4e7637980dfd574c9f7cfa8d5e4631073",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/font/iconfont.ttf?v=256"
+  },
+  "https://vr.xhj.com/static/plugins/layui/font/iconfont.woff2?v=256": {
+    "file": "dbec19b82cfc-iconfont.woff2",
+    "bytes": 25964,
+    "sha256": "bef73f87b8a3972427dcece922ed8f59d1d01c4a3fd572316efa70de9aec9c09",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/font/iconfont.woff2?v=256"
+  },
+  "https://vr.xhj.com/static/plugins/layui/font/iconfont.woff?v=256": {
+    "file": "d54a6fd42b98-iconfont.woff",
+    "bytes": 30628,
+    "sha256": "c2c9c1d7142eeb722c45c2436df198f39b53280f6dac250253fc7dc0c89eeb26",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui/font/iconfont.woff?v=256"
+  },
+  "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/icon-ext.png": {
+    "file": "cd0fc34f3014-icon-ext.png",
+    "bytes": 5911,
+    "sha256": "e2e7a838c43d0a9a9ffc179fc7bd41435883df6f5103a45dc77db4d30c8825e2",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/icon-ext.png"
+  },
+  "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/icon.png": {
+    "file": "928a7b93f3bf-icon.png",
+    "bytes": 11493,
+    "sha256": "99942159547fc45a02ddeb5af9570b6c870b18c36f83fd53ccb7c0644d346c89",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/icon.png"
+  },
+  "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/loading-0.gif": {
+    "file": "8e4b2f792a14-loading-0.gif",
+    "bytes": 5793,
+    "sha256": "07236f6814a40623bab43f2043860c97678bc7deedbf06feff92f0d6e6673bf5",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/loading-0.gif"
+  },
+  "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/loading-1.gif": {
+    "file": "35eaa5bfdedc-loading-1.gif",
+    "bytes": 701,
+    "sha256": "7c6380e9985c8e4982f41f8dba64d6b1c4a7997d0aa635d9f4bb7643ab815248",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/loading-1.gif"
+  },
+  "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/loading-2.gif": {
+    "file": "b3db8efd712b-loading-2.gif",
+    "bytes": 1787,
+    "sha256": "16ea0cf66d51efdbbc2a62b11ab0419fa72fb3320844f1d0d710480245ac9925",
+    "contentType": "application/octet-stream",
+    "resolvedUrl": "https://vr.xhj.com/static/plugins/layui2.6/css/modules/layer/default/loading-2.gif"
+  }
+}
