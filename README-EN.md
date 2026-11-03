@@ -1,5 +1,9 @@
 # 🌌 Xiangshi Platform Assistant · XHJ VR Assistant
 
+## 2026-11-03 · v6.2.2
+
+Compacts the survey upload header into two rows: title/account status, then folder selection, selection controls, concurrency, query and upload. The recommended path moves to a tooltip; narrower windows wrap without page overflow. Upload behavior is unchanged.
+
 ## 2026-11-03 · v6.2.1
 
 Adds the daily survey-folder uploader with cover-first uploads, selectable concurrency (4–20 in steps of 4; default 8), centered themed fields, explicit eligibility colors, session-expiry indicators and per-stage save diagnostics. Failed/completed rows remain selectable; retries require confirmation. Existing photos remain until the complete replacement is ready. Browser folder access requires manual selection.

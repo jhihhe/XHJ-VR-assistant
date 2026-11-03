@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手（534783）
 // @namespace    http://tampermonkey.net/
-// @version      6.2.1
+// @version      6.2.2
 // @description  象视平台助手：16套主题统一新拟物设计、字段列配色、批量同步、表格增强、上传计数与重试、缩放和本地验证码识别。
 // @author       @Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
@@ -3317,7 +3317,7 @@ ${getSoftUICss(vars)}
         // 创建主按钮
         const triggerButton = document.createElement('button');
         triggerButton.type = 'button';
-        triggerButton.title = '象视助手 v6.2.1 · 同步当前已接单页（最多90条）';
+        triggerButton.title = '象视助手 v6.2.2 · 同步当前已接单页（最多90条）';
         triggerButton.id = BUTTON_ID;
         triggerButton.textContent = '开始自动同步';
         triggerButton.style.cssText = `
@@ -3337,7 +3337,7 @@ ${getSoftUICss(vars)}
         // 创建设置按钮
         const settingsButton = document.createElement('button');
         settingsButton.type = 'button';
-        settingsButton.title = '象视助手 v6.2.1 · 加载已接单订单';
+        settingsButton.title = '象视助手 v6.2.2 · 加载已接单订单';
         settingsButton.id = SETTINGS_BUTTON_ID;
         settingsButton.textContent = '跳转到已接单';
         settingsButton.style.cssText = `
@@ -3409,7 +3409,7 @@ ${getSoftUICss(vars)}
             let table;
             while (!(table = getOrderTable()) || !Array.isArray(table.cache?.order)
                 || document.querySelector('.layui-table-view[lay-id="order"] .layui-table-init')) {
-                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.2.1 并刷新房勘列表');
+                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.2.2 并刷新房勘列表');
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
             const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
@@ -5623,24 +5623,24 @@ async function runSurveyUpload(plan, api, report = () => {}, concurrency = 8) {
         if (!host || document.getElementById('xhj-survey-folders')) return;
         const panel = document.createElement('details');
         panel.id = 'xhj-survey-folders';
-        panel.dataset.surveyVersion = '0.6.0';
+        panel.dataset.surveyVersion = '0.6.1';
         const style = document.createElement('style');
         style.textContent = `
-            #xhj-survey-folders{box-sizing:border-box;width:100%;min-width:0;flex-basis:100%;margin:20px 0 0!important;padding:20px 24px;border-radius:20px;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,#283342)!important;box-shadow:var(--xhj-soft-out,0 3px 12px #0001);color-scheme:var(--xhj-scheme,light);font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif!important}
+            #xhj-survey-folders{box-sizing:border-box;width:100%;min-width:0;flex-basis:100%;margin:20px 0 0!important;padding:12px 18px;border-radius:20px;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,#283342)!important;box-shadow:var(--xhj-soft-out,0 3px 12px #0001);color-scheme:var(--xhj-scheme,light);font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif!important}
             #xhj-survey-folders *{box-sizing:border-box;font-family:inherit!important;text-shadow:none!important}
             #xhj-survey-folders :is(p,span,label,output){color:var(--xhj-text,#283342)!important}
-            #xhj-survey-folders summary{display:flex!important;align-items:center;justify-content:center;gap:8px;list-style:none;font-size:16px!important;font-weight:600;cursor:pointer;color:var(--xhj-accent-text,inherit)!important;margin:0!important;padding:8px 0!important;text-align:center}
+            #xhj-survey-folders summary{display:flex!important;align-items:center;justify-content:flex-start;gap:8px;list-style:none;font-size:16px!important;font-weight:600;cursor:pointer;color:var(--xhj-accent-text,inherit)!important;margin:0!important;padding:4px 0!important;text-align:left}
             #xhj-survey-folders summary::-webkit-details-marker{display:none}
             #xhj-survey-folders summary::before{content:'▸'}
             #xhj-survey-folders[open] summary::before{content:'▾'}
-            #xhj-survey-folders .survey-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(280px,1fr);align-items:center;gap:20px;margin:18px 0}
-            #xhj-survey-folders :is(.survey-source,.survey-actions,.survey-setting,.survey-selection){display:flex;align-items:center;gap:12px}
-            #xhj-survey-folders .survey-source{justify-content:flex-start;min-width:0}
-            #xhj-survey-folders .survey-actions{justify-content:flex-end}
-            #xhj-survey-folders .survey-selection{justify-content:center;margin:0 0 16px}
-            #xhj-survey-folders .survey-selected-directory{min-width:0;overflow-wrap:anywhere;font-weight:500}
-            #xhj-survey-folders button{width:auto!important;min-width:108px;height:38px!important;min-height:38px;padding:8px 16px!important;font-size:14px!important;font-weight:500;line-height:22px!important;text-align:center!important;margin:0!important;white-space:nowrap;cursor:pointer}
-            #xhj-survey-folders select{display:inline-block!important;width:80px;height:38px;padding:0 10px;appearance:auto;text-align:center;font:inherit}
+            #xhj-survey-folders .survey-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:12px 0}
+            #xhj-survey-folders :is(.survey-source,.survey-actions,.survey-setting,.survey-selection){display:flex;align-items:center;gap:10px}
+            #xhj-survey-folders .survey-source{justify-content:flex-start;min-width:0;flex:1 1 180px}
+            #xhj-survey-folders .survey-actions{justify-content:flex-end;margin-left:auto;flex:0 0 auto}
+            #xhj-survey-folders .survey-selection{justify-content:flex-start;margin:0;flex:0 0 auto}
+            #xhj-survey-folders .survey-selected-directory{min-width:0;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+            #xhj-survey-folders button{width:auto!important;min-width:68px;height:38px!important;min-height:38px;padding:8px 12px!important;font-size:14px!important;font-weight:500;line-height:22px!important;text-align:center!important;margin:0!important;white-space:nowrap;cursor:pointer}
+            #xhj-survey-folders select{display:inline-block!important;width:68px;height:38px;padding:0 10px;appearance:auto;text-align:center;font:inherit}
             #xhj-survey-folders .survey-path{margin:14px 0 0;text-align:center;overflow-wrap:anywhere;line-height:1.7;font-size:12px;color:var(--xhj-muted,var(--xhj-text,inherit))!important}
             #xhj-survey-folders input[type="checkbox"]{display:inline-block!important;visibility:visible!important;opacity:1!important;position:static!important;width:17px!important;height:17px!important;appearance:auto!important;margin:0!important;vertical-align:middle;accent-color:var(--xhj-accent-text,#3671a6)}
             #xhj-survey-folders .survey-scroll{overflow:auto;max-height:600px;margin:0 auto 14px;width:100%}
@@ -5668,7 +5668,7 @@ async function runSurveyUpload(plan, api, report = () => {}, concurrency = 8) {
             #xhj-survey-folders td[data-xhj-column] output[data-tone="error"]{color:light-dark(#b32828,#ff9292)!important}
             #xhj-survey-folders td[data-xhj-column] output[data-tone="warning"]{color:light-dark(#885800,#f2ca70)!important}
             #xhj-survey-folders output[data-detail]{cursor:pointer;text-decoration:underline dotted;text-underline-offset:4px}
-            #xhj-survey-folders .survey-login{text-align:center;margin:8px 0;font-size:12px}
+            #xhj-survey-folders .survey-login{text-align:right;margin:0 0 0 auto!important;font-size:12px!important;font-weight:500;white-space:nowrap}
             #xhj-survey-folders dialog{max-width:min(560px,90vw);border:1px solid var(--xhj-border,#8884);border-radius:16px;padding:24px;background:var(--xhj-surface,#eef0f3);color:var(--xhj-text,#283342)}
             #xhj-survey-folders dialog::backdrop{background:#0005}
             #xhj-survey-folders dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.8;color:inherit}
@@ -5676,16 +5676,16 @@ async function runSurveyUpload(plan, api, report = () => {}, concurrency = 8) {
             #xhj-survey-folders button:hover{box-shadow:var(--xhj-soft-hover)!important}
             #xhj-survey-folders button:active{box-shadow:var(--xhj-soft-in)!important}
             #xhj-survey-folders :is(button,select):disabled{opacity:.5;cursor:not-allowed}
-            @media(max-width:950px){#xhj-survey-folders{padding:16px}#xhj-survey-folders .survey-toolbar{grid-template-columns:1fr;gap:14px}#xhj-survey-folders :is(.survey-source,.survey-actions,.survey-setting){justify-content:center}#xhj-survey-folders .survey-path{font-size:12px}}
+            @media(max-width:760px){#xhj-survey-folders{padding:12px}#xhj-survey-folders .survey-toolbar{gap:10px}#xhj-survey-folders .survey-source{flex-basis:100%}#xhj-survey-folders .survey-login{white-space:normal;line-height:1.3;text-align:right}}
         `;
         panel.append(style);
         const title = document.createElement('summary');
         title.textContent = '上传房堪';
         panel.append(title);
-        const loginState = document.createElement('p');
+        const loginState = document.createElement('span');
         loginState.className = 'survey-login';
         loginState.textContent = '正在验证登录…';
-        panel.append(loginState);
+        title.append(loginState);
         const detailDialog = document.createElement('dialog');
         detailDialog.setAttribute('aria-label', '上传状态详情');
         const detailText = document.createElement('pre');
@@ -5739,9 +5739,12 @@ async function runSurveyUpload(plan, api, report = () => {}, concurrency = 8) {
         const selection = document.createElement('span');
         selection.className = 'survey-selected-directory';
         selection.textContent = '尚未选择文件夹';
-        const directory = document.createElement('p');
-        directory.className = 'survey-path';
-        const updateDirectory = () => { directory.textContent = `今日默认目录：${surveyDailyDirectory()}（浏览器需手动选择）`; };
+        const updateDirectory = () => {
+            const path = surveyDailyDirectory();
+            choose.title = `今日推荐目录：${path}（浏览器需手动选择）`;
+            selection.title = choose.title;
+            if (!input.files.length) selection.textContent = path.split('/').pop();
+        };
         updateDirectory();
         setInterval(updateDirectory, 60000);
         const concurrencyLabel = document.createElement('label');
@@ -5837,8 +5840,18 @@ async function runSurveyUpload(plan, api, report = () => {}, concurrency = 8) {
         const actions = document.createElement('div');
         actions.className = 'survey-actions';
         actions.append(query, start);
-        toolbar.append(source, concurrencyLabel, actions);
-        panel.append(directory, input, toolbar, rows, status);
+        const controls = document.createElement('div');
+        for (const [label, checked] of [['全选', true], ['取消全选', false]]) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'layui-btn';
+            button.textContent = label;
+            button.addEventListener('click', () => rows.querySelectorAll('input:not(:disabled)').forEach(box => { box.checked = checked; }));
+            controls.append(button);
+        }
+        controls.className = 'survey-selection';
+        toolbar.append(source, controls, concurrencyLabel, actions);
+        panel.append(input, toolbar, rows, status);
         input.addEventListener('change', () => {
             rows.replaceChildren();
             plans.clear();
@@ -5856,17 +5869,6 @@ async function runSurveyUpload(plan, api, report = () => {}, concurrency = 8) {
             const recognized = [...folders].map(([name, files]) => planFolder(name, files)).filter(Boolean);
             const numbers = new Map();
             for (const plan of recognized) numbers.set(plan.houseNumber, (numbers.get(plan.houseNumber) || 0) + 1);
-            const controls = document.createElement('div');
-            for (const [label, checked] of [['全选', true], ['取消全选', false]]) {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'layui-btn';
-                button.textContent = label;
-                button.addEventListener('click', () => rows.querySelectorAll('input:not(:disabled)').forEach(box => { box.checked = checked; }));
-                controls.append(button);
-            }
-            rows.append(controls);
-            controls.className = 'survey-selection';
             const scroll = document.createElement('div');
             scroll.className = 'survey-scroll';
             const table = document.createElement('table');
