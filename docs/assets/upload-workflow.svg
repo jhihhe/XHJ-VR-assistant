@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="318" viewBox="0 0 1200 318" role="img" aria-labelledby="title desc">
+<title id="title">每日房堪上传流程</title><desc id="desc">选择与核对、封面与余图上传、保存回写与核实。异常停止，核对订单后再确认重试。</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="m1 1 5 3-5 3" fill="none" stroke="#6f9a99" stroke-width="1.5"/></marker></defs>
+<rect width="1200" height="318" rx="20" fill="#f4f7f9"/>
+<g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif">
+<g transform="translate(26 28)"><rect width="352" height="186" rx="15" fill="#e8f3ef" stroke="#a6cdbf"/><text x="22" y="34" fill="#237358" font-size="14" font-weight="700">01 · 选择与核对</text><text x="22" y="72" fill="#233c36" font-size="22" font-weight="600">先确认上传范围</text><g fill="#425c53" font-size="17"><text x="22" y="109">选择目录，解析编号与朝向</text><text x="22" y="139">核对图片数量和客厅封面</text><text x="22" y="169">勾选房源，查询订单状态</text></g></g>
+<path d="M383 121h29" fill="none" stroke="#6f9a99" stroke-width="2" marker-end="url(#arrow)"/>
+<g transform="translate(424 28)"><rect width="352" height="186" rx="15" fill="#eaf0f8" stroke="#b1c4df"/><text x="22" y="34" fill="#426593" font-size="14" font-weight="700">02 · 上传完整新图</text><text x="22" y="72" fill="#273b57" font-size="22" font-weight="600">封面先传，余图并发</text><g fill="#4a607c" font-size="17"><text x="22" y="109">先等第一张客厅封面完成</text><text x="22" y="139">余图使用所选并发数，默认 8</text><text x="22" y="169">保存前核对原订单图片未变化</text></g></g>
+<path d="M781 121h29" fill="none" stroke="#6f9a99" stroke-width="2" marker-end="url(#arrow)"/>
+<g transform="translate(822 28)"><rect width="352" height="186" rx="15" fill="#f0edf7" stroke="#c7b9dc"/><text x="22" y="34" fill="#79599b" font-size="14" font-weight="700">03 · 保存与核实</text><text x="22" y="72" fill="#49365d" font-size="22" font-weight="600">核对通过才显示完成</text><g fill="#685678" font-size="17"><text x="22" y="109">完整新图保存，回写订单</text><text x="22" y="139">核对图片、封面及朝向</text><text x="22" y="169">确认同一订单仍为有效状态</text></g></g>
+<rect x="26" y="239" width="1148" height="53" rx="12" fill="#fff4df" stroke="#dfc693"/>
+<circle cx="51" cy="265" r="10" fill="#ad7b27"/><text x="48" y="270" fill="#fff" font-size="15" font-weight="700">!</text>
+<text x="74" y="271" fill="#7e581d" font-size="17">任一步失败或结果未确认 → 停止批次并显示原因 → 先核对原订单，再确认是否重试</text>
+</g></svg>
