@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         象视平台助手（563997）
 // @namespace    http://tampermonkey.net/
-// @version      6.0.1-beta.1
-// @description  基于6.0.0保留现有功能，修正活动页面识别、表单与按钮排版；部分页面已核对，完整线上回归尚未完成。
-// @author       Jhih he
+// @version      6.2.0
+// @description  象视平台助手：16套主题统一新拟物设计、字段列配色、批量同步、表格增强、上传计数与重试、缩放和本地验证码识别。
+// @author       @Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
 // @supportURL   https://github.com/jhihhe/XHJ-VR-assistant/issues
 // @license      MIT
@@ -15,6 +15,7 @@
 // @grant        GM_getValue
 // @grant        GM_getResourceURL
 // @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
 // @run-at       document-start
 // ==/UserScript==
 
@@ -75,6 +76,37 @@
 
     // Move existing controls intact so listeners and workflow state are preserved.
     const normalizePageLayout = () => {
+        markPanoramaRows();
+        decorateTableColumns();
+        if (getPageProfile().id === 'house-upload') {
+            const header = document.querySelector('.el-dialog__header');
+            const batch = document.querySelector('.uploadBtn');
+            const footerButtons = Array.from(document.querySelectorAll('.dialog-footer .el-button'));
+            const clear = footerButtons.find(button => button.textContent.includes('一键清除'));
+            const confirm = footerButtons.find(button => button.textContent.replace(/\s/g, '') === '确定');
+            if (header && (batch || clear || confirm)) {
+                let actions = header.querySelector('.xhj-header-actions');
+                if (!actions) {
+                    actions = document.createElement('div');
+                    actions.className = 'xhj-header-actions';
+                    actions.setAttribute('role', 'group');
+                    actions.setAttribute('aria-label', '房勘上传操作');
+                    header.appendChild(actions);
+                }
+                [clear, batch, confirm].filter(Boolean).forEach(button => {
+                    if (button.parentElement !== actions) actions.appendChild(button);
+                });
+            }
+        }
+        document.querySelectorAll('.layui-table-cell, .layui-upload-list span').forEach(cell => {
+            if (cell.querySelector('button, a, input')) return;
+            const label = cell.textContent.trim();
+            const status = /^(已上传|上传成功|有效|已完成)$/.test(label) ? 'success'
+                : /^(无效|已取消|取消|上传失败|失败)$/.test(label) ? 'danger'
+                : /^(已接单)$/.test(label) ? 'accepted'
+                : /^(待接单|未上传|上传中|待处理)$/.test(label) ? 'warning' : '';
+            if (cell.dataset.xhjStatus !== status) cell.dataset.xhjStatus = status;
+        });
         if (getPageProfile().id !== 'house-list') return;
         const toolbar = document.querySelector('.admin-main .demoTable');
         const buttons = ['auto-sync-button-v3', 'auto-sync-settings-v3'].map(id => document.getElementById(id)).filter(Boolean);
@@ -135,7 +167,15 @@
         },
         'default': {
             name: '默认 (Default)',
-            vars: {} // 空对象表示移除样式
+            vars: {
+                '--xhj-native': '1',
+                '--xhj-bg': '#ffffff', '--xhj-fg': '#333333',
+                '--xhj-header-bg': '#23262e', '--xhj-side-bg': '#393d49',
+                '--xhj-input-bg': '#ffffff', '--xhj-table-head': '#f2f2f2',
+                '--xhj-active-bg': '#00796b', '--xhj-active-fg': '#ffffff',
+                '--xhj-border': '#d2d2d2', '--xhj-hover-bg': '#f2f2f2',
+                '--xhj-success-color': '#006d3a', '--xhj-uploading-color': '#8a5200'
+            }
         },
         'star-wars-hud': {
             name: 'Star Wars HUD (Immersive)',
@@ -390,6 +430,29 @@
                 '--xhj-success-shadow': 'rgba(16, 185, 129, 0.4)'
             }
         },
+        'anthropic': {
+            name: 'Anthropic (Warm Editorial)',
+            vars: {
+                '--xhj-bg': '#faf9f5',
+                '--xhj-fg': '#141413',
+                '--xhj-header-bg': '#f0eee6',
+                '--xhj-side-bg': '#e8e6dc',
+                '--xhj-active-bg': '#141413',
+                '--xhj-active-fg': '#faf9f5',
+                '--xhj-emphasis-color': '#a54b30',
+                '--xhj-warning-color': '#a54b30',
+                '--xhj-border': '#d1cfc5',
+                '--xhj-hover-bg': '#e8e6dc',
+                '--xhj-input-bg': '#faf9f5',
+                '--xhj-table-head': '#f0eee6',
+                '--xhj-glow-color': 'rgba(217, 119, 87, 0.14)',
+                '--xhj-shadow-color': 'rgba(20, 20, 19, 0.08)',
+                '--xhj-uploading-color': '#a54b30',
+                '--xhj-uploading-shadow': 'transparent',
+                '--xhj-success-color': '#53653c',
+                '--xhj-success-shadow': 'transparent'
+            }
+        },
         'macos-light': {
             name: 'Apple Light (Recommended)',
             vars: {
@@ -444,12 +507,250 @@
     injectCriticalCSS();
 
     // 通用 CSS 模板 (Layui 覆盖)
+    // Resolve translucent theme surfaces before checking text contrast.
+    const colorRGB = (value, backdrop = [255, 255, 255]) => {
+        const hex = String(value || '').match(/^#([\da-f]{3}|[\da-f]{6})$/i);
+        if (hex) {
+            const expanded = hex[1].length === 3 ? [...hex[1]].map(c => c + c).join('') : hex[1];
+            return [0, 2, 4].map(i => parseInt(expanded.slice(i, i + 2), 16));
+        }
+        const rgba = String(value || '').match(/^rgba?\(([^)]+)\)/);
+        if (!rgba) return backdrop.slice();
+        const parts = rgba[1].split(',').map(Number);
+        const alpha = parts.length > 3 ? parts[3] : 1;
+        return parts.slice(0, 3).map((v, i) => Math.round(v * alpha + backdrop[i] * (1 - alpha)));
+    };
+    const colorLuminance = rgb => rgb.map(v => {
+        const c = v / 255;
+        return c <= .04045 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4);
+    }).reduce((sum, v, i) => sum + v * [.2126, .7152, .0722][i], 0);
+    const colorContrast = (a, b) => {
+        const x = colorLuminance(a), y = colorLuminance(b);
+        return (Math.max(x, y) + .05) / (Math.min(x, y) + .05);
+    };
+    const readableColor = (candidate, surface) => {
+        const start = colorRGB(candidate, surface);
+        const end = colorContrast([0, 0, 0], surface) > colorContrast([255, 255, 255], surface) ? [0, 0, 0] : [255, 255, 255];
+        for (let step = 0; step <= 100; step++) {
+            const rgb = start.map((v, i) => Math.round(v + (end[i] - v) * step / 100));
+            if (colorContrast(rgb, surface) >= 4.5) return `rgb(${rgb.join(', ')})`;
+        }
+        return `rgb(${end.join(', ')})`;
+    };
+    const softThemeVars = vars => {
+        if (vars['--xhj-soft-light']) return vars;
+        const original = colorRGB(vars['--xhj-bg']);
+        const dark = colorLuminance(original) < .35;
+        const mix = (a, b, weight) => a.map((v, i) => Math.round(v * (1 - weight) + b[i] * weight));
+        const base = dark ? mix(original, [65, 70, 80], .28)
+            : mix([224, 229, 236], original, .28);
+        const rgb = c => `rgb(${c.join(', ')})`;
+        return { ...vars,
+            '--xhj-bg': rgb(base), '--xhj-input-bg': rgb(base),
+            '--xhj-header-bg': rgb(base), '--xhj-side-bg': rgb(base),
+            '--xhj-table-head': rgb(base),
+            '--xhj-soft-light': rgb(mix(base, [255, 255, 255], dark ? .13 : .85)),
+            '--xhj-soft-shadow': rgb(mix(base, [0, 0, 0], dark ? .35 : .18))
+        };
+    };
+    const columnPalette = vars => {
+        const surface = colorRGB(vars['--xhj-input-bg']);
+        let accent = colorRGB(vars['--xhj-emphasis-color'] || vars['--xhj-active-bg']);
+        if (accent.reduce((sum, value, index) => sum + Math.abs(value - surface[index]), 0) < 120) {
+            accent = colorRGB(vars['--xhj-success-color'] || vars['--xhj-fg']);
+        }
+        // Neighbouring tones within the theme; no independent rainbow palette.
+        return Array.from({ length: 24 }, (_, index) => {
+            const offset = [0, 14, -12, 8, -6, 18][index % 6];
+            const weight = .035 + ((index * 7) % 24) * .01;
+            const tint = accent.map((v, channel) => Math.max(0, Math.min(255, v + offset * [1, -.5, .6][channel])));
+            const bg = surface.map((v, channel) => Math.max(0, Math.min(255, Math.round(v * (1 - weight) + tint[channel] * weight + Math.floor(index / 6) * .7))));
+            const dark = colorLuminance(surface) < .35;
+            const textColors = dark ? ['#8fd3ff', '#f8b6cb', '#b8e6a1', '#e1bdff', '#ffce92', '#a5e2dc', '#e9d68f', '#c3caff', '#ffb6a5', '#a9ded0', '#f4c0ed', '#cbdca2', '#b6cfff'] : ['#075a89', '#903552', '#376b25', '#673b88', '#8a4b08', '#006b64', '#6c5900', '#394d98', '#993f2e', '#146c5b', '#843e7d', '#526a22', '#315a8a'];
+            return { bg: `rgb(${bg.join(', ')})`, text: readableColor(textColors[index % textColors.length], bg),
+                success: readableColor(vars['--xhj-success-color'] || '#248348', bg),
+                accepted: readableColor(dark ? '#70b8ff' : '#0055b8', bg),
+                warning: readableColor(vars['--xhj-warning-color'] || vars['--xhj-uploading-color'] || (dark ? '#ffd38a' : '#8a5200'), bg),
+                danger: readableColor(dark ? '#ff8e9b' : '#b42336', bg)
+            };
+        });
+    };
+    const themeTokens = vars => {
+        vars = softThemeVars(vars);
+        const bg = colorRGB(vars['--xhj-bg']);
+        const surface = colorRGB(vars['--xhj-input-bg'], bg);
+        const accent = colorRGB(vars['--xhj-active-bg'], surface);
+        const header = colorRGB(vars['--xhj-header-bg'], bg);
+        const sidebar = colorRGB(vars['--xhj-side-bg'], bg);
+        const dark = colorLuminance(surface) < .35;
+        const rgb = c => `rgb(${c.join(', ')})`;
+        const readable = candidate => readableColor(readableColor(candidate, surface), bg);
+        return {
+            '--xhj-surface': rgb(surface),
+            '--xhj-soft-light': vars['--xhj-soft-light'],
+            '--xhj-soft-shadow': vars['--xhj-soft-shadow'],
+            '--xhj-body-text': readableColor(vars['--xhj-fg'], bg),
+            '--xhj-text': readable(vars['--xhj-fg']),
+            '--xhj-muted': readable(dark ? '#a4a9b3' : '#6e737c'),
+            '--xhj-accent-text': readable(vars['--xhj-emphasis-color'] || vars['--xhj-active-bg']),
+            '--xhj-on-accent': readableColor(vars['--xhj-active-fg'], accent),
+            '--xhj-on-header': readableColor(vars['--xhj-fg'], header),
+            '--xhj-on-side': readableColor(vars['--xhj-fg'], sidebar),
+            '--xhj-danger-text': readable(dark ? '#ff8e9b' : '#b42336'),
+            '--xhj-warning-text': readable(vars['--xhj-warning-color'] || vars['--xhj-uploading-color'] || (dark ? '#ffd38a' : '#8a5200')),
+            '--xhj-success-text': readable(vars['--xhj-success-color'] || '#248348'),
+            '--xhj-scheme': dark ? 'dark' : 'light'
+        };
+    };
+
+    function decorateTableColumns() {
+        document.querySelectorAll('.layui-table-view').forEach(view => {
+            const header = view.querySelector('.layui-table-header');
+            if (!header) return;
+            const fields = [...new Set(Array.from(header.querySelectorAll('th[data-field]'), cell => cell.dataset.field))].sort();
+            const indices = new Map(fields.map((field, index) => [field, String(index % 24)]));
+            view.querySelectorAll('th[data-field], td[data-field]').forEach(cell => {
+                const index = indices.get(cell.dataset.field);
+                if (index !== undefined && cell.dataset.xhjColumn !== index) cell.dataset.xhjColumn = index;
+            });
+        });
+    }
+
+    const getSoftUICss = vars => {
+        const columns = columnPalette(vars).map((color, index) => `
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column="${index}"] {
+    --xhj-column-bg: ${color.bg}; --xhj-column-text: ${color.text};
+    --xhj-column-accepted: ${color.accepted}; --xhj-column-success: ${color.success}; --xhj-column-warning: ${color.warning}; --xhj-column-danger: ${color.danger};
+    background: var(--xhj-column-bg) !important; color: var(--xhj-column-text) !important;
+}`).join('\n');
+        return `
+/* Shared Soft UI language: light source fixed at upper left, no floating buttons. */
+html[data-xhj-page="house-upload"] .el-dialog__headerbtn { display: none !important; }
+html[data-xhj-theme] {
+    --xhj-soft-out: 8px 8px 16px var(--xhj-soft-shadow), -8px -8px 16px var(--xhj-soft-light);
+    --xhj-soft-hover: 4px 4px 8px var(--xhj-soft-shadow), -4px -4px 8px var(--xhj-soft-light);
+    --xhj-soft-in: inset 4px 4px 8px var(--xhj-soft-shadow), inset -4px -4px 8px var(--xhj-soft-light);
+    --xhj-soft-input: inset 6px 6px 12px var(--xhj-soft-shadow), inset -6px -6px 12px var(--xhj-soft-light);
+    --xhj-soft-focus: inset 2px 2px 4px var(--xhj-soft-shadow), inset -2px -2px 4px var(--xhj-soft-light);
+}
+html[data-xhj-theme] body { background: var(--xhj-bg) !important; color: var(--xhj-text) !important; }
+html[data-xhj-theme] :is(.layui-layer-content,.el-dialog__body,.el-select-dropdown__item,.layui-form-label,.el-form-item__label) { color: var(--xhj-text) !important; }
+html[data-xhj-theme] body::before, html[data-xhj-theme] body::after,
+html[data-xhj-theme] :is(.layui-header,.layui-side,.layui-card,.layui-btn,.el-button)::before,
+html[data-xhj-theme] :is(.layui-header,.layui-side,.layui-card,.layui-btn,.el-button)::after { content: none !important; }
+html[data-xhj-theme] :is(.layui-header,.layui-side,.layui-nav,.layui-tab-content,.layui-table-tool,.layui-layer-title,.el-dialog__header) {
+    background: var(--xhj-surface) !important; color: var(--xhj-text) !important; background-image: none !important;
+    text-shadow: none !important; border: 0 !important;
+}
+html[data-xhj-theme] :is(.layui-card,.layui-layer,.el-dialog,.layui-table-view,.beg-login-box,#xhj-theme-dock .xhj-control-panel) {
+    background: var(--xhj-surface) !important; color: var(--xhj-text) !important;
+    border: 0 !important; border-radius: 20px !important; box-shadow: var(--xhj-soft-out) !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background-image: none !important;
+}
+html[data-xhj-theme] .layui-table-view { margin: 20px 8px !important; }
+html[data-xhj-theme] .layui-table-view :is(.layui-table-header,.layui-table-body,.layui-table) { background: var(--xhj-surface) !important; border: 0 !important; }
+html[data-xhj-theme] :is(.layui-btn,.el-button,.layui-layer-btn a,.layui-laypage a,.layui-laypage button,
+    #xhj-theme-dock .xhj-control-toggle,#xhj-theme-dock .xhj-theme-option,#xhj-theme-dock .xhj-scale-step) {
+    background: var(--xhj-surface) !important; color: var(--xhj-accent-text) !important;
+    border: 0 !important; border-radius: 12px !important; box-shadow: var(--xhj-soft-out) !important;
+    transform: none !important; filter: none !important; text-shadow: none !important; background-image: none !important;
+    animation: none !important; transition: box-shadow 300ms ease-in-out, opacity 300ms ease-in-out !important;
+}
+html[data-xhj-theme] :is(.layui-btn,.el-button,.layui-layer-btn a,.layui-laypage a,.layui-laypage button,
+    #xhj-theme-dock .xhj-control-toggle,#xhj-theme-dock .xhj-theme-option,#xhj-theme-dock .xhj-scale-step):hover {
+    box-shadow: var(--xhj-soft-hover) !important; transform: none !important; filter: none !important;
+}
+html[data-xhj-theme] :is(.layui-btn,.el-button,.layui-layer-btn a,.layui-laypage a,.layui-laypage button,
+    #xhj-theme-dock .xhj-control-toggle,#xhj-theme-dock .xhj-theme-option,#xhj-theme-dock .xhj-scale-step):active,
+html[data-xhj-theme] #xhj-theme-dock .xhj-theme-option[aria-pressed="true"] {
+    box-shadow: var(--xhj-soft-in) !important; transform: none !important;
+}
+html[data-xhj-theme] :is(button:disabled,.layui-btn-disabled,.el-button.is-disabled) { opacity: .5 !important; box-shadow: none !important; cursor: not-allowed !important; }
+html[data-xhj-theme] :is(.layui-input,.layui-textarea,.layui-select,.el-input__inner,.el-textarea__inner,.layui-laypage input,.layui-laypage select) {
+    background: var(--xhj-surface) !important; color: var(--xhj-text) !important; border: 0 !important;
+    border-radius: 12px !important; box-shadow: var(--xhj-soft-input) !important;
+    transition: box-shadow 300ms ease-in-out !important;
+}
+html[data-xhj-theme] :is(.layui-input,.layui-textarea,.layui-select,.el-input__inner,.el-textarea__inner,.layui-laypage input,.layui-laypage select):focus {
+    box-shadow: var(--xhj-soft-focus) !important;
+}
+html[data-xhj-theme] :is(button,a,input,select,textarea,[tabindex]):focus-visible { outline: 2px solid var(--xhj-accent-text) !important; outline-offset: 3px !important; }
+html[data-xhj-theme] :is(.layui-nav-tree .layui-nav-item a,.layui-tab-title li) {
+    border: 0 !important; border-radius: 12px !important; color: var(--xhj-text) !important;
+    background: var(--xhj-surface) !important; text-shadow: none !important; transform: none !important;
+    transition: box-shadow 300ms ease-in-out !important;
+}
+html[data-xhj-theme] :is(.layui-nav-tree .layui-nav-item.layui-this > a,.layui-tab-title li.layui-this) {
+    box-shadow: var(--xhj-soft-in) !important; color: var(--xhj-accent-text) !important; font-weight: 600 !important;
+}
+html[data-xhj-theme] .layui-nav-bar, html[data-xhj-theme] .layui-tab-title li::after { display: none !important; }
+html[data-xhj-theme] :is(.layui-btn-danger,.el-button--danger,#del_image,#image_clear) { color: var(--xhj-danger-text) !important; }
+html[data-xhj-theme] :is(.layui-btn-warm,.el-button--warning) { color: var(--xhj-warning-text) !important; }
+html[data-xhj-theme] .layui-table-view :is(th,td) { border: 0 !important; border-radius: 0 !important; }
+${columns}
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column] .layui-table-cell { color: var(--xhj-column-text) !important; text-shadow: none !important; }
+html[data-xhj-theme] .layui-table-view tr:hover > td[data-xhj-column] { background: var(--xhj-column-bg) !important; box-shadow: inset 0 1px var(--xhj-soft-light), inset 0 -1px var(--xhj-soft-shadow) !important; }
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column] .layui-table-cell[data-xhj-status="success"] { color: var(--xhj-column-success,var(--xhj-success-text)) !important; }
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column] .layui-table-cell[data-xhj-status="warning"] { color: var(--xhj-column-warning,var(--xhj-warning-text)) !important; }
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column] .layui-table-cell[data-xhj-status="danger"] { color: var(--xhj-column-danger,var(--xhj-danger-text)) !important; }
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column] .layui-table-cell[data-xhj-status="accepted"] { color: var(--xhj-column-accepted,var(--xhj-accent-text)) !important; }
+html[data-xhj-theme] .layui-table-view .layui-table-cell[data-xhj-status]:not([data-xhj-status=""]) { font-weight: 800 !important; }
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column] .layui-table-cell[data-xhj-status="success"] *,
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column] .layui-table-cell[data-xhj-status="warning"] *,
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column] .layui-table-cell[data-xhj-status="accepted"] *,
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column] .layui-table-cell[data-xhj-status="danger"] * { color: inherit !important; -webkit-text-fill-color: currentColor !important; }
+
+html[data-xhj-theme] .layui-table-view td:has(> [data-xhj-status]) { border: 0 !important; }
+html[data-xhj-theme] .layui-table-view tr[data-xhj-marked="true"] > td:first-child { box-shadow: none !important; }
+html[data-xhj-theme] :is(.xhj-3d-counter,.xhj-mark-badge) { border-radius: 12px !important; border: 0 !important; background: var(--xhj-surface) !important; box-shadow: var(--xhj-soft-in) !important; }
+html[data-xhj-theme] #xhj-theme-dock :is(.xhj-control-header,.xhj-control-section,.xhj-control-footer,.xhj-scale-controls) { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+html[data-xhj-theme] #xhj-theme-dock .xhj-control-panel { transition: opacity 300ms ease-in-out !important; transform: none !important; }
+html[data-xhj-theme] #xhj-theme-dock .xhj-theme-swatch { background: color-mix(in srgb,var(--swatch-accent) 35%,var(--xhj-surface)) !important; border: 0 !important; border-radius: 12px !important; box-shadow: var(--xhj-soft-in) !important; }
+html[data-xhj-theme] #xhj-theme-dock .xhj-scale-card { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+html[data-xhj-theme] #xhj-theme-dock .xhj-switch-track { background: var(--xhj-surface) !important; box-shadow: var(--xhj-soft-in) !important; }
+html[data-xhj-theme] #xhj-theme-dock .xhj-switch-track::after { background: var(--xhj-surface) !important; box-shadow: var(--xhj-soft-hover) !important; transition: transform 300ms ease-in-out !important; }
+html[data-xhj-theme] #xhj-theme-dock .xhj-theme-grid { gap: 12px !important; padding: 8px !important; }
+html[data-xhj-theme] .layui-form-select dl, html[data-xhj-theme] .el-select-dropdown { background: var(--xhj-surface) !important; color: var(--xhj-text) !important; border-radius: 12px !important; }
+@media(max-width:767px) { html[data-xhj-theme] { --xhj-soft-out: 4px 4px 8px var(--xhj-soft-shadow), -4px -4px 8px var(--xhj-soft-light); --xhj-soft-hover: 2px 2px 4px var(--xhj-soft-shadow), -2px -2px 4px var(--xhj-soft-light); } }
+@media(prefers-reduced-motion:reduce) { html[data-xhj-theme] *, html[data-xhj-theme] *::before, html[data-xhj-theme] *::after { transition: none !important; animation: none !important; } }
+`.replaceAll('html[data-xhj-theme]', 'html[data-xhj-theme][data-xhj-theme]');
+    };
+
     const getCssTemplate = (vars) => {
         if (Object.keys(vars).length === 0) return '';
+
+        vars = softThemeVars(vars);
+        vars = { ...vars, ...themeTokens(vars) };
 
         const varDeclarations = Object.entries(vars)
             .map(([k, v]) => `${k}: ${v};`)
             .join('\n');
+        if (vars['--xhj-native'] === '1') {
+            return `:root { ${varDeclarations} }
+                body { color: var(--xhj-body-text); }
+                .layui-input::placeholder, .layui-form-mid, .layui-word-aux { color: var(--xhj-muted) !important; }
+                .layui-btn, .layui-form-select dl dd.layui-this { background-color: var(--xhj-active-bg); color: var(--xhj-on-accent); }
+                .layui-btn-primary { background: var(--xhj-surface); color: var(--xhj-accent-text); }
+                .layui-btn-danger { background: var(--xhj-surface); color: var(--xhj-danger-text); border: 1px solid currentColor; }
+                .layui-btn-warm { background: var(--xhj-surface); color: var(--xhj-warning-text); border: 1px solid currentColor; }
+                .el-button--primary, .el-button--primary:hover { background: var(--xhj-active-bg) !important; color: var(--xhj-on-accent) !important; }
+                .el-button--warning, .el-button--warning:hover { background: var(--xhj-surface) !important; color: var(--xhj-warning-text) !important; border-color: currentColor; }
+                .el-button--danger, .el-button--danger:hover { background: var(--xhj-surface) !important; color: var(--xhj-danger-text) !important; border-color: currentColor; }
+                .el-select-dropdown__item.selected, .el-tabs__item.is-active, .el-radio__input.is-checked + .el-radio__label { color: var(--xhj-accent-text) !important; }
+                .layui-table-tool span { color: var(--xhj-muted) !important; }
+                .layui-table-tool { background: var(--xhj-surface) !important; }
+                .layui-nav-tree .layui-this > a { background: var(--xhj-active-bg) !important; color: var(--xhj-on-accent) !important; }
+                .layui-nav, .layui-nav-item a, .layui-tab-title li, .layui-table-cell { transition-property: transform, opacity, box-shadow !important; }
+                .xhj-mark-badge { margin-inline-start: 6px; padding: 2px 4px; border: 1px solid currentColor; color: var(--xhj-warning-text); font-size: 11px; }
+                .xhj-3d-counter, .xhj-counter-text { color: var(--xhj-success-text) !important; background: var(--xhj-surface) !important; text-shadow: none !important; }
+                .xhj-3d-counter, .xhj-counter-text { transition-property: transform, opacity !important; }
+                #xhj-theme-dock .xhj-control-subtitle, #xhj-theme-dock .xhj-control-hint,
+                #xhj-theme-dock .xhj-section-label, #xhj-theme-dock .xhj-scale-value { color: var(--xhj-muted) !important; }
+                :where(button,a,input,select):focus-visible { outline: 3px solid var(--xhj-active-bg); outline-offset: 2px; }
+                @media (prefers-reduced-motion: reduce) { .layui-anim { animation: none !important; } }
+                ${getSoftUICss(vars)}
+            `;
+        }
         const headerBgRgb = parseColorChannels(vars['--xhj-header-bg'] || vars['--xhj-bg'], '22, 27, 34');
         const activeBgRgb = parseColorChannels(vars['--xhj-active-bg'], '189, 147, 249');
         const shadowColor = vars['--xhj-shadow-color'] || 'rgba(0, 0, 0, 0.3)';
@@ -2282,6 +2583,187 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
     html[data-xhj-page="profile"] .layui-input-4 { width: auto; margin-left: 110px; }
 }
 
+/* 2026-09-14: shared geometry, theme-specific readable colors, event-only motion. */
+html[data-xhj-theme] { color-scheme: var(--xhj-scheme); }
+html[data-xhj-theme] body { color: var(--xhj-body-text) !important; }
+html[data-xhj-theme]:not([data-xhj-theme="cyberpunk"]):not([data-xhj-theme="star-wars-hud"]):not([data-xhj-theme="future-tech"]):not([data-xhj-theme="synthwave-84"]),
+html[data-xhj-theme]:not([data-xhj-theme="cyberpunk"]):not([data-xhj-theme="star-wars-hud"]):not([data-xhj-theme="future-tech"]):not([data-xhj-theme="synthwave-84"]) body { background-image: none !important; }
+html[data-xhj-theme] .admin-login-box .logo span {
+    background: none !important; -webkit-text-fill-color: currentColor !important;
+    color: var(--xhj-text) !important; filter: none !important; letter-spacing: .02em;
+}
+html[data-xhj-theme] :is(.admin-main, .layui-form, .el-form) { font-size: 14px; line-height: 1.45; }
+html[data-xhj-theme] :is(.layui-table-view, .el-table, .layui-layer, .el-dialog, .demoTable) {
+    background: var(--xhj-surface) !important;
+    color: var(--xhj-text) !important;
+}
+html[data-xhj-theme] :is(.layui-table-cell, .layui-form-label, .el-form-item__label, .layui-layer-title, .el-dialog__title, .layui-input, .el-input__inner, .layui-textarea) {
+    color: var(--xhj-text) !important;
+    text-shadow: none !important;
+    -webkit-text-stroke: 0 !important;
+    letter-spacing: normal !important;
+}
+html[data-xhj-theme] :is(.layui-input, .el-input__inner, .layui-textarea, .el-textarea__inner, .layui-form-select dl, .el-select-dropdown) {
+    background: var(--xhj-surface) !important;
+    color: var(--xhj-text) !important;
+    border-color: var(--xhj-border) !important;
+}
+html[data-xhj-theme] :is(input, textarea)::placeholder { color: var(--xhj-muted) !important; opacity: 1; }
+html[data-xhj-theme] :is(.layui-form-mid, .layui-word-aux, .el-form-item__error, .layui-table-tips-main) {
+    color: var(--xhj-muted) !important; text-shadow: none !important;
+}
+html[data-xhj-theme] .layui-table :is(th, td) .layui-table-cell {
+    color: var(--xhj-text) !important; background: transparent !important;
+    box-shadow: none !important; border: 0 !important; border-radius: 0 !important;
+    margin: 0 !important; padding: 8px 10px !important;
+    font: 400 13px/1.45 -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif !important;
+}
+html[data-xhj-theme] .layui-table :is(th, td) { background: var(--xhj-surface) !important; }
+html[data-xhj-theme] .layui-table th .layui-table-cell { font-weight: 600 !important; }
+html[data-xhj-theme] .layui-table-cell > :is(p, span):not(.layui-badge) { color: inherit !important; text-shadow: none !important; }
+html[data-xhj-theme] .layui-table :is(th, td) .layui-table-cell[data-xhj-status="success"] { color: var(--xhj-success-text) !important; font-weight: 600 !important; }
+html[data-xhj-theme] .layui-table :is(th, td) .layui-table-cell[data-xhj-status="danger"] { color: var(--xhj-danger-text) !important; font-weight: 600 !important; }
+html[data-xhj-theme] .layui-table :is(th, td) .layui-table-cell[data-xhj-status="warning"] { color: var(--xhj-warning-text) !important; font-weight: 600 !important; }
+html[data-xhj-theme] .layui-table td:has(> [data-xhj-status="success"]) { border-inline-start: 3px solid var(--xhj-success-text) !important; }
+html[data-xhj-theme] .layui-table td:has(> [data-xhj-status="danger"]) { border-inline-start: 3px solid var(--xhj-danger-text) !important; }
+html[data-xhj-theme] .layui-table td:has(> [data-xhj-status="warning"]) { border-inline-start: 3px solid var(--xhj-warning-text) !important; }
+html[data-xhj-theme] .layui-table tbody tr:hover > td {
+    background: color-mix(in srgb, var(--xhj-surface) 95%, var(--xhj-active-bg)) !important;
+}
+html[data-xhj-theme] .layui-table-cell:has(> .layui-btn) {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    gap: 6px; height: auto !important; min-height: 48px;
+    overflow: visible !important; white-space: normal !important;
+}
+html[data-xhj-theme] :is(.layui-btn, .el-button, .layui-layer-btn a) {
+    text-shadow: none !important; letter-spacing: normal !important;
+    -webkit-text-stroke: 0 !important; background-image: none !important;
+    color: var(--xhj-on-accent) !important; background-color: var(--xhj-active-bg) !important;
+    font-weight: 500 !important; box-shadow: none !important;
+    transition: transform 140ms cubic-bezier(.2,.8,.2,1), filter 140ms ease, opacity 140ms ease !important;
+    animation: none !important; will-change: auto !important;
+}
+html[data-xhj-theme] :is(.layui-btn, .el-button)::before,
+html[data-xhj-theme] :is(.layui-btn, .el-button)::after { animation: none !important; pointer-events: none; }
+html[data-xhj-theme] :is(.layui-btn.layui-btn-primary, .el-button.el-button--default, .el-button.is-plain, .layui-layer-btn .layui-layer-btn1) {
+    background: var(--xhj-surface) !important; color: var(--xhj-accent-text) !important;
+    border: 1px solid var(--xhj-border) !important;
+}
+html[data-xhj-theme] :is(.layui-btn-danger, .el-button--danger, #del_image, #image_clear) {
+    background: var(--xhj-surface) !important; color: var(--xhj-danger-text) !important;
+    border: 1px solid currentColor !important;
+}
+html[data-xhj-theme] :is(.layui-btn.layui-btn-warm, .el-button.el-button--warning) {
+    background: var(--xhj-surface) !important; color: var(--xhj-warning-text) !important;
+    border: 1px solid currentColor !important;
+}
+html[data-xhj-theme] :is(.layui-btn-disabled, .el-button.is-disabled) { opacity: .55; cursor: not-allowed !important; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    html[data-xhj-theme] :is(.layui-btn, .el-button):not(:disabled):not(.is-disabled):not(.layui-btn-disabled):hover {
+        transform: translateY(-1px) !important; filter: brightness(1.06);
+    }
+}
+html[data-xhj-theme] :is(.layui-btn, .el-button):not(:disabled):active { transform: scale(.97) !important; }
+html[data-xhj-theme] .layui-table-cell .layui-btn { margin: 0 !important; flex: 0 0 auto; }
+html[data-xhj-theme] :is(.el-dialog__title, .layui-layer-title) { font-size: 16px !important; font-weight: 600 !important; }
+html[data-xhj-theme] .el-dialog__footer {
+    display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px;
+    padding: 16px 20px; border-top: 1px solid var(--xhj-border);
+    background: var(--xhj-surface) !important;
+}
+html[data-xhj-theme] .el-dialog__footer .el-button + .el-button { margin-left: 0; }
+html[data-xhj-theme] :is(.xhj-header-actions, .dialog-footer) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+html[data-xhj-page="house-upload"] .el-dialog__header { display: flex; align-items: center; gap: 12px; }
+html[data-xhj-page="house-upload"] .el-dialog__title { margin-inline-end: auto; }
+html[data-xhj-page="house-upload"] .xhj-header-actions :is(.uploadBtn, .el-upload, .el-button) {
+    position: static !important; margin: 0 !important; height: auto !important;
+    min-height: var(--xhj-control-height) !important; line-height: 1.45 !important;
+}
+html[data-xhj-page="house-upload"] .xhj-header-actions .uploadBtn { padding: 0 !important; }
+html[data-xhj-page="house-upload"] .picture-add {
+    border: 1px dashed var(--xhj-border) !important; border-radius: 10px !important;
+    background: var(--xhj-surface) !important; color: var(--xhj-accent-text) !important;
+    box-shadow: none !important;
+}
+html[data-xhj-page="house-upload"] .botText { color: var(--xhj-muted); font-size: 12px; line-height: 1.7; }
+html[data-xhj-theme] :is(.xhj-3d-counter, .xhj-counter-text) {
+    background: var(--xhj-surface) !important; color: var(--xhj-success-text) !important;
+    text-shadow: none !important; box-shadow: none !important; letter-spacing: normal !important;
+}
+html[data-xhj-theme] #xhj-theme-dock { color: var(--xhj-text, #1d1d1f) !important; }
+html[data-xhj-theme] #xhj-theme-dock :is(.xhj-control-subtitle, .xhj-section-label, .xhj-control-hint, .xhj-scale-value) {
+    color: var(--xhj-muted, #63666d) !important;
+}
+html[data-xhj-theme] #xhj-theme-dock :is(.xhj-control-status, .xhj-theme-check) { color: var(--xhj-accent-text, #0067cc) !important; }
+html[data-xhj-theme] #xhj-theme-dock .xhj-control-toggle { color: var(--xhj-on-accent, #fff) !important; }
+/* Anthropic: warm paper, ink, clay and an editorial heading face. */
+html[data-xhj-theme="anthropic"] { --xhj-clay: #d97757; }
+html[data-xhj-theme="anthropic"] :is(.layui-card, .layui-layer, .el-dialog, .layui-table-view, .demoTable, .xhj-control-panel) {
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(20,20,19,.04) !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+}
+html[data-xhj-theme="anthropic"] :is(.layui-header, .layui-side, .layui-card)::before,
+html[data-xhj-theme="anthropic"] :is(.layui-header, .layui-side, .layui-card)::after { content: none !important; }
+html[data-xhj-theme="anthropic"] :is(.layui-layer-title, .el-dialog__title, .layui-card-header, #xhj-control-title, .admin-main > h1) {
+    font-family: Georgia, "Noto Serif SC", "Songti SC", serif !important;
+    font-weight: 500 !important; letter-spacing: -.015em !important;
+}
+html[data-xhj-theme="anthropic"] :is(.layui-btn, .el-button, #xhj-theme-dock .xhj-control-toggle) {
+    border-radius: 6px !important; box-shadow: none !important;
+}
+html[data-xhj-theme="anthropic"] .xhj-workflow-actions > button { box-shadow: none !important; border-radius: 6px !important; }
+html[data-xhj-theme="anthropic"] .layui-table-tool span { color: var(--xhj-muted) !important; text-shadow: none !important; }
+html[data-xhj-theme="anthropic"] .layui-nav-tree .layui-nav-item a { color: #141413 !important; text-shadow: none !important; }
+html[data-xhj-theme="anthropic"] .layui-nav-tree .layui-this > a {
+    background: #141413 !important; color: #faf9f5 !important;
+}
+html[data-xhj-theme="anthropic"] .layui-nav-tree a:hover { background: #e8e6dc !important; }
+html[data-xhj-theme="anthropic"] .layui-nav-tree .layui-this > a:hover { background: #30302e !important; }
+html[data-xhj-theme="anthropic"] .layui-tab-title .layui-this { background: #f0eee6 !important; color: #a54b30 !important; }
+html[data-xhj-theme] .layui-table tr[data-xhj-marked="true"] > td:first-child { box-shadow: inset 3px 0 0 var(--xhj-warning-text) !important; }
+html[data-xhj-theme] .layui-table-cell:has(> .xhj-mark-badge) { position: relative; padding-inline-end: 60px !important; }
+html[data-xhj-theme] .xhj-mark-badge {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    padding: 2px 5px; border: 1px solid currentColor; border-radius: 4px;
+    font-size: 11px; font-weight: 600; line-height: 1.3;
+    color: var(--xhj-warning-text) !important; background: var(--xhj-surface) !important;
+}
+html[data-xhj-theme="anthropic"] .layui-table tr[data-xhj-marked="true"] > td { background: #f0eee6 !important; }
+/* Contrast is checked against the actual header/sidebar surface, not the input surface. */
+html[data-xhj-theme] .layui-nav-tree { background: var(--xhj-side-bg) !important; }
+html[data-xhj-theme] .layui-nav-tree .layui-nav-item a { color: var(--xhj-on-side) !important; text-shadow: none !important; }
+html[data-xhj-theme] .layui-nav-tree .layui-nav-item.layui-this > a { background: var(--xhj-active-bg) !important; color: var(--xhj-on-accent) !important; }
+html[data-xhj-theme] .layui-tab-title li { background: var(--xhj-surface) !important; color: var(--xhj-text) !important; text-shadow: none !important; }
+html[data-xhj-theme] .layui-tab-title li.layui-this { background: var(--xhj-active-bg) !important; color: var(--xhj-on-accent) !important; }
+html[data-xhj-theme="anthropic"] .layui-tab-title li.layui-this { background: #f0eee6 !important; color: #a54b30 !important; box-shadow: inset 0 -2px 0 #d97757 !important; }
+html[data-xhj-theme] :is(.layui-layer-title, .el-dialog__header, .layui-card-header) { background: var(--xhj-header-bg) !important; color: var(--xhj-on-header) !important; }
+html[data-xhj-theme] .el-dialog__header .el-dialog__title { color: var(--xhj-on-header) !important; }
+html[data-xhj-theme] .layui-table-tool { background: var(--xhj-surface) !important; }
+html[data-xhj-theme] .layui-table-tool span { color: var(--xhj-muted) !important; text-shadow: none !important; }
+html[data-xhj-theme] .layui-table-cell > span.xhj-mark-badge { color: var(--xhj-warning-text) !important; }
+html[data-xhj-theme] :is(.xhj-counter-text, .xhj-3d-counter) { transition-property: transform, opacity !important; }
+html[data-xhj-theme] :is(.layui-nav, .layui-nav-item a, .layui-tab-title, .layui-tab-title li,
+    .layui-table, .layui-table-header, .layui-table-tool, .layui-table-cell, .layui-table th, .layui-table td,
+    .layui-layer-title, .el-dialog__title, .layui-form-label, .layui-word-aux, .layui-input, .el-input__inner) {
+    transition-property: transform, opacity, box-shadow !important;
+}
+html[data-xhj-theme] .beg-login-box { background: var(--xhj-surface) !important; color: var(--xhj-text) !important; }
+html[data-xhj-theme] :is(.el-select-dropdown__item.selected, .el-tabs__item.is-active, .el-radio__input.is-checked + .el-radio__label) { color: var(--xhj-accent-text) !important; }
+html[data-xhj-theme="anthropic"] .layui-nav-tree .layui-this > a,
+html[data-xhj-theme="anthropic"] .layui-tab-title .layui-this {
+    border-inline-start: 3px solid var(--xhj-clay) !important;
+}
+html[data-xhj-theme="anthropic"] #xhj-theme-dock .xhj-theme-option[aria-pressed="true"] {
+    border-color: #a54b30 !important; background: #f0eee6 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    html[data-xhj-theme] *, html[data-xhj-theme] *::before, html[data-xhj-theme] *::after {
+        animation: none !important; transition: none !important; scroll-behavior: auto !important;
+    }
+    html[data-xhj-theme] :is(.layui-btn, .el-button):active { transform: none !important; }
+}
+${getSoftUICss(vars)}
 `;
     };
 
@@ -2313,8 +2795,7 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
         const setBodyBg = () => {
              if (document.body) {
                  document.body.dataset.xhjTheme = resolvedThemeName;
-                 document.body.style.backgroundColor = theme.vars['--xhj-bg'] || '';
-                 document.body.style.setProperty('background-color', theme.vars['--xhj-bg'] || '', 'important');
+                 document.body.style.setProperty('background-color', softThemeVars(theme.vars)['--xhj-bg'], 'important');
              }
         };
         setBodyBg();
@@ -2349,7 +2830,7 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
                 style.textContent = css;
                 if (doc.body) {
                     doc.body.dataset.xhjTheme = resolvedThemeName;
-                    doc.body.style.setProperty('background-color', theme.vars['--xhj-bg'] || '', 'important');
+                    doc.body.style.setProperty('background-color', softThemeVars(theme.vars)['--xhj-bg'], 'important');
                 }
             } catch (e) {}
         };
@@ -2360,6 +2841,7 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
     const switchTheme = (themeName) => {
         localStorage.setItem(SKIN_STORAGE_KEY, themeName);
         applyTheme(themeName);
+        handleDynamicContent(true);
     };
 
     // 全局点击波纹特效逻辑
@@ -2690,6 +3172,7 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
             ratioText.textContent = Math.round(getScaleRatio() * 100) + '%';
             rangeInput.value = String(Math.round(getScaleRatio() * 100));
             scaleControls.setAttribute('aria-disabled', String(!enabled));
+            scaleControls.querySelectorAll('button, input').forEach(control => { control.disabled = !enabled; });
         };
 
         scaleBtn.onclick = () => {
@@ -2832,6 +3315,8 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
         
         // 创建主按钮
         const triggerButton = document.createElement('button');
+        triggerButton.type = 'button';
+        triggerButton.title = '象视助手 v6.2.0 · 同步当前已接单页（最多90条）';
         triggerButton.id = BUTTON_ID;
         triggerButton.textContent = '开始自动同步';
         triggerButton.style.cssText = `
@@ -2850,6 +3335,8 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
         
         // 创建设置按钮
         const settingsButton = document.createElement('button');
+        settingsButton.type = 'button';
+        settingsButton.title = '象视助手 v6.2.0 · 加载已接单订单';
         settingsButton.id = SETTINGS_BUTTON_ID;
         settingsButton.textContent = '跳转到已接单';
         settingsButton.style.cssText = `
@@ -2867,30 +3354,18 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
     }
 
     function findSyncButtons() {
-        const buttons = new Set();
-        const xpath = "//*[contains(text(),'同步') or contains(@value,'同步')]";
-        const elements = document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-        for (let i = 0; i < elements.snapshotLength; i++) {
-            const element = elements.snapshotItem(i);
-            if (!element.id?.startsWith('auto-sync-button') && isClickable(element) && isVisible(element)) {
-                buttons.add(element);
-            }
-        }
-        return Array.from(buttons);
+        const rows = new Map();
+        document.querySelectorAll('.layui-table-view[lay-id="order"] .layui-table-body [lay-event="synchronous"]').forEach(button => {
+            const row = button.closest('tr');
+            if (row && isVisible(button)) rows.set(row.getAttribute('data-index'), button);
+        });
+        return Array.from(rows.values());
     }
 
     function isVisible(element) {
         return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length) &&
             window.getComputedStyle(element).visibility !== 'hidden' &&
             window.getComputedStyle(element).display !== 'none';
-    }
-
-    function isClickable(element) {
-        const clickableTags = ['A', 'BUTTON', 'INPUT', 'SELECT'];
-        return clickableTags.includes(element.tagName) ||
-            element.onclick != null ||
-            element.getAttribute('role') === 'button' ||
-            window.getComputedStyle(element).cursor === 'pointer';
     }
 
     function updateButtonStatus(text, isProcessing = false) {
@@ -2902,68 +3377,76 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
         else button.style.opacity = '1';
     }
 
-    function isAcceptedOrderSelected() {
-        const statusSelect = document.querySelector('#status');
-        if (statusSelect && statusSelect.options && statusSelect.selectedIndex >= 0) {
-            const selectedOption = statusSelect.options[statusSelect.selectedIndex];
-            const selectedText = selectedOption ? selectedOption.textContent.trim() : '';
-            if (selectedText.includes('已接单')) return true;
-        }
-        return Array.from(document.querySelectorAll('.layui-form-select dl dd.layui-this')).some(el => el.textContent.includes('已接单'));
+    function getOrderTable() {
+        const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+        return page.layui?.table;
     }
 
-    function enforceAcceptedPageSize() {
-        if (!isInTargetFrame() || !isAcceptedOrderSelected()) return false;
-        const select = document.querySelector("[id^='layui-laypage'] > span > select");
-        if (!select) return false;
-        if (select.value !== '90') {
-            select.value = '90';
-            select.dispatchEvent(new Event('change', { bubbles: true }));
-            return true;
-        }
-        return false;
+    function markPanoramaRows() {
+        if (getPageProfile().id !== 'pano-list') return;
+        const data = getOrderTable()?.cache?.order;
+        if (!Array.isArray(data)) return;
+        document.querySelectorAll('.layui-table-view[lay-id="order"] .layui-table-body tr[data-index]').forEach(row => {
+            const marked = String(data[Number(row.getAttribute('data-index'))]?.mark) === '1';
+            if (row.dataset.xhjMarked !== String(marked)) row.dataset.xhjMarked = String(marked);
+            const cell = row.querySelector('td[data-field="house_name"] .layui-table-cell');
+            if (!cell) return;
+            const badge = cell.querySelector('.xhj-mark-badge');
+            if (marked && !badge) {
+                const label = document.createElement('span');
+                label.className = 'xhj-mark-badge';
+                label.textContent = '已标记';
+                cell.appendChild(label);
+            } else if (!marked && badge) badge.remove();
+        });
     }
 
     async function navigateToAcceptedAndSet90() {
         try {
-            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-            const waitForElement = async (selector, timeout = 5000) => {
-                const start = Date.now();
-                while (Date.now() - start < timeout) {
-                    const el = document.querySelector(selector);
-                    if (el) return el;
-                    await delay(100);
-                }
-                throw new Error(`Element not found: ${selector}`);
-            };
-
-            const tabIcon = await waitForElement("body > div.admin-main.layui-anim.layui-anim-upbit > form > div > div:nth-child(2) > div > div > i");
-            tabIcon.click();
-            await delay(160);
-
-            const statusOptions = Array.from(document.querySelectorAll("body > div.admin-main.layui-anim.layui-anim-upbit > form > div > div:nth-child(2) > div > dl > dd"));
-            const acceptedTab = statusOptions.find(dd => dd.textContent.includes('已接单'));
-            if (acceptedTab) {
-                acceptedTab.click();
-            } else {
-                const fallbackTab = await waitForElement("body > div.admin-main.layui-anim.layui-anim-upbit > form > div > div:nth-child(2) > div > dl > dd:nth-child(5)");
-                fallbackTab.click();
+            // Read the actual page API, also when Tampermonkey starts after layui.render.
+            const deadline = Date.now() + 15000;
+            let table;
+            while (!(table = getOrderTable()) || !Array.isArray(table.cache?.order)
+                || document.querySelector('.layui-table-view[lay-id="order"] .layui-table-init')) {
+                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.2.0 并刷新房勘列表');
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
-            await delay(220);
-
-            const searchButton = await waitForElement("#search");
-            searchButton.click();
-            await delay(800);
-
-            const select = await waitForElement("[id^='layui-laypage'] > span > select", 8000);
-            if (select.value !== '90') {
-                select.value = "90";
-                select.dispatchEvent(new Event('change', { bubbles: true }));
-                await delay(240);
-            }
+            const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+            const status = document.querySelector('#status');
+            const accepted = Array.from(status?.options || []).find(option => option.textContent.trim() === '已接单');
+            if (!accepted) throw new Error('找不到已接单筛选项');
+            status.value = accepted.value;
+            page.layui.form.render('select');
+            const value = id => document.getElementById(id)?.value || '';
+            await new Promise((resolve, reject) => {
+                const timer = setTimeout(() => reject(new Error('已接单订单加载超时')), 20000);
+                const fail = message => { clearTimeout(timer); reject(new Error(message)); };
+                try {
+                    table.reload('order', {
+                        where: {
+                            flag: 1, status: accepted.value, key: value('key').trim(),
+                            photographyUserId: value('user_id'), departmentID: value('departmentID'),
+                            dept4Id: value('zongjians'), dept5Id: value('zongjian'), dept6Id: value('fuzong')
+                        },
+                        limit: 90,
+                        page: { curr: 1, limit: 90 },
+                        done: function(res, curr, count) {
+                            clearTimeout(timer);
+                            if (String(this.where?.status) !== accepted.value || this.limit !== 90
+                                || !Array.isArray(res?.data) || res.data.length !== Math.min(90, Number(count))) {
+                                fail('订单响应不完整或筛选已变化，请重试');
+                                return;
+                            }
+                            resolve();
+                        },
+                        error: () => fail('订单请求失败，请重试')
+                    });
+                } catch (error) { fail(error.message); }
+            });
             return true;
         } catch (error) {
             console.error("自动化操作失败:", error);
+            showToast('无法加载已接单：' + error.message);
             return false;
         }
     }
@@ -3005,15 +3488,27 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
             }
         }
 
-        updateButtonStatus(`完成同步 ${currentCount} 个`, true);
+        updateButtonStatus(`已发起 ${currentCount} 个同步`, true);
         setTimeout(() => {
             updateButtonStatus('开始自动同步');
             isSyncRunning = false;
         }, 2000);
     }
 
-    async function openSettings() {
-        await navigateToAcceptedAndSet90();
+    async function openSettings(event) {
+        event?.preventDefault();
+        if (isSyncRunning) return;
+        isSyncRunning = true;
+        const button = document.getElementById(SETTINGS_BUTTON_ID);
+        button.disabled = true;
+        button.textContent = '正在加载已接单…';
+        try {
+            await navigateToAcceptedAndSet90();
+        } finally {
+            button.disabled = false;
+            button.textContent = '跳转到已接单';
+            isSyncRunning = false;
+        }
     }
 
     /* ==========================================================================
@@ -3086,6 +3581,17 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
     /* ==========================================================================
        模块 5: 页面与表格注入增强 (Page & Table Hooks)
        ========================================================================== */
+    function installAcceptedOrderReload(instance) {
+        const reload = instance.reload.bind(instance);
+        // Native searches keep their own filters, while accepted orders use 90 rows atomically.
+        instance.reload = function(options) {
+            if (String(options?.where?.status) === '3') {
+                options = { ...options, limit: 90, page: { ...options.page, curr: 1, limit: 90 } };
+            }
+            return reload(options);
+        };
+    }
+
     const injectTableHook = () => {
         const script = document.createElement('script');
         script.textContent = `
@@ -3179,6 +3685,9 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
                                         };
 
                                         const ins = originalRender.call(this, options);
+                                        if (path.includes('/houseadmin/house/index.html') && options.id === 'order') {
+                                            (${installAcceptedOrderReload.toString()})(ins);
+                                        }
                                         
                                         // 4. 事件监听
                                         _layui.table.on('toolbar(' + filter + ')', function(obj) {
@@ -3370,6 +3879,27 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
         }, 120);
     };
 
+    function getPanoramaUploadCounts(container) {
+        const list = container.querySelector('#uploader-list');
+        if (!list) return { successCount: 0, currentTotal: 0 };
+        // The current uploader creates one layui-form-item for every selected file.
+        let items = Array.from(list.querySelectorAll(':scope > .layui-form-item'));
+        if (!items.length) items = Array.from(list.querySelectorAll('.layui-upload-list tr')).filter(row => row.querySelector('td'));
+        if (!items.length) items = Array.from(list.querySelectorAll('.layui-upload-list'));
+        const successCount = items.filter(item => /上传成功|上传完成/.test(item.innerText || item.textContent || '')).length;
+        return { successCount, currentTotal: items.length };
+    }
+
+    function getUploadStatusAppearance(themeName, text) {
+        const key = /正在上传|上传中/.test(text) ? '--xhj-warning-text'
+            : /上传完成|上传成功/.test(text) ? '--xhj-success-text'
+            : /上传失败/.test(text) ? '--xhj-danger-text'
+            : text === '上传' ? '--xhj-accent-text' : null;
+        if (!key) return null;
+        const tokens = themeTokens((themes[themeName] || themes['macos-light']).vars);
+        return { color: tokens[key], background: tokens['--xhj-surface'] };
+    }
+
     // [v2.7.2] 3D 数码管渲染 Helper
     const render3DCounter = (titleEl, count, minGreenCount = 9, maxCount = 35, maxTotal = 0, hueOverride = null) => {
         let hue = 0;
@@ -3441,7 +3971,8 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
             ...document.querySelectorAll('.layui-layer'),
             ...document.querySelectorAll('.el-dialog')
         ];
-        if (containers.length === 0 && document.querySelector('#uploader-list')) {
+        const uploaderList = document.querySelector('#uploader-list');
+        if (uploaderList && !containers.some(container => container.contains(uploaderList))) {
             containers.push(document.body);
         }
 
@@ -3543,56 +4074,9 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
                 }
 
                 // --- 计算成功数和总数 ---
-                const successBtns = Array.from(
-                    container.querySelectorAll('#uploader-list .layui-upload-list a, #uploader-list .layui-upload-list .layui-btn, #uploader-list .layui-upload-list span')
-                ).filter(el => {
-                    const rawText = (el.innerText || el.textContent || '').replace(/\s+/g, '');
-                    return rawText.includes('上传成功') || rawText.includes('上传完成');
-                });
-
-                let successCount = successBtns.length;
-                if (successCount === 0) {
-                    const uploaderList = container.querySelector('#uploader-list');
-                    const fallbackText = uploaderList ? (uploaderList.innerText || '').replace(/\s+/g, '') : '';
-                    const matches = fallbackText.match(/上传成功|上传完成/g);
-                    successCount = matches ? matches.length : 0;
-                }
-                
-                const uploadingBtns = Array.from(
-                    container.querySelectorAll('#uploader-list .layui-btn-danger, #uploader-list .layui-upload-list a, #uploader-list .layui-upload-list .layui-btn')
-                ).filter(el => {
-                    const rawText = (el.innerText || el.textContent || '').replace(/\s+/g, '');
-                    return rawText.includes('上传中') || rawText.includes('等待') || rawText.includes('准备');
-                });
-                
-                let uploadingCount = uploadingBtns.length;
-                if (uploadingCount === 0) {
-                    const uploaderList = container.querySelector('#uploader-list');
-                    const fallbackText = uploaderList ? (uploaderList.innerText || '').replace(/\s+/g, '') : '';
-                    const matches = fallbackText.match(/上传中|等待|准备/g);
-                    uploadingCount = matches ? matches.length : 0;
-                }
-                
-                let currentTotal = successCount + uploadingCount;
-                const trElements = container.querySelectorAll('#uploader-list .layui-upload-list tr');
-                if (trElements.length > 0) {
-                    const headerCount = container.querySelectorAll('#uploader-list .layui-upload-list th').length > 0 ? 1 : 0;
-                    const listTotal = Math.max(0, trElements.length - headerCount);
-                    if (listTotal > currentTotal) {
-                        currentTotal = listTotal;
-                    }
-                }
-                
-                let maxTotal = parseInt(container.dataset.xhjMaxTotal || '0', 10);
-                if (currentTotal > maxTotal) {
-                    maxTotal = currentTotal;
-                    container.dataset.xhjMaxTotal = maxTotal;
-                }
-                
-                if (currentTotal === 0 && successCount === 0 && (!trElements || trElements.length <= 1)) {
-                    maxTotal = 0;
-                    container.dataset.xhjMaxTotal = '0';
-                }
+                const { successCount, currentTotal } = getPanoramaUploadCounts(container);
+                const maxTotal = currentTotal;
+                if (container.dataset.xhjMaxTotal !== String(maxTotal)) container.dataset.xhjMaxTotal = String(maxTotal);
                 const ratioTotal = maxTotal > 0 ? maxTotal : currentTotal;
                 const successRatio = ratioTotal > 0 ? Math.max(0, Math.min(1, successCount / ratioTotal)) : 0;
                 const ratioHue = Math.round(successRatio * 120);
@@ -3660,10 +4144,10 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
                             font-size: 16px;
                             font-weight: bold;
                             letter-spacing: 1px;
-                            position: absolute; /* 绝对定位 */
-                            right: 20px; /* 靠右显示 */
-                            top: 50%;
-                            transform: translateY(-50%);
+                            position: relative;
+                            white-space: nowrap;
+                            flex-shrink: 0;
+                            max-width: 100%;
                             transition: all 0.3s ease;
                             z-index: 10;
                         `;
@@ -3860,128 +4344,23 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
                 if (!text || text.length > 20) return;
                 
                 const currentTheme = localStorage.getItem(SKIN_STORAGE_KEY) || 'macos-light';
-                const statusThemePalette = {
-                    'bauhaus': { uploading: { color: '#E31C25', shadow: 'transparent', mode: 'bauhaus-sharp' }, success: { color: '#1C4DE3', shadow: 'transparent', mode: 'bauhaus-sharp' } },
-                    'default': { uploading: { color: '#ff7a59', shadow: 'rgba(255, 122, 89, 0.3)', mode: 'soft-matte' }, success: { color: '#2ec4b6', shadow: 'rgba(46, 196, 182, 0.3)', mode: 'soft-matte' } },
-                    'star-wars-hud': { uploading: { color: '#FFaa00', shadow: 'rgba(255, 170, 0, 0.8)', mode: 'holographic' }, success: { color: '#52d8ff', shadow: 'rgba(82, 216, 255, 0.8)', mode: 'holographic' } },
-                    'dracula': { uploading: { color: '#ffb86c', shadow: 'rgba(255, 184, 108, 0.5)', mode: 'vampire-glow' }, success: { color: '#50fa7b', shadow: 'rgba(80, 250, 123, 0.5)', mode: 'vampire-glow' } },
-                    'solarized-dark': { uploading: { color: '#cb4b16', shadow: 'transparent', mode: 'terminal-classic' }, success: { color: '#859900', shadow: 'transparent', mode: 'terminal-classic' } },
-                    'monokai': { uploading: { color: '#FD971F', shadow: 'rgba(253, 151, 31, 0.4)', mode: 'code-highlight' }, success: { color: '#A6E22E', shadow: 'rgba(166, 226, 46, 0.4)', mode: 'code-highlight' } },
-                    'github-dark': { uploading: { color: '#d29922', shadow: 'transparent', mode: 'minimal-tech' }, success: { color: '#2ea043', shadow: 'transparent', mode: 'minimal-tech' } },
-                    'cyberpunk': { uploading: { color: '#ff003c', shadow: 'rgba(255, 0, 60, 0.9)', mode: 'glitch-neon' }, success: { color: '#00ff9d', shadow: 'rgba(0, 255, 157, 0.9)', mode: 'glitch-neon' } },
-                    'glass-morphism': { uploading: { color: '#f6c177', shadow: 'rgba(246, 193, 119, 0.5)', mode: 'frosted-pastel' }, success: { color: '#9ece6a', shadow: 'rgba(158, 206, 106, 0.5)', mode: 'frosted-pastel' } },
-                    'future-tech': { uploading: { color: '#ff00ff', shadow: 'rgba(255, 0, 255, 0.8)', mode: 'laser-grid' }, success: { color: '#00f2ff', shadow: 'rgba(0, 242, 255, 0.8)', mode: 'laser-grid' } },
-                    'modern-dark': { uploading: { color: '#d97706', shadow: 'rgba(217, 119, 6, 0.3)', mode: 'elegant-stone' }, success: { color: '#16a34a', shadow: 'rgba(22, 163, 74, 0.3)', mode: 'elegant-stone' } },
-                    'midnight-blue': { uploading: { color: '#f59e0b', shadow: 'rgba(245, 158, 11, 0.4)', mode: 'deep-ocean' }, success: { color: '#10b981', shadow: 'rgba(16, 185, 129, 0.4)', mode: 'deep-ocean' } },
-                    'synthwave-84': { uploading: { color: '#ff71ce', shadow: 'rgba(255, 113, 206, 0.85)', mode: 'retro-wave' }, success: { color: '#01cdfe', shadow: 'rgba(1, 205, 254, 0.85)', mode: 'retro-wave' } },
-                    'emerald-forest': { uploading: { color: '#f59e0b', shadow: 'rgba(245, 158, 11, 0.3)', mode: 'organic-leaf' }, success: { color: '#10b981', shadow: 'rgba(16, 185, 129, 0.3)', mode: 'organic-leaf' } },
-                    'macos-light': { uploading: { color: '#FF9500', shadow: 'rgba(255, 149, 0, 0.15)', mode: 'apple-flat' }, success: { color: '#34C759', shadow: 'rgba(52, 199, 89, 0.15)', mode: 'apple-flat' } }
-                };
-                const activePalette = statusThemePalette[currentTheme] || statusThemePalette.default;
-                
-                const applyStyle = ({ color, shadow, mode }) => {
-                    const signature = `${text}|${color}|${shadow}|${mode}`;
-                    if (cell.dataset.xhjStatusStyled === signature) return;
-                    cell.dataset.xhjStatusStyled = signature;
-                    
-                    let stroke = 'none';
-                    let textShadow = 'none';
-                    let fontWeight = '700';
-                    let letterSpacing = '0.02em';
-                    let fontStyle = 'normal';
-                    let textTransform = 'none';
-
-                    // 高级排版与光效策略
-                    switch (mode) {
-                        case 'bauhaus-sharp':
-                            stroke = '0.5px #000';
-                            textShadow = `2px 2px 0px #000`; // 硬阴影
-                            fontWeight = '900';
-                            letterSpacing = '0.05em';
-                            textTransform = 'uppercase';
-                            break;
-                        case 'holographic':
-                        case 'laser-grid':
-                            stroke = `0.3px rgba(255,255,255,0.5)`;
-                            textShadow = `0 0 5px ${color}, 0 0 10px ${color}, 0 0 20px ${shadow}`;
-                            fontWeight = '800';
-                            letterSpacing = '0.08em';
-                            break;
-                        case 'glitch-neon':
-                        case 'retro-wave':
-                            stroke = '0.2px #fff';
-                            textShadow = `2px 0px 1px rgba(0,255,255,0.5), -2px 0px 1px rgba(255,0,255,0.5), 0 0 15px ${shadow}`;
-                            fontWeight = '900';
-                            fontStyle = 'italic';
-                            letterSpacing = '0.04em';
-                            break;
-                        case 'vampire-glow':
-                        case 'code-highlight':
-                            stroke = '0.4px #282a36';
-                            textShadow = `0 0 8px ${shadow}, 0 1px 3px rgba(0,0,0,0.8)`;
-                            fontWeight = '800';
-                            break;
-                        case 'terminal-classic':
-                        case 'minimal-tech':
-                            stroke = '0.3px rgba(0,0,0,0.8)';
-                            textShadow = `0 1px 1px rgba(0,0,0,0.9)`;
-                            fontWeight = '600';
-                            fontStyle = 'italic';
-                            break;
-                        case 'frosted-pastel':
-                        case 'soft-matte':
-                        case 'organic-leaf':
-                            stroke = '0.2px rgba(0,0,0,0.4)';
-                            textShadow = `0 2px 4px ${shadow}, 0 1px 2px rgba(0,0,0,0.5)`;
-                            fontWeight = '700';
-                            break;
-                        case 'apple-flat':
-                            stroke = '0.1px rgba(255,255,255,0.8)';
-                            textShadow = `0 1px 2px ${shadow}`;
-                            fontWeight = '600';
-                            letterSpacing = '0.01em';
-                            break;
-                        case 'elegant-stone':
-                        case 'deep-ocean':
-                        default:
-                            stroke = '0.3px rgba(0,0,0,0.6)';
-                            textShadow = `0 1px 5px ${shadow}, 0 1px 2px rgba(0,0,0,0.8)`;
-                            fontWeight = '700';
-                            break;
-                    }
-
-                    cell.style.setProperty('color', color, 'important');
-                    cell.style.setProperty('-webkit-text-fill-color', color, 'important');
-                    cell.style.setProperty('font-weight', fontWeight, 'important');
-                    if (stroke !== 'none') cell.style.setProperty('-webkit-text-stroke', stroke, 'important');
-                    if (textShadow !== 'none') cell.style.setProperty('text-shadow', textShadow, 'important');
-                    cell.style.setProperty('font-style', fontStyle, 'important');
-                    cell.style.setProperty('text-transform', textTransform, 'important');
-                    
-                    const nestedTextNodes = cell.querySelectorAll('*');
-                    nestedTextNodes.forEach(node => {
-                        node.style.setProperty('color', color, 'important');
-                        node.style.setProperty('-webkit-text-fill-color', color, 'important');
-                        node.style.setProperty('font-weight', fontWeight, 'important');
-                        if (stroke !== 'none') node.style.setProperty('-webkit-text-stroke', stroke, 'important');
-                        if (textShadow !== 'none') node.style.setProperty('text-shadow', textShadow, 'important');
-                        node.style.setProperty('font-style', fontStyle, 'important');
-                        node.style.setProperty('text-transform', textTransform, 'important');
-                    });
-                    
-                    if (cell.classList.contains('layui-btn') || cell.classList.contains('layui-badge') || cell.tagName === 'SPAN') {
-                        cell.style.setProperty('letter-spacing', letterSpacing, 'important');
-                    }
-                };
-
-                if (text.includes('正在上传') || text.includes('上传中')) {
-                    applyStyle(activePalette.uploading);
-                } else if (text.includes('上传完成') || text.includes('上传成功')) {
-                    applyStyle(activePalette.success);
-                } else if (text.includes('上传失败')) {
-                    applyStyle({ color: '#ff3333', shadow: 'rgba(255, 51, 51, 0.6)', mode: 'glitch-neon' });
-                } else if (text === '上传') {
-                    applyStyle({ color: '#3498db', shadow: 'rgba(52, 152, 219, 0.4)', mode: 'minimal-tech' });
+                const appearance = getUploadStatusAppearance(currentTheme, text);
+                if (!appearance) return;
+                const signature = `${currentTheme}|${text}|${appearance.color}`;
+                if (cell.dataset.xhjStatusStyled === signature) return;
+                cell.dataset.xhjStatusStyled = signature;
+                [cell, ...cell.querySelectorAll('*')].forEach(node => {
+                    node.style.setProperty('color', appearance.color, 'important');
+                    node.style.setProperty('-webkit-text-fill-color', appearance.color, 'important');
+                    node.style.setProperty('-webkit-text-stroke', '0', 'important');
+                    node.style.setProperty('text-shadow', 'none', 'important');
+                    node.style.setProperty('font-style', 'normal', 'important');
+                    node.style.setProperty('font-weight', '600', 'important');
+                    node.style.setProperty('letter-spacing', 'normal', 'important');
+                });
+                if (cell.matches('.layui-btn, .layui-badge')) {
+                    cell.style.setProperty('background', appearance.background, 'important');
+                    cell.style.setProperty('border', '0', 'important');
                 }
                 });
             }
@@ -4343,19 +4722,20 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
         // 逻辑已移至 handleDynamicContent，此处仅做初始调用和定时检查（低频）
         requestAnimationFrame(() => {
             handleDynamicContent(true);
-            enforceAcceptedPageSize();
         });
         
         // 保留一个低频定时器作为兜底 (每 2 秒)，防止 MutationObserver 漏掉某些无 DOM 变动但样式需更新的情况
         setInterval(() => {
             if (document.hidden) return;
             handleDynamicContent(true);
-            enforceAcceptedPageSize();
         }, DYNAMIC_CONTENT_FALLBACK_INTERVAL);
 
         // 3. 监听跨窗口同步
         window.addEventListener('storage', (e) => {
-            if (e.key === SKIN_STORAGE_KEY) applyTheme(e.newValue);
+            if (e.key === SKIN_STORAGE_KEY) {
+                applyTheme(e.newValue);
+                handleDynamicContent(true);
+            }
         });
 
         // 4. 自动缩放初始化
@@ -4528,7 +4908,7 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
             statusEl = document.createElement('span');
             statusEl.className = 'av-status';
             // [v2.2 优化] 状态提示显示在验证码图片右侧，不遮挡图片
-            statusEl.style.cssText = 'margin-left: 10px; font-size: 12px; color: #aaa; vertical-align: middle; white-space: nowrap; display: inline-block;';
+            statusEl.style.cssText = 'margin-left: 10px; font-size: 12px; color: var(--xhj-muted, #666); vertical-align: middle; white-space: nowrap; display: inline-block;';
             
             // 优先插入到图片后面
             if (img.parentNode) {
@@ -4543,7 +4923,7 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
             }
         }
         statusEl.textContent = '识别中...';
-        statusEl.style.color = '#e67e22';
+        statusEl.style.color = 'var(--xhj-warning-text, #995800)';
 
         // 2. Add Click Listener for Manual Refresh (Once)
         if (!img.dataset.hasClickListener) {
@@ -4565,7 +4945,7 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
         const inputTensor = await avPreprocessImage(img);
         if (!inputTensor) {
             statusEl.textContent = '预处理失败';
-            statusEl.style.color = '#e74c3c';
+            statusEl.style.color = 'var(--xhj-danger-text, #b42336)';
             return;
         }
 
@@ -4578,10 +4958,10 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
              img.dataset.avProcessed = "true";
              
              statusEl.textContent = `识别成功: ${text}`;
-             statusEl.style.color = '#2ecc71';
+             statusEl.style.color = 'var(--xhj-success-text, #006d3a)';
         } else {
              statusEl.textContent = '识别失败';
-             statusEl.style.color = '#e74c3c';
+             statusEl.style.color = 'var(--xhj-danger-text, #b42336)';
         }
     }
 
@@ -4880,5 +5260,388 @@ html[data-xhj-theme="macos-light"] :is(.layui-table-view, .layui-layer) {
     initAutoVerify();
     initSafariMobileAdaptation();
     initClickAnimation();
+
+})();
+
+// XHJ survey folder panel
+(function () {
+// Shared folder recognition for the survey uploader. No network or file writes.
+function planFolder(name, files) {
+    const ids = name.match(/HS\d{12}(?!\d)/gi) || [];
+    if (!ids.length) return null;
+    const errors = [];
+    if (ids.length !== 1) errors.push('房源编号不唯一');
+    const direction = name.trim().match(/(?:^|\s)(东|南|西|北)$/)?.[1] || null;
+    if (!direction) errors.push('无法识别朝向');
+    const images = files.filter(file => /\.jpe?g$/i.test(file.name) && !file.name.startsWith('._'))
+        .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }));
+    const cover = images.find(file => /^客厅[（(]/.test(file.name)) || null;
+    if (!cover) errors.push('未找到客厅封面');
+    if (!images.length) errors.push('没有 JPG 图片');
+    return { name, houseNumber: ids[0].toUpperCase(), direction, cover, images, errors };
+}
+
+
+// Same-origin request contract observed in the live Layui order page.
+async function findSurveyOrders(houseNumber, request) {
+    if (!/^HS\d{12}$/.test(houseNumber)) throw new Error('房源编号格式不正确');
+    const rows = [];
+    const seen = new Set();
+    let total;
+    for (let page = 1; ; page++) {
+        const result = await request('/houseadmin/house/index.html', {
+            flag: '1', key: houseNumber, status: '', page: String(page), limit: '90'
+        });
+        if (!result || Number(result.code) !== 0 || !Array.isArray(result.data)
+            || !Number.isSafeInteger(Number(result.count)) || Number(result.count) < 0) {
+            throw new Error('订单查询响应不完整');
+        }
+        if (total === undefined) total = Number(result.count);
+        if (total !== Number(result.count)) throw new Error('查询期间订单列表变化，请重新查询');
+        for (const row of result.data) {
+            if (row.id == null || seen.has(String(row.id))) throw new Error('订单分页存在重复或缺少编号');
+            seen.add(String(row.id));
+            rows.push(row);
+        }
+        if (rows.length === total) return rows.filter(row => row.houseSourceNumber === houseNumber);
+        if (rows.length > total || !result.data.length) throw new Error('订单分页不完整');
+    }
+}
+
+
+// Form fields and response shape observed in the site's Element UI uploader.
+async function uploadSurveyImage(file, request = fetch) {
+    if (!file || !/\.jpg$/i.test(file.name) || file.size <= 0) throw new Error('图片文件无效');
+    const form = new FormData();
+    form.append('type', '1');
+    form.append('sysType', '1');
+    form.append('cityId', '1');
+    form.append('file', file, file.name);
+    const response = await request('https://files.xhj.com/oss/endpoint/put-file', {
+        method: 'POST', body: form
+    });
+    if (!response.ok) throw new Error(`图片上传失败：${file.name}`);
+    const result = await response.json();
+    const image = result && result.data;
+    if (!image || image.originalName !== file.name || typeof image.link !== 'string') {
+        throw new Error(`图片上传响应不匹配：${file.name}`);
+    }
+    let url;
+    try { url = new URL(image.link); } catch (_) { throw new Error('图片地址无效'); }
+    if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) throw new Error('图片地址无效');
+    return { originalName: image.originalName, link: image.link };
+}
+
+
+// Mirrors the observed page's room grouping and first-room orientation.
+function buildImagePayload(images, rooms, orientationId) {
+    if (!images.length || orientationId == null) throw new Error('缺少图片或朝向');
+    const groups = [];
+    for (const image of images) {
+        if (!image.link || !image.originalName) throw new Error('图片响应不完整');
+        const name = image.originalName.replace(/\.jpg$/i, '').replace(/\s/g, '').split('(')[0];
+        const room = rooms.find(item => item.name === name) || rooms.find(item => item.name === '其他');
+        if (!room || room.id == null) throw new Error('房间字典不完整');
+        let group = groups.find(item => item.roomType === room.id);
+        if (!group) {
+            group = { roomType: room.id, images: [] };
+            if (!groups.length) group.orientationId = orientationId;
+            groups.push(group);
+        }
+        group.images.push({ imagepath: image.link, imagetype: 2 });
+    }
+    return groups.flatMap(group => group.images.map(image => ({
+        ...image, roomType: group.roomType,
+        ...(group.orientationId === undefined ? {} : { orientationId: group.orientationId }),
+        windowType: '', length: '', width: '', high: '', size: ''
+    })));
+}
+
+
+// Reads generated scalar fields without executing the platform's script.
+function readSurveyPageContext(source, expectedNumber, expectedOrderID) {
+    const start = source.indexOf('var arr = {');
+    const end = source.indexOf('};', start);
+    if (start < 0 || end < 0) throw new Error('无法识别当前页面保存参数');
+    const block = source.slice(start, end).replace(/\/\/[^\n]*/g, '');
+    function scalar(key) {
+        const match = block.match(new RegExp('(?:^|[,{\\s])' + key + '\\s*:\\s*(?:[\"\']([^\"\']*)[\"\']|([0-9]+))\\s*[,}]'));
+        if (!match) throw new Error(`页面缺少保存字段：${key}`);
+        return match[1] === undefined ? Number(match[2]) : match[1];
+    }
+    const fields = {};
+    for (const key of ['xiangShiToken', 'account', 'housePhotographyId', 'saleorrentid', 'hosuetype', 'housesourceid', 'diskSourceType', 'houseNo', 'lpid', 'inputType']) {
+        fields[key] = scalar(key);
+    }
+    if (fields.houseNo !== expectedNumber || String(fields.housePhotographyId) !== String(expectedOrderID)) {
+        throw new Error('上传页面与当前订单不匹配');
+    }
+    if (typeof fields.xiangShiToken !== 'string' || !fields.xiangShiToken) throw new Error('页面授权参数为空');
+    return fields;
+}
+
+
+function prepareSurveySave(fields, images, surveyDate, hxType = null) {
+    if (!/^HS\d{12}$/.test(fields.houseNo) || !fields.housePhotographyId || !images.length) {
+        throw new Error('保存信息不完整');
+    }
+    if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(surveyDate)) throw new Error('拍摄时间格式不正确');
+    return {
+        ...fields,
+        // Initial/reset state in the observed upload page.
+        url: '', urlZq: '', isSync: 0,
+        surveydate: surveyDate,
+        houseSurveyImages: images,
+        hxType
+    };
+}
+
+
+async function loadSurveyContext(order, direction, request, parsePage) {
+    const params = new URLSearchParams();
+    const mapping = { id: 'surveyId', lpid: 'lpid', oid: 'id', saleOrRentid: 'saleOrRentid', housetype: 'housetype', housesourceid: 'housesourceid', houseSourceNumber: 'houseSourceNumber' };
+    for (const [key, field] of Object.entries(mapping)) {
+        if (key !== 'id' && order[field] == null) throw new Error(`订单缺少字段：${field}`);
+        params.set(key, order[field] == null ? 'null' : String(order[field]));
+    }
+    const pageURL = `/houseadmin/house/add_fk_image.html?${params}`;
+    const page = await request(pageURL, 'text');
+    const fields = parsePage(page, order.houseSourceNumber, order.id);
+    const base = 'https://api.xhj.com/api/xhj-bms/houseSurveyImg/xiangshi/getSystemInfoBySid?sid=';
+    const roomsResult = await request(base + '1091', 'json');
+    const directionsResult = await request(base + '12', 'json');
+    for (const result of [roomsResult, directionsResult]) {
+        if (!result || Number(result.code) !== 200 || !Array.isArray(result.data)) throw new Error('房间或朝向字典响应无效');
+    }
+    const directions = directionsResult.data.filter(item => item.name === direction);
+    if (directions.length !== 1 || directions[0].id == null) throw new Error('无法唯一匹配朝向');
+    if (!roomsResult.data.some(item => item.name === '客厅' && item.id != null)) throw new Error('房间字典缺少客厅');
+    return { ready: true, pageURL, fields, rooms: roomsResult.data, orientationId: directions[0].id };
+}
+
+
+function createSurveyBrowserAPI(request = fetch) {
+    async function response(url, options = {}) {
+        const result = await request(url, { credentials: url.startsWith('/') ? 'same-origin' : 'omit', ...options });
+        if (!result.ok || result.redirected) throw new Error('接口请求失败或登录已失效');
+        return result;
+    }
+    async function read(url, type) {
+        const result = await response(url);
+        return type === 'text' ? result.text() : result.json();
+    }
+    function form(url, body) {
+        return response(url, { method: 'POST', headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest'
+        }, body: new URLSearchParams(body) });
+    }
+    return {
+        findOrders: number => findSurveyOrders(number, async (url, body) => (await form(url, body)).json()),
+        readOrder: (order, direction) => {
+            if (Number(order.state) === 1) throw new Error('有效订单的安全替换流程尚未验证，已停止，未清除旧图');
+            return loadSurveyContext(order, direction, read, readSurveyPageContext);
+        },
+        uploadImage: file => uploadSurveyImage(file, request),
+        prepareSave: (order, context, images) => {
+            const now = new Date();
+            const pad = value => String(value).padStart(2, '0');
+            const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            return prepareSurveySave(context.fields, buildImagePayload(images, context.rooms, context.orientationId), date);
+        },
+        saveOrder: async payload => {
+            const result = await response('https://api.xhj.com/api/xhj-bms/houseSurveyImg/xiangshi/save', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            });
+            const body = await result.json();
+            return { success: Number(body.code) === 200 };
+        },
+        finalizeOrder: async (order, context) => {
+            await form(context.pageURL, { house_nums: order.houseSourceNumber });
+            return true;
+        },
+        verifyOrder: async (order, context, images) => {
+            const result = await read(`https://api.xhj.com/api/xhj-bms/houseSurveyApply/xiangshi/detail?id=${encodeURIComponent(order.id)}`, 'json');
+            if (Number(result.code) !== 200 || !result.data) return false;
+            const groups = result.data.houseSurveyImgVO?.inDoorImgVoList;
+            if (!Array.isArray(groups)) return false;
+            if (!groups.length || String(groups[0].orientationId) !== String(context.orientationId)) return false;
+            if (groups.slice(1).some(group => group.orientationId != null && group.orientationId !== '')) return false;
+            const actual = groups.flatMap(group => (group.hsImgList || []).map(image => ({ ...image, orientationId: group.orientationId })));
+            if (actual.length !== images.length || actual[0]?.imagepath !== images[0].link) return false;
+            const links = actual.map(image => image.imagepath).sort();
+            if (JSON.stringify(links) !== JSON.stringify(images.map(image => image.link).sort())) return false;
+            return true;
+        }
+    };
+}
+
+// Network operations are supplied by the application adapter.
+async function runSurveyUpload(plan, api, report = () => {}) {
+    const set = (stage, detail = '') => report({ stage, detail });
+    if (!plan || plan.errors.length || !plan.cover) throw new Error('房源信息不完整');
+    set('查找订单');
+    const orders = await api.findOrders(plan.houseNumber);
+    if (!Array.isArray(orders)) throw new Error('订单查询结果不完整');
+    const matches = orders.filter(order => order.houseSourceNumber === plan.houseNumber);
+    if (matches.length !== 1) throw new Error(matches.length ? '房源对应多个订单' : '未找到对应订单');
+    const order = matches[0];
+    if (![1, 3].includes(Number(order.state))) throw new Error('订单状态不可上传');
+    set('读取订单');
+    const context = await api.readOrder(order, plan.direction);
+    if (!context || !context.ready) throw new Error('订单或朝向信息不完整');
+    const uploaded = [];
+    const files = [plan.cover, ...plan.images.filter(file => file !== plan.cover)];
+    for (const file of files) {
+        set('上传图片', `${uploaded.length + 1}/${files.length}`);
+        const image = await api.uploadImage(file);
+        if (!image || !image.link || !image.originalName) throw new Error(`图片上传结果不完整：${file.name}`);
+        uploaded.push(image);
+    }
+    const payload = await api.prepareSave(order, context, uploaded);
+    if (!payload) throw new Error('无法构造保存数据');
+    set('保存订单');
+    let result;
+    try { result = await api.saveOrder(payload); }
+    catch (_) { throw new Error('保存结果不明确，请核对订单后再重试'); }
+    if (!result || result.success !== true) throw new Error('保存未确认成功，请核对订单后再重试');
+    set('完成订单回写');
+    let finalized;
+    try { finalized = await api.finalizeOrder(order, context); }
+    catch (_) { throw new Error('图片已保存，订单回写结果不明确，请核对后再操作'); }
+    if (finalized !== true) throw new Error('图片已保存，订单回写未确认，请核对后再操作');
+    set('核实订单');
+    let verified;
+    try { verified = await api.verifyOrder(order, context, uploaded); }
+    catch (_) { throw new Error('保存后核实失败，请核对订单后再重试'); }
+    if (verified !== true) throw new Error('保存后结果不一致，请核对订单后再重试');
+    set('完成');
+    return { order, uploaded: uploaded.length };
+}
+
+
+// Author: @Jhih he
+(function () {
+    if (location.pathname !== '/houseadmin/house/index.html') return;
+    function mount() {
+        const host = document.querySelector('.demoTable');
+        if (!host || document.getElementById('xhj-survey-folders')) return;
+        const panel = document.createElement('details');
+        panel.id = 'xhj-survey-folders';
+        const title = document.createElement('summary');
+        title.textContent = '每日房源文件夹';
+        panel.append(title);
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.setAttribute('webkitdirectory', '');
+        input.setAttribute('aria-label', '选择每日拍摄目录');
+        const rows = document.createElement('div');
+        const plans = new Map();
+        const start = document.createElement('button');
+        start.type = 'button';
+        start.textContent = '开始上传（开发测试）';
+        start.addEventListener('click', async () => {
+            const selected = [...rows.querySelectorAll('input:checked:not(:disabled)')];
+            if (!selected.length) return;
+            start.disabled = true;
+            query.disabled = true;
+            input.disabled = true;
+            const api = createSurveyBrowserAPI();
+            try {
+                for (const box of selected) {
+                    const output = box.parentNode.querySelector('output');
+                    try {
+                        await runSurveyUpload(plans.get(box), api, event => { output.textContent = ` · ${event.stage} ${event.detail}`; });
+                        box.checked = false;
+                        box.disabled = true;
+                    } catch (error) {
+                        output.textContent = ` · ${error.message}`;
+                        box.checked = false;
+                        box.disabled = true;
+                        // A save failure may have committed remotely. Stop the batch for inspection.
+                        break;
+                    }
+                }
+            } finally { start.disabled = false; query.disabled = false; input.disabled = false; }
+        });
+        const query = document.createElement('button');
+        query.type = 'button';
+        query.textContent = '查询所选订单';
+        query.addEventListener('click', async () => {
+            query.disabled = true;
+            start.disabled = true;
+            input.disabled = true;
+            try {
+                for (const box of rows.querySelectorAll('input:checked:not(:disabled)')) {
+                    const plan = plans.get(box);
+                    try {
+                        const orders = await findSurveyOrders(plan.houseNumber, async (url, body) => {
+                            const response = await fetch(url, {
+                                method: 'POST', credentials: 'same-origin',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
+                                body: new URLSearchParams(body)
+                            });
+                            if (!response.ok) throw new Error('订单查询失败');
+                            return response.json();
+                        });
+                        const detail = orders.length === 1 ? `订单状态 ${orders[0].state}` : orders.length ? '对应多个订单' : '未找到订单';
+                        box.parentNode.querySelector('output').textContent = ` · ${detail}`;
+                    } catch (error) {
+                        box.parentNode.querySelector('output').textContent = ` · ${error.message}`;
+                    }
+                }
+            } finally { query.disabled = false; start.disabled = false; input.disabled = false; }
+        });
+        const status = document.createElement('p');
+        status.textContent = '选择每日目录后勾选房源。接口上传功能正在接入。';
+        panel.append(input, query, start, rows, status);
+        input.addEventListener('change', () => {
+            rows.replaceChildren();
+            plans.clear();
+            const folders = new Map();
+            for (const file of input.files) {
+                const parts = file.webkitRelativePath.split('/');
+                if (parts.length !== 3) continue;
+                const name = parts[1];
+                if (!folders.has(name)) folders.set(name, []);
+                folders.get(name).push(file);
+            }
+            let count = 0;
+            const recognized = [...folders].map(([name, files]) => planFolder(name, files)).filter(Boolean);
+            const numbers = new Map();
+            for (const plan of recognized) numbers.set(plan.houseNumber, (numbers.get(plan.houseNumber) || 0) + 1);
+            const controls = document.createElement('div');
+            for (const [label, checked] of [['全选', true], ['取消全选', false]]) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = label;
+                button.addEventListener('click', () => rows.querySelectorAll('input:not(:disabled)').forEach(box => { box.checked = checked; }));
+                controls.append(button);
+            }
+            rows.append(controls);
+            for (const plan of recognized) {
+                const name = plan.name;
+                if (numbers.get(plan.houseNumber) > 1) plan.errors.push('同日目录中房源编号重复');
+                count++;
+                const row = document.createElement('label');
+                row.style.display = 'block';
+                const box = document.createElement('input');
+                box.type = 'checkbox';
+                box.checked = !plan.errors.length;
+                box.disabled = !!plan.errors.length;
+                row.append(box, document.createTextNode(` ${plan.houseNumber} · ${plan.direction || '朝向待确认'} · ${plan.images.length} 张 · ${plan.cover?.name || '无封面'} ${plan.errors.join('；')}`));
+                row.title = name;
+                plans.set(box, plan);
+                row.append(document.createElement('output'));
+                rows.append(row);
+            }
+            status.textContent = `识别到 ${count} 个房源。开发测试版：有效订单将按新图片列表重拍保存；失败或结果不明确时停止，请核对订单后再操作。`;
+        });
+        host.append(panel);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
+    else mount();
+})();
 
 })();

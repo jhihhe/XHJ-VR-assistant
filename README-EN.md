@@ -1,6 +1,40 @@
 # 🌌 Xiangshi Platform Assistant · XHJ VR Assistant
 
-[![Version](https://img.shields.io/badge/Version-v6.0.0-0071e3?style=for-the-badge)](#versioning-policy)
+## 2026-11-03 · v6.2.0
+
+Table fields now use distinct text colors, with separate colors for order and panorama statuses. Fixed panorama table header alignment and removed the redundant inner close icon from the survey upload dialog while retaining the outer close and Cancel controls.
+
+Unified all 16 themes around Soft UI while retaining their palettes: matching surfaces, upper-left lighting, dual shadows, 12/20px radii, smaller hover shadows, inset pressed states and shallower focused inputs. No floating buttons, glow or gradient decoration. Transitions use 300ms ease-in-out with reduced-motion support.
+
+Theme-derived column tones follow fields through reordering and fixed copies. Status text remains semantic and readable. Local checks cover 688 rendered component contrast pairs, 1536 column/status pairs, 13 distinct column tones per theme, desktop and 390px layouts, and existing business regressions. The panorama list and survey upload dialog were checked in Chrome with the installed userscript and current theme; other themes and business operations were not individually verified live.
+
+## 2026-10-27 · v6.1.3
+
+Live verification identified Layui 2.5.7: its retained `page.limit` overrides the top-level limit, leaving v6.1.2 at 10 rows. Both values now use 90 for accepted-order reloads. The browser regression fixture now uses the site's actual 2.5.7 modules. Verified in the user’s Chrome/Tampermonkey session: accepted orders remain selected at 90 rows per page, and the first sync from the default list triggers all five current orders. The 90-row case is covered by same-version local replay; backend success counts are not independently confirmed.
+
+## 2026-10-27 · v6.1.2
+
+Fixed both order buttons in userscript isolation and late-loading scenarios using `unsafeWindow` and the native Layui table API. Accepted orders, 90 rows and page 1 load together after the initial request. Synchronization remains limited to the current page; “started” does not claim backend success.
+
+Unified readable component colors across 16 themes, including Anthropic. Fixed pending/failed panorama counts, marked-row visibility and counter wrapping. Local delayed Layui replay, isolation tests and 688 rendered component contrast checks pass. Installed Tampermonkey behavior on the live site remains unverified. See the [compatibility report](work/xhj-20261026/compatibility-review.md).
+
+## 2026-10-26 · v6.1.1
+
+Fixed unintended form submission when opening accepted orders, and the first sync using only 10 rows. The script waits for the initial response, reloads accepted orders with 90 rows and page 1 in one request, and starts synchronization only after the complete response. Existing filters remain. Batch scope is the current accepted-order page (up to 90 rows), without automatic cross-page synchronization. Failed or incomplete loads do not start synchronization.
+
+Added the Anthropic theme (16 themes total), inspired by [Anthropic's website](https://www.anthropic.com/): warm paper, charcoal, clay accents, serif headings, and restrained shadows. Author: `@Jhih he`.
+
+Regression: `node tests/order-workflow.test.js`; local browser fixture: `python3 tests/order-preview-server.py` (Layui 2.6.8 with delayed synthetic responses, port 8766).
+
+## 2026-09-14 · v6.1.0
+
+Refreshed 13 accessible rendered DOM documents with inline scripts and 43 referenced assets in `work/xhj-20260914/`. This is not an archive of raw server responses, backend code, or every business record.
+
+Unified spacing, button geometry, upload action groups, and semantic theme colors using the Apple Design skill's main principles. All 112 semantic color pairs across 14 styled themes meet 4.5:1; the default theme preserves the site. Fixed hardcoded table/status colors and added short interaction feedback with reduced-motion support.
+
+Validated syntax, distribution parity, theme switching, route detection, isolated page initialization, and a 390px upload replay. Existing business modules remain; live upload, synchronization, deletion, and CAPTCHA recognition were not exercised. Enable only one distribution script. Account-visible snapshots remain local.
+
+[![Version](https://img.shields.io/badge/Version-v6.2.0-0071e3?style=for-the-badge)](#versioning-policy)
 [![License](https://img.shields.io/github/license/jhihhe/XHJ-VR-assistant?style=for-the-badge&color=72efdd)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=git&color=9b5de5)](https://github.com/jhihhe/XHJ-VR-assistant/commits/main)
 [![Repo Stars](https://img.shields.io/github/stars/jhihhe/XHJ-VR-assistant?style=for-the-badge&logo=github&color=ffd166)](https://github.com/jhihhe/XHJ-VR-assistant/stargazers)
@@ -9,7 +43,7 @@
 
 [![Tampermonkey](https://img.shields.io/badge/Tampermonkey-UserScript-1e88e5?style=flat-square&logo=tampermonkey&logoColor=white)](#installation--deployment)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-f7df1e?style=flat-square&logo=javascript&logoColor=111)](#technical-overview)
-[![Themes](https://img.shields.io/badge/Themes-15-ff9800?style=flat-square)](#theme-matrix)
+[![Themes](https://img.shields.io/badge/Themes-16-ff9800?style=flat-square)](#theme-matrix)
 [![Auto Sync](https://img.shields.io/badge/AutoSync-Batch-7c4dff?style=flat-square)](#feature-panorama)
 [![Auto Verify](https://img.shields.io/badge/AutoVerify-ONNX_Local-00897b?style=flat-square)](#feature-panorama)
 [![Layout Safe](https://img.shields.io/badge/Layout-Live_DOM_Adapted-455a64?style=flat-square)](#latest-update-v600)
@@ -42,7 +76,7 @@
 - Local intelligence: ONNX-based CAPTCHA workflow without external API keys.
 - Cross-context consistency: main pages, modal layers, and iframes stay aligned.
 
-## Latest Update v6.0.0
+## Previous Release v6.0.0
 
 - **Re-crawled and re-adapted to the live admin DOM**: Covers the main shell, survey list, panorama list, personal data, profile, and both survey/panorama upload flows.
 - **Apple-inspired Control Center**: Adds theme swatches, smart-scale controls, a percentage slider, and one-click recommended defaults. Apple Light is now the default.
@@ -52,7 +86,7 @@
 ## Feature Panorama
 
 ### 🎨 Visual System
-- 15 built-in themes (dark / neon / glass / cyber / bauhaus styles).
+- 16 built-in themes (dark / neon / glass / cyber / bauhaus / Anthropic styles).
 - Unified design language for table, button, input, modal, and pager.
 - Semantic color boost for faster visual scanning and action priority.
 
@@ -83,6 +117,7 @@
 | Material Stack | Glass Morphism, Bauhaus |
 | Nature Stack | Emerald Forest |
 | Light Stack | Apple Light |
+| Warm Editorial | Anthropic |
 | Baseline | Default |
 
 ## Charts & Diagrams
