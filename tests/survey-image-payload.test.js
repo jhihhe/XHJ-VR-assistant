@@ -1,0 +1,10 @@
+const assert = require('node:assert/strict');
+const { buildImagePayload } = require('../work/xiangshi-upload-api/image-payload');
+const images = ['客厅(1)1.jpg', '卧室(1)1.jpg', '客厅(1)2.jpg'].map((originalName, i) => ({ originalName, link: `image-${i}` }));
+const rooms = [{ name: '客厅', id: 1 }, { name: '卧室', id: 2 }, { name: '其他', id: 3 }];
+const result = buildImagePayload(images, rooms, 9);
+assert.deepEqual(result.map(item => item.imagepath), ['image-0', 'image-2', 'image-1']);
+assert.deepEqual(result.map(item => item.orientationId), [9, 9, undefined]);
+assert.equal(Object.hasOwn(result[2], 'orientationId'), false);
+assert.throws(() => buildImagePayload(images, [], 9), /字典不完整/);
+console.log('survey image payload passed');

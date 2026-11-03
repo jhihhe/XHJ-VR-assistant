@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手（563997）
 // @namespace    http://tampermonkey.net/
-// @version      6.2.0
+// @version      6.2.1
 // @description  象视平台助手：16套主题统一新拟物设计、字段列配色、批量同步、表格增强、上传计数与重试、缩放和本地验证码识别。
 // @author       @Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
@@ -618,7 +618,8 @@
 
     const getSoftUICss = vars => {
         const columns = columnPalette(vars).map((color, index) => `
-html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column="${index}"] {
+html[data-xhj-theme] .layui-table-view :is(th,td)[data-xhj-column="${index}"],
+html[data-xhj-theme] #xhj-survey-folders :is(th,td)[data-xhj-column="${index}"] {
     --xhj-column-bg: ${color.bg}; --xhj-column-text: ${color.text};
     --xhj-column-accepted: ${color.accepted}; --xhj-column-success: ${color.success}; --xhj-column-warning: ${color.warning}; --xhj-column-danger: ${color.danger};
     background: var(--xhj-column-bg) !important; color: var(--xhj-column-text) !important;
@@ -3316,7 +3317,7 @@ ${getSoftUICss(vars)}
         // 创建主按钮
         const triggerButton = document.createElement('button');
         triggerButton.type = 'button';
-        triggerButton.title = '象视助手 v6.2.0 · 同步当前已接单页（最多90条）';
+        triggerButton.title = '象视助手 v6.2.1 · 同步当前已接单页（最多90条）';
         triggerButton.id = BUTTON_ID;
         triggerButton.textContent = '开始自动同步';
         triggerButton.style.cssText = `
@@ -3336,7 +3337,7 @@ ${getSoftUICss(vars)}
         // 创建设置按钮
         const settingsButton = document.createElement('button');
         settingsButton.type = 'button';
-        settingsButton.title = '象视助手 v6.2.0 · 加载已接单订单';
+        settingsButton.title = '象视助手 v6.2.1 · 加载已接单订单';
         settingsButton.id = SETTINGS_BUTTON_ID;
         settingsButton.textContent = '跳转到已接单';
         settingsButton.style.cssText = `
@@ -3408,7 +3409,7 @@ ${getSoftUICss(vars)}
             let table;
             while (!(table = getOrderTable()) || !Array.isArray(table.cache?.order)
                 || document.querySelector('.layui-table-view[lay-id="order"] .layui-table-init')) {
-                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.2.0 并刷新房勘列表');
+                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.2.1 并刷新房勘列表');
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
             const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
@@ -5263,3 +5264,656 @@ ${getSoftUICss(vars)}
 
 })();
 
+// XHJ survey folder panel
+(function () {
+// Author: @Jhih he
+const surveyConcurrencyOptions = [4, 8, 12, 16, 20];
+function surveyConcurrency(value) {
+    return surveyConcurrencyOptions.includes(Number(value)) ? Number(value) : 8;
+}
+function surveyDailyDirectory(date = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(date);
+    const part = type => parts.find(item => item.type === type).value;
+    return `/Users/mac/Pictures/工作/${part('year')}相片/${part('month')}月/${part('month')}${part('day')}贺志`;
+}
+function surveyFolderFields(name, number, direction) {
+    const [before, after = ''] = name.split(number);
+    const prefix = before.trim().match(/^(\d+)[.．、]\s*(.*)$/);
+    const rest = after.trim().split(/\s+/).filter(Boolean);
+    if (rest.at(-1) === direction) rest.pop();
+    return { sequence: prefix?.[1] || '', person: prefix?.[2] || before.trim(),
+        store: rest.length >= 3 ? rest[0] : '',
+        property: rest.length >= 3 ? rest.slice(1, -1).join(' ') : rest.join(' '),
+        unit: rest.length >= 3 ? rest.at(-1) : '' };
+}
+function surveyOrderDisplay(orders) {
+    const eligible = orders.filter(order => [1, 3].includes(Number(order.state)));
+    if (!eligible.length) return '无效 · 未找到可上传订单';
+    if (eligible.length > 1) return '无效 · 对应多个可上传订单';
+    return Number(eligible[0].state) === 1 ? '重拍可上传' : '已接单可上传';
+}
+
+// Shared folder recognition for the survey uploader. No network or file writes.
+function planFolder(name, files) {
+    const ids = name.match(/HS\d{12}(?!\d)/gi) || [];
+    if (!ids.length) return null;
+    const errors = [];
+    if (ids.length !== 1) errors.push('房源编号不唯一');
+    const direction = name.trim().match(/(?:^|\s)(东|南|西|北)$/)?.[1] || null;
+    if (!direction) errors.push('无法识别朝向');
+    const images = files.filter(file => /\.jpe?g$/i.test(file.name) && !file.name.startsWith('._'))
+        .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }));
+    const cover = images.find(file => /^客厅[（(]/.test(file.name)) || null;
+    if (!cover) errors.push('未找到客厅封面');
+    if (!images.length) errors.push('没有 JPG 图片');
+    return { name, houseNumber: ids[0].toUpperCase(), direction, cover, images, errors };
+}
+
+
+// Same-origin request contract observed in the live Layui order page.
+async function findSurveyOrders(houseNumber, request) {
+    if (!/^HS\d{12}$/.test(houseNumber)) throw new Error('房源编号格式不正确');
+    const rows = [];
+    const seen = new Set();
+    let total;
+    for (let page = 1; ; page++) {
+        const result = await request('/houseadmin/house/index.html', {
+            flag: '1', key: houseNumber, status: '', page: String(page), limit: '90'
+        });
+        if (!result || Number(result.code) !== 0 || !Array.isArray(result.data)
+            || !Number.isSafeInteger(Number(result.count)) || Number(result.count) < 0) {
+            throw new Error('订单查询响应不完整');
+        }
+        if (total === undefined) total = Number(result.count);
+        if (total !== Number(result.count)) throw new Error('查询期间订单列表变化，请重新查询');
+        for (const row of result.data) {
+            if (row.id == null || seen.has(String(row.id))) throw new Error('订单分页存在重复或缺少编号');
+            seen.add(String(row.id));
+            rows.push(row);
+        }
+        if (rows.length === total) return rows.filter(row => row.houseSourceNumber === houseNumber);
+        if (rows.length > total || !result.data.length) throw new Error('订单分页不完整');
+    }
+}
+
+
+// Form fields and response shape observed in the site's Element UI uploader.
+async function uploadSurveyImage(file, request = fetch) {
+    if (!file || !/\.jpg$/i.test(file.name) || file.size <= 0) throw new Error('图片文件无效');
+    const form = new FormData();
+    form.append('type', '1');
+    form.append('sysType', '1');
+    form.append('cityId', '1');
+    form.append('file', file, file.name);
+    const response = await request('https://files.xhj.com/oss/endpoint/put-file', {
+        method: 'POST', body: form, signal: AbortSignal.timeout(60000)
+    });
+    if (!response.ok) throw new Error(`图片上传失败：${file.name}`);
+    const result = await response.json();
+    const image = result && result.data;
+    if (!image || image.originalName !== file.name || typeof image.link !== 'string') {
+        throw new Error(`图片上传响应不匹配：${file.name}`);
+    }
+    let url;
+    try { url = new URL(image.link); } catch (_) { throw new Error('图片地址无效'); }
+    if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) throw new Error('图片地址无效');
+    return { originalName: image.originalName, link: image.link };
+}
+
+
+// Mirrors the observed page's room grouping and first-room orientation.
+function buildImagePayload(images, rooms, orientationId) {
+    if (!images.length || orientationId == null) throw new Error('缺少图片或朝向');
+    const groups = [];
+    for (const image of images) {
+        if (!image.link || !image.originalName) throw new Error('图片响应不完整');
+        const name = image.originalName.replace(/\.jpg$/i, '').replace(/\s/g, '').split('(')[0];
+        const room = rooms.find(item => item.name === name) || rooms.find(item => item.name === '其他');
+        if (!room || room.id == null) throw new Error('房间字典不完整');
+        let group = groups.find(item => item.roomType === room.id);
+        if (!group) {
+            group = { roomType: room.id, images: [] };
+            if (!groups.length) group.orientationId = orientationId;
+            groups.push(group);
+        }
+        group.images.push({ imagepath: image.link, imagetype: 2 });
+    }
+    return groups.flatMap(group => group.images.map(image => ({
+        ...image, roomType: group.roomType,
+        ...(group.orientationId === undefined ? {} : { orientationId: group.orientationId }),
+        windowType: '', length: '', width: '', high: '', size: ''
+    })));
+}
+
+
+// Reads generated scalar fields without executing the platform's script.
+function readSurveyPageContext(source, expectedNumber, expectedOrderID) {
+    const start = source.indexOf('var arr = {');
+    const end = source.indexOf('};', start);
+    if (start < 0 || end < 0) throw new Error('无法识别当前页面保存参数');
+    const block = source.slice(start, end).replace(/\/\/[^\n]*/g, '');
+    function scalar(key) {
+        const match = block.match(new RegExp('(?:^|[,{\\s])' + key + '\\s*:\\s*(?:[\"\']([^\"\']*)[\"\']|([0-9]+))\\s*[,}]'));
+        if (!match) throw new Error(`页面缺少保存字段：${key}`);
+        return match[1] === undefined ? Number(match[2]) : match[1];
+    }
+    const fields = {};
+    for (const key of ['xiangShiToken', 'account', 'housePhotographyId', 'saleorrentid', 'hosuetype', 'housesourceid', 'diskSourceType', 'houseNo', 'lpid', 'inputType']) {
+        fields[key] = scalar(key);
+    }
+    if (fields.houseNo !== expectedNumber || String(fields.housePhotographyId) !== String(expectedOrderID)) {
+        throw new Error('上传页面与当前订单不匹配');
+    }
+    if (typeof fields.xiangShiToken !== 'string' || !fields.xiangShiToken) throw new Error('页面授权参数为空');
+    return fields;
+}
+
+
+function prepareSurveySave(fields, images, surveyDate, hxType = null) {
+    if (!/^HS\d{12}$/.test(fields.houseNo) || !fields.housePhotographyId || !images.length) {
+        throw new Error('保存信息不完整');
+    }
+    const links = new Set();
+    for (const image of images) {
+        if (!image || typeof image.imagepath !== 'string' || !image.imagepath || image.roomType == null || image.imagetype !== 2 || links.has(image.imagepath)) {
+            throw new Error('保存图片列表无效或存在重复');
+        }
+        links.add(image.imagepath);
+    }
+    if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(surveyDate)) throw new Error('拍摄时间格式不正确');
+    return {
+        ...fields,
+        // Initial/reset state in the observed upload page.
+        url: '', urlZq: '', isSync: 0,
+        surveydate: surveyDate,
+        houseSurveyImages: images,
+        hxType
+    };
+}
+
+
+async function loadSurveyContext(order, direction, request, parsePage) {
+    const params = new URLSearchParams();
+    const mapping = { id: 'surveyId', lpid: 'lpid', oid: 'id', saleOrRentid: 'saleOrRentid', housetype: 'housetype', housesourceid: 'housesourceid', houseSourceNumber: 'houseSourceNumber' };
+    for (const [key, field] of Object.entries(mapping)) {
+        if (key !== 'id' && order[field] == null) throw new Error(`订单缺少字段：${field}`);
+        params.set(key, order[field] == null ? 'null' : String(order[field]));
+    }
+    const pageURL = `/houseadmin/house/add_fk_image.html?${params}`;
+    const page = await request(pageURL, 'text');
+    const fields = parsePage(page, order.houseSourceNumber, order.id);
+    const detail = await request(`https://api.xhj.com/api/xhj-bms/houseSurveyApply/xiangshi/detail?id=${encodeURIComponent(order.id)}`, 'json');
+    if (Number(detail?.code) !== 200 || !detail.data || Array.isArray(detail.data)) throw new Error('订单详情响应无效');
+    const base = 'https://api.xhj.com/api/xhj-bms/houseSurveyImg/xiangshi/getSystemInfoBySid?sid=';
+    const roomsResult = await request(base + '1091', 'json');
+    const directionsResult = await request(base + '12', 'json');
+    for (const result of [roomsResult, directionsResult]) {
+        if (!result || Number(result.code) !== 200 || !Array.isArray(result.data)) throw new Error('房间或朝向字典响应无效');
+    }
+    const directions = directionsResult.data.filter(item => item.name === direction);
+    if (directions.length !== 1 || directions[0].id == null) throw new Error('无法唯一匹配朝向');
+    if (!roomsResult.data.some(item => item.name === '客厅' && item.id != null)) throw new Error('房间字典缺少客厅');
+    return { ready: true, pageURL, fields, rooms: roomsResult.data, orientationId: directions[0].id, hxType: detail.data.hxType ?? null,
+        originalImages: JSON.stringify(detail.data.houseSurveyImgVO ?? null) };
+}
+
+
+function createSurveyBrowserAPI(request = fetch) {
+    async function response(url, options = {}) {
+        const result = await request(url, { credentials: url.startsWith('/') ? 'same-origin' : 'omit', ...options });
+        if (result.redirected && /\/login\//.test(result.url || '')) {
+            throw Object.assign(new Error('登录已失效，请在象视重新登录'), { needsLogin: true });
+        }
+        if (!result.ok || result.redirected) throw new Error(`接口请求失败：HTTP ${result.status || '未知'}${result.redirected ? '，发生跳转' : ''}`);
+        return result;
+    }
+    async function read(url, type) {
+        const result = await response(url);
+        return type === 'text' ? result.text() : result.json();
+    }
+    function form(url, body) {
+        return response(url, { method: 'POST', headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest'
+        }, body: new URLSearchParams(body) });
+    }
+    return {
+        sessionUsername: async () => {
+            const source = await read('/houseadmin/user/index.html', 'text');
+            const match = source.match(/\bvar\s+info\s*=\s*(\{[^\r\n]*\})\s*;/);
+            if (!match) throw Object.assign(new Error('无法确认登录状态'), { needsLogin: true });
+            const username = JSON.parse(match[1]).username;
+            if (typeof username !== 'string' || !username || username.length > 128) throw new Error('无法读取工号');
+            return username;
+        },
+        findOrders: number => findSurveyOrders(number, async (url, body) => (await form(url, body)).json()),
+        readOrder: (order, direction) => loadSurveyContext(order, direction, read, readSurveyPageContext),
+        uploadImage: file => uploadSurveyImage(file, request),
+        prepareSave: async (order, context, images) => {
+            const detail = await read(`https://api.xhj.com/api/xhj-bms/houseSurveyApply/xiangshi/detail?id=${encodeURIComponent(order.id)}`, 'json');
+            if (Number(detail.code) !== 200 || JSON.stringify(detail.data?.houseSurveyImgVO ?? null) !== context.originalImages) throw new Error('上传期间原订单图片变化，未保存新图，请核对订单');
+            const now = new Date();
+            const pad = value => String(value).padStart(2, '0');
+            const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            return prepareSurveySave(context.fields, buildImagePayload(images, context.rooms, context.orientationId), date, context.hxType);
+        },
+        saveOrder: async payload => {
+            if (typeof surveyRecordOutcome === 'function') surveyRecordOutcome(payload.houseNo, {
+                orderID: payload.housePhotographyId, links: payload.houseSurveyImages.map(image => image.imagepath),
+                orientationID: payload.houseSurveyImages[0]?.orientationId, stage: '保存订单', saved: false, error: ''
+            });
+            const result = await response('https://api.xhj.com/api/xhj-bms/houseSurveyImg/xiangshi/save', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            });
+            const body = await result.json();
+            return { success: Number(body.code) === 200, reason: `保存接口拒绝：code=${String(body.code ?? '缺失')}，${String(body.msg ?? body.message ?? '无原因说明').replace(String(payload.xiangShiToken || '___no_token___'), '[已隐藏授权信息]').slice(0, 160)}` };
+        },
+        finalizeOrder: async (order, context) => {
+            await form(context.pageURL, { house_nums: order.houseSourceNumber });
+            return true;
+        },
+        verifyOrder: async (order, context, images) => {
+            const result = await read(`https://api.xhj.com/api/xhj-bms/houseSurveyApply/xiangshi/detail?id=${encodeURIComponent(order.id)}`, 'json');
+            if (Number(result.code) !== 200 || !result.data) throw new Error('无法读取保存后的订单详情');
+            const groups = result.data.houseSurveyImgVO?.inDoorImgVoList;
+            if (!Array.isArray(groups)) throw new Error('保存详情缺少房间图片列表');
+            if (!groups.length || String(groups[0].orientationId) !== String(context.orientationId)) throw new Error('首个房间朝向与文件夹朝向不一致');
+            if (groups.slice(1).some(group => group.orientationId != null && !['', '0'].includes(String(group.orientationId)))) throw new Error('后续房间含朝向，预期只填写首个房间');
+            const actual = groups.flatMap(group => (group.hsImgList || []).map(image => ({ ...image, orientationId: group.orientationId })));
+            if (actual.length !== images.length) throw new Error(`图片数量不符：预期${images.length}张，服务器${actual.length}张`);
+            if (actual[0]?.imagepath !== images[0].link) throw new Error('服务器首张图片不是本次客厅封面');
+            const links = actual.map(image => image.imagepath).sort();
+            if (JSON.stringify(links) !== JSON.stringify(images.map(image => image.link).sort())) throw new Error('服务器图片链接与本次上传不一致');
+            return true;
+        }
+    };
+}
+
+// Author: @Jhih he
+function surveyUploadFailure(stage, saved, error) {
+    const reason = error?.message || String(error);
+    const summary = saved ? (stage === '完成订单回写' ? '已保存 · 回写待核实' : '已保存 · 核对未通过')
+        : stage === '保存订单' ? '保存未确认' : '上传未完成';
+    const failure = new Error(`步骤：${stage}\n原因：${reason}\n${saved ? '服务器已确认图片保存成功，后续步骤未完成核实。' : '尚未取得图片保存成功的确认。'}\n已停止，不会自动重复提交。请先核对订单。`);
+    Object.assign(failure, { summary, stage, saved, needsLogin: !!error?.needsLogin });
+    return failure;
+}
+
+function surveyStatusTone(text) {
+    if (['重拍可上传', '已接单可上传', '完成'].includes(text)) return 'success';
+    if (text.startsWith('无效') || /失败|未通过|未完成/.test(text)) return 'error';
+    if (/未确认|待核实/.test(text)) return 'warning';
+    return 'neutral';
+}
+
+function surveyRecordOutcome(number, fields) {
+    if (!/^HS\d{12}$/.test(number) || typeof localStorage === 'undefined') return;
+    const key = `xhj-survey-receipt:${number}`;
+    let previous = {};
+    try { previous = JSON.parse(localStorage.getItem(key) || '{}'); } catch (_) {}
+    const allowed = ['orderID', 'links', 'orientationID', 'stage', 'saved', 'error'];
+    const safe = Object.fromEntries(Object.entries(fields).filter(([key]) => allowed.includes(key)));
+    localStorage.setItem(key, JSON.stringify({ ...previous, ...safe, updated: new Date().toISOString() }));
+}
+
+
+// Network operations are supplied by the application adapter.
+async function runSurveyUpload(plan, api, report = () => {}, concurrency = 8) {
+    if (![4, 8, 12, 16, 20].includes(concurrency)) throw new Error('并发数必须为 4、8、12、16 或 20');
+    let currentStage = '检查房源';
+    let saved = false;
+    const set = (stage, detail = '') => { currentStage = stage; report({ stage, detail }); };
+    try {
+    if (!plan || plan.errors.length || !plan.cover) throw new Error('房源信息不完整');
+    set('查找订单');
+    const orders = await api.findOrders(plan.houseNumber);
+    if (!Array.isArray(orders)) throw new Error('订单查询结果不完整');
+    const matches = orders.filter(order => order.houseSourceNumber === plan.houseNumber && [1, 3].includes(Number(order.state)));
+    if (matches.length !== 1) throw new Error(matches.length ? '房源对应多个订单' : '未找到对应订单');
+    const order = matches[0];
+    if (![1, 3].includes(Number(order.state))) throw new Error('订单状态不可上传');
+    set('读取订单');
+    const context = await api.readOrder(order, plan.direction);
+    if (!context || !context.ready) throw new Error('订单或朝向信息不完整');
+    const uploaded = [];
+    const files = [plan.cover, ...plan.images.filter(file => file !== plan.cover)];
+    for (let offset = 0; offset < files.length;) {
+        const batch = files.slice(offset, offset + (offset === 0 ? 1 : concurrency));
+        set('上传图片', `${uploaded.length + 1}–${uploaded.length + batch.length}/${files.length}`);
+        const results = await Promise.allSettled(batch.map(file => api.uploadImage(file)));
+        const failure = results.find(result => result.status === 'rejected');
+        if (failure) throw failure.reason;
+        for (let index = 0; index < results.length; index++) {
+            const image = results[index].value;
+            if (!image || !image.link || !image.originalName) throw new Error(`图片上传结果不完整：${batch[index].name}`);
+            uploaded.push(image);
+        }
+        offset += batch.length;
+    }
+    set('保存前核对');
+    const payload = await api.prepareSave(order, context, uploaded);
+    if (!payload) throw new Error('无法构造保存数据');
+    set('保存订单');
+    const result = await api.saveOrder(payload);
+    if (!result || result.success !== true) throw new Error(result?.reason || '保存未确认成功');
+    saved = true;
+    set('完成订单回写');
+    if (await api.finalizeOrder(order, context) !== true) throw new Error('订单回写未确认');
+    set('核实订单');
+    if (await api.verifyOrder(order, context, uploaded) !== true) throw new Error('保存后结果不一致');
+    const refreshed = await api.findOrders(plan.houseNumber);
+    const same = Array.isArray(refreshed) ? refreshed.filter(item => String(item.id) === String(order.id) && item.houseSourceNumber === plan.houseNumber) : [];
+    if (same.length !== 1 || Number(same[0].state) !== 1) throw new Error('图片已提交，但订单有效状态未核实，请检查订单');
+    set('完成');
+    return { order, uploaded: uploaded.length };
+    } catch (error) {
+        const makeFailure = typeof surveyUploadFailure === 'function' ? surveyUploadFailure : require('./upload-outcome').surveyUploadFailure;
+        throw makeFailure(currentStage, saved, error);
+    }
+}
+
+
+// Author: @Jhih he
+(function () {
+    if (location.pathname !== '/houseadmin/house/index.html') return;
+    function mount() {
+        const host = document.querySelector('.demoTable');
+        if (!host || document.getElementById('xhj-survey-folders')) return;
+        const panel = document.createElement('details');
+        panel.id = 'xhj-survey-folders';
+        panel.dataset.surveyVersion = '0.6.0';
+        const style = document.createElement('style');
+        style.textContent = `
+            #xhj-survey-folders{box-sizing:border-box;width:100%;min-width:0;flex-basis:100%;margin:20px 0 0!important;padding:20px 24px;border-radius:20px;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,#283342)!important;box-shadow:var(--xhj-soft-out,0 3px 12px #0001);color-scheme:var(--xhj-scheme,light);font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif!important}
+            #xhj-survey-folders *{box-sizing:border-box;font-family:inherit!important;text-shadow:none!important}
+            #xhj-survey-folders :is(p,span,label,output){color:var(--xhj-text,#283342)!important}
+            #xhj-survey-folders summary{display:flex!important;align-items:center;justify-content:center;gap:8px;list-style:none;font-size:16px!important;font-weight:600;cursor:pointer;color:var(--xhj-accent-text,inherit)!important;margin:0!important;padding:8px 0!important;text-align:center}
+            #xhj-survey-folders summary::-webkit-details-marker{display:none}
+            #xhj-survey-folders summary::before{content:'▸'}
+            #xhj-survey-folders[open] summary::before{content:'▾'}
+            #xhj-survey-folders .survey-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(280px,1fr);align-items:center;gap:20px;margin:18px 0}
+            #xhj-survey-folders :is(.survey-source,.survey-actions,.survey-setting,.survey-selection){display:flex;align-items:center;gap:12px}
+            #xhj-survey-folders .survey-source{justify-content:flex-start;min-width:0}
+            #xhj-survey-folders .survey-actions{justify-content:flex-end}
+            #xhj-survey-folders .survey-selection{justify-content:center;margin:0 0 16px}
+            #xhj-survey-folders .survey-selected-directory{min-width:0;overflow-wrap:anywhere;font-weight:500}
+            #xhj-survey-folders button{width:auto!important;min-width:108px;height:38px!important;min-height:38px;padding:8px 16px!important;font-size:14px!important;font-weight:500;line-height:22px!important;text-align:center!important;margin:0!important;white-space:nowrap;cursor:pointer}
+            #xhj-survey-folders select{display:inline-block!important;width:80px;height:38px;padding:0 10px;appearance:auto;text-align:center;font:inherit}
+            #xhj-survey-folders .survey-path{margin:14px 0 0;text-align:center;overflow-wrap:anywhere;line-height:1.7;font-size:12px;color:var(--xhj-muted,var(--xhj-text,inherit))!important}
+            #xhj-survey-folders input[type="checkbox"]{display:inline-block!important;visibility:visible!important;opacity:1!important;position:static!important;width:17px!important;height:17px!important;appearance:auto!important;margin:0!important;vertical-align:middle;accent-color:var(--xhj-accent-text,#3671a6)}
+            #xhj-survey-folders .survey-scroll{overflow:auto;max-height:600px;margin:0 auto 14px;width:100%}
+            #xhj-survey-folders table{width:100%;min-width:760px;table-layout:fixed;border-collapse:separate;border-spacing:0 4px;color:inherit;font-size:13px}
+            #xhj-survey-folders th,#xhj-survey-folders td{text-align:center!important;padding:8px 6px;vertical-align:middle!important;line-height:1.5;white-space:normal;overflow-wrap:anywhere;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,inherit)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table :is(th,td)[data-xhj-column]{background:var(--xhj-surface,#eef0f3)!important;border-radius:0!important}
+            #xhj-survey-folders th{height:40px;padding:8px 4px;white-space:nowrap!important;position:sticky;top:0;z-index:1;color:var(--xhj-accent-text,inherit)!important;font-weight:600}
+            #xhj-survey-folders td{height:44px;border-bottom:1px solid var(--xhj-border,#8883)}
+            #xhj-survey-folders :is(th,td):first-child{border-radius:6px 0 0 6px}
+            #xhj-survey-folders :is(th,td):last-child{border-radius:0 6px 6px 0}
+            #xhj-survey-folders td:nth-child(4),#xhj-survey-folders td:nth-child(7),#xhj-survey-folders td:nth-child(10){white-space:nowrap;overflow-wrap:normal}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="1"]{--xhj-column-text:light-dark(#075a89,#8fd3ff);color:var(--xhj-column-text)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="2"]{--xhj-column-text:light-dark(#903552,#f8b6cb);color:var(--xhj-column-text)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="3"]{--xhj-column-text:light-dark(#376b25,#b8e6a1);color:var(--xhj-column-text)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="4"]{--xhj-column-text:light-dark(#673b88,#e1bdff);color:var(--xhj-column-text)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="5"]{--xhj-column-text:light-dark(#8a4b08,#ffce92);color:var(--xhj-column-text)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="6"]{--xhj-column-text:light-dark(#006b64,#a5e2dc);color:var(--xhj-column-text)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="7"]{--xhj-column-text:light-dark(#6c5900,#e9d68f);color:var(--xhj-column-text)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="8"]{--xhj-column-text:light-dark(#394d98,#c3caff);color:var(--xhj-column-text)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="9"]{--xhj-column-text:light-dark(#993f2e,#ffb6a5);color:var(--xhj-column-text)!important}
+            html[data-xhj-theme] #xhj-survey-folders .survey-scroll table td[data-xhj-column="10"]{--xhj-column-text:light-dark(#146c5b,#a9ded0);color:var(--xhj-column-text)!important}
+            #xhj-survey-folders td[data-xhj-column] output{color:var(--xhj-column-text,var(--xhj-text))!important}
+            #xhj-survey-folders output{display:block;line-height:1.5;text-align:center}
+            #xhj-survey-folders td[data-xhj-column] output[data-tone="success"]{color:light-dark(#16733b,#75df91)!important}
+            #xhj-survey-folders td[data-xhj-column] output[data-tone="error"]{color:light-dark(#b32828,#ff9292)!important}
+            #xhj-survey-folders td[data-xhj-column] output[data-tone="warning"]{color:light-dark(#885800,#f2ca70)!important}
+            #xhj-survey-folders output[data-detail]{cursor:pointer;text-decoration:underline dotted;text-underline-offset:4px}
+            #xhj-survey-folders .survey-login{text-align:center;margin:8px 0;font-size:12px}
+            #xhj-survey-folders dialog{max-width:min(560px,90vw);border:1px solid var(--xhj-border,#8884);border-radius:16px;padding:24px;background:var(--xhj-surface,#eef0f3);color:var(--xhj-text,#283342)}
+            #xhj-survey-folders dialog::backdrop{background:#0005}
+            #xhj-survey-folders dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.8;color:inherit}
+            #xhj-survey-folders .survey-status{margin:0;text-align:center;font-size:12px;line-height:1.7;color:var(--xhj-muted,var(--xhj-text,inherit))!important}
+            #xhj-survey-folders button:hover{box-shadow:var(--xhj-soft-hover)!important}
+            #xhj-survey-folders button:active{box-shadow:var(--xhj-soft-in)!important}
+            #xhj-survey-folders :is(button,select):disabled{opacity:.5;cursor:not-allowed}
+            @media(max-width:950px){#xhj-survey-folders{padding:16px}#xhj-survey-folders .survey-toolbar{grid-template-columns:1fr;gap:14px}#xhj-survey-folders :is(.survey-source,.survey-actions,.survey-setting){justify-content:center}#xhj-survey-folders .survey-path{font-size:12px}}
+        `;
+        panel.append(style);
+        const title = document.createElement('summary');
+        title.textContent = '上传房堪';
+        panel.append(title);
+        const loginState = document.createElement('p');
+        loginState.className = 'survey-login';
+        loginState.textContent = '正在验证登录…';
+        panel.append(loginState);
+        const detailDialog = document.createElement('dialog');
+        detailDialog.setAttribute('aria-label', '上传状态详情');
+        const detailText = document.createElement('pre');
+        const closeDetail = document.createElement('button');
+        closeDetail.type = 'button';
+        closeDetail.textContent = '关闭';
+        closeDetail.addEventListener('click', () => detailDialog.close());
+        detailDialog.append(detailText, closeDetail);
+        panel.append(detailDialog);
+        function setOutput(output, text, detail = '') {
+            output.textContent = text;
+            output.dataset.tone = surveyStatusTone(text);
+            if (detail) {
+                output.dataset.detail = detail;
+                output.title = '点击查看详情';
+                output.tabIndex = 0;
+                output.setAttribute('role', 'button');
+            } else {
+                delete output.dataset.detail;
+                output.removeAttribute('title');
+                output.removeAttribute('tabindex');
+                output.removeAttribute('role');
+            }
+        }
+        function showDetail(output) {
+            if (!output.dataset.detail) return;
+            detailText.textContent = output.dataset.detail;
+            detailDialog.showModal();
+        }
+        panel.addEventListener('click', event => { if (event.target.matches('output[data-detail]')) showDetail(event.target); });
+        panel.addEventListener('keydown', event => {
+            if (['Enter', ' '].includes(event.key) && event.target.matches('output[data-detail]')) { event.preventDefault(); showDetail(event.target); }
+        });
+        function sessionError(error) {
+            if (error.needsLogin) loginState.textContent = '登录已失效 · 请在象视重新登录';
+        }
+        createSurveyBrowserAPI().sessionUsername().then(username => {
+            loginState.textContent = `工号 ${username} · 已登录`;
+        }).catch(error => { loginState.textContent = error.needsLogin ? '登录已失效 · 请在象视重新登录' : '登录验证暂未完成'; });
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.setAttribute('webkitdirectory', '');
+        input.setAttribute('aria-label', '选择每日拍摄目录');
+        input.hidden = true;
+        const choose = document.createElement('button');
+        choose.type = 'button';
+        choose.className = 'layui-btn';
+        choose.textContent = '选择文件夹';
+        choose.addEventListener('click', () => input.click());
+        const selection = document.createElement('span');
+        selection.className = 'survey-selected-directory';
+        selection.textContent = '尚未选择文件夹';
+        const directory = document.createElement('p');
+        directory.className = 'survey-path';
+        const updateDirectory = () => { directory.textContent = `今日默认目录：${surveyDailyDirectory()}（浏览器需手动选择）`; };
+        updateDirectory();
+        setInterval(updateDirectory, 60000);
+        const concurrencyLabel = document.createElement('label');
+        concurrencyLabel.className = 'survey-setting';
+        concurrencyLabel.textContent = '并发数';
+        const concurrency = document.createElement('select');
+        concurrency.className = 'layui-select';
+        concurrency.setAttribute('lay-ignore', '');
+        concurrency.setAttribute('aria-label', '上传并发数');
+        let storedConcurrency;
+        try { storedConcurrency = localStorage.getItem('xhj-survey-concurrency'); } catch (_) {}
+        for (const value of surveyConcurrencyOptions) {
+            const option = document.createElement('option');
+            option.value = String(value);
+            option.textContent = String(value);
+            concurrency.append(option);
+        }
+        concurrency.value = String(surveyConcurrency(storedConcurrency));
+        concurrency.addEventListener('change', () => {
+            try { localStorage.setItem('xhj-survey-concurrency', concurrency.value); } catch (_) {}
+        });
+        concurrencyLabel.append(concurrency);
+        const rows = document.createElement('div');
+        const plans = new Map();
+        const start = document.createElement('button');
+        start.type = 'button';
+        start.className = 'layui-btn';
+        start.textContent = '开始上传';
+        start.addEventListener('click', async () => {
+            const selected = [...rows.querySelectorAll('input:checked:not(:disabled)')];
+            if (!selected.length) return;
+            const repeat = selected.filter(box => plans.get(box).requiresConfirmation);
+            if (repeat.length && !window.confirm(`以下房源上次已完成或结果待核实：\n${repeat.map(box => plans.get(box).houseNumber).join('、')}\n请先核对原订单。确认后会重新上传完整图片并替换保存，不会提前清除旧图。是否继续？`)) return;
+            start.disabled = true;
+            query.disabled = true;
+            input.disabled = true;
+            choose.disabled = true;
+            concurrency.disabled = true;
+            const uploadConcurrency = surveyConcurrency(concurrency.value);
+            const api = createSurveyBrowserAPI();
+            try {
+                for (const box of selected) {
+                    const output = box.closest('tr').querySelector('output');
+                    try {
+                        await runSurveyUpload(plans.get(box), api, event => { setOutput(output, `${event.stage}${event.detail ? ' ' + event.detail : ''}`); try { surveyRecordOutcome(plans.get(box).houseNumber, { stage: event.stage, saved: ['完成订单回写', '核实订单', '完成'].includes(event.stage) }); } catch (_) {} }, uploadConcurrency);
+                        plans.get(box).requiresConfirmation = true;
+                        setOutput(output, '完成', `${plans.get(box).houseNumber}\n已核实${plans.get(box).images.length}张图片、客厅封面、首个房间朝向及原订单有效状态。`);
+                        box.checked = false;
+                    } catch (error) {
+                        setOutput(output, error.summary || '上传未完成', `${plans.get(box).houseNumber}\n${error.message}`);
+                        plans.get(box).requiresConfirmation = true;
+                        try { surveyRecordOutcome(plans.get(box).houseNumber, { stage: error.stage, saved: error.saved, error: error.message }); } catch (_) {}
+                        sessionError(error);
+                        box.checked = false;
+                        // A save failure may have committed remotely. Stop the batch for inspection.
+                        break;
+                    }
+                }
+            } finally { start.disabled = false; query.disabled = false; input.disabled = false; choose.disabled = false; concurrency.disabled = false; }
+        });
+        const query = document.createElement('button');
+        query.type = 'button';
+        query.className = 'layui-btn';
+        query.textContent = '查询所选订单';
+        query.addEventListener('click', async () => {
+            query.disabled = true;
+            start.disabled = true;
+            input.disabled = true;
+            choose.disabled = true;
+            concurrency.disabled = true;
+            try {
+                for (const box of rows.querySelectorAll('input:checked:not(:disabled)')) {
+                    const plan = plans.get(box);
+                    try {
+                        const results = await createSurveyBrowserAPI().findOrders(plan.houseNumber);
+                        const detail = surveyOrderDisplay(results);
+                        setOutput(box.closest('tr').querySelector('output'), detail);
+                    } catch (error) {
+                        sessionError(error);
+                        setOutput(box.closest('tr').querySelector('output'), '查询失败', error.message);
+                    }
+                }
+            } finally { query.disabled = false; start.disabled = false; input.disabled = false; choose.disabled = false; concurrency.disabled = false; }
+        });
+        const status = document.createElement('p');
+        status.className = 'survey-status';
+        status.textContent = '封面先传，余图按所选并发数上传；全部完成后保存并核实订单。';
+        const toolbar = document.createElement('div');
+        toolbar.className = 'survey-toolbar';
+        const source = document.createElement('div');
+        source.className = 'survey-source';
+        source.append(choose, selection);
+        const actions = document.createElement('div');
+        actions.className = 'survey-actions';
+        actions.append(query, start);
+        toolbar.append(source, concurrencyLabel, actions);
+        panel.append(directory, input, toolbar, rows, status);
+        input.addEventListener('change', () => {
+            rows.replaceChildren();
+            plans.clear();
+            selection.textContent = input.files[0]?.webkitRelativePath.split('/')[0] || '尚未选择文件夹';
+            const folders = new Map();
+            for (const file of input.files) {
+                const parts = file.webkitRelativePath.split('/');
+                if (parts.length !== 3) continue;
+                const name = parts[1];
+                if (!/HS\d{12}(?!\d)/i.test(name)) continue;
+                if (!folders.has(name)) folders.set(name, []);
+                folders.get(name).push(file);
+            }
+            let count = 0;
+            const recognized = [...folders].map(([name, files]) => planFolder(name, files)).filter(Boolean);
+            const numbers = new Map();
+            for (const plan of recognized) numbers.set(plan.houseNumber, (numbers.get(plan.houseNumber) || 0) + 1);
+            const controls = document.createElement('div');
+            for (const [label, checked] of [['全选', true], ['取消全选', false]]) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'layui-btn';
+                button.textContent = label;
+                button.addEventListener('click', () => rows.querySelectorAll('input:not(:disabled)').forEach(box => { box.checked = checked; }));
+                controls.append(button);
+            }
+            rows.append(controls);
+            controls.className = 'survey-selection';
+            const scroll = document.createElement('div');
+            scroll.className = 'survey-scroll';
+            const table = document.createElement('table');
+            const widths = [4, 4, 6, 14, 13, 18, 9, 4, 5, 13, 10];
+            const columns = document.createElement('colgroup');
+            for (const width of widths) {
+                const column = document.createElement('col');
+                column.style.width = `${width}%`;
+                columns.append(column);
+            }
+            table.append(columns);
+            const header = table.createTHead().insertRow();
+            for (const title of ['选择', '序号', '姓名', '房源编号', '门店', '小区 / 其他信息', '楼栋房号', '朝向', '图片', '封面', '状态']) {
+                const cell = document.createElement('th');
+                cell.textContent = title;
+                cell.scope = 'col';
+                cell.dataset.xhjColumn = String(header.cells.length);
+                header.append(cell);
+            }
+            const body = table.createTBody();
+            scroll.append(table);
+            rows.append(scroll);
+            for (const plan of recognized.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }))) {
+                const name = plan.name;
+                if (numbers.get(plan.houseNumber) > 1) plan.errors.push('同日目录中房源编号重复');
+                count++;
+                const row = body.insertRow();
+                const box = document.createElement('input');
+                box.type = 'checkbox';
+                box.checked = !plan.errors.length;
+                box.disabled = !!plan.errors.length;
+                box.setAttribute('aria-label', `选择 ${plan.houseNumber}`);
+                row.insertCell().append(box);
+                const fields = surveyFolderFields(name, plan.houseNumber, plan.direction);
+                for (const value of [fields.sequence, fields.person, plan.houseNumber, fields.store, fields.property, fields.unit, plan.direction || '朝向待确认', `${plan.images.length} 张`, plan.cover?.name || '无封面']) row.insertCell().textContent = value || '—';
+                plans.set(box, plan);
+                const output = document.createElement('output');
+                setOutput(output, plan.errors.length ? '无效' : '尚未查询', plan.errors.join('；'));
+                row.insertCell().append(output);
+                [...row.cells].forEach((cell, index) => { cell.dataset.xhjColumn = String(index); });
+            }
+            status.textContent = `共 ${count} 个房源 · 封面先传，新图齐全后保存；失败或结果不明确时停止，请核对订单后再操作。`;
+        });
+        host.append(panel);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
+    else mount();
+})();
+
+})();

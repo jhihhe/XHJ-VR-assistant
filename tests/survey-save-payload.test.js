@@ -1,0 +1,16 @@
+const assert = require('node:assert/strict');
+const { prepareSurveySave } = require('../work/xiangshi-upload-api/save-payload');
+const fields = { houseNo: 'HS000000000001', housePhotographyId: 2 };
+const images = [{ imagepath: 'fixture', imagetype: 2, roomType: 1, orientationId: 9 }];
+const result = prepareSurveySave(fields, images, '2026-11-03 20:00:00');
+assert.equal(result.isSync, 0);
+assert.equal(result.url, '');
+assert.equal(result.urlZq, '');
+assert.equal(result.hxType, null);
+assert.equal(result.housePhotographyId, 2);
+assert.deepEqual(result.houseSurveyImages, images);
+assert.throws(() => prepareSurveySave(fields, [], '2026-11-03 20:00:00'), /不完整/);
+assert.throws(() => prepareSurveySave(fields, images, 'invalid'), /时间格式/);
+console.log('survey save payload passed');
+assert.throws(() => prepareSurveySave(fields, [images[0], images[0]], '2026-11-03 20:00:00'), /重复/);
+assert.throws(() => prepareSurveySave(fields, [{ ...images[0], imagepath: '' }], '2026-11-03 20:00:00'), /列表无效/);

@@ -1,5 +1,11 @@
 # 🌌 Xiangshi Platform Assistant · XHJ VR Assistant
 
+## 2026-11-03 · v6.2.1
+
+Adds the daily survey-folder uploader with cover-first uploads, selectable concurrency (4–20 in steps of 4; default 8), centered themed fields, explicit eligibility colors, session-expiry indicators and per-stage save diagnostics. Failed/completed rows remain selectable; retries require confirmation. Existing photos remain until the complete replacement is ready. Browser folder access requires manual selection.
+
+Validation includes upload workflow tests, distribution/theme checks and live read-only checks. A retake workflow has live evidence; first-upload acceptance still awaits a suitable new order.
+
 ## 2026-11-03 · v6.2.0
 
 Table fields now use distinct text colors, with separate colors for order and panorama statuses. Fixed panorama table header alignment and removed the redundant inner close icon from the survey upload dialog while retaining the outer close and Cancel controls.

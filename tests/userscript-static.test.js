@@ -23,7 +23,9 @@ const main = scripts.get('xhj_assistant.user.js');
 const normalizeName = source => source.replace(/^\/\/ @name\s+.*$/m, '// @name         <distribution-name>');
 
 for (const [name, source] of scripts) {
-    assert.match(source, /^\/\/ @version\s+6\.0\.1-beta\.1$/m, `${name} must publish v6.0.1-beta.1`);
+    assert.match(source, /^\/\/ @version\s+6\.2\.1$/m, `${name} must publish v6.2.1`);
+    assert.match(source, /^\/\/ @grant\s+unsafeWindow$/m);
+    assert.match(source, /^\/\/ @author\s+@Jhih he$/m);
     assert.match(source, new RegExp(`^// @name\\s+${expectedNames[name].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'm'));
     assert.equal(normalizeName(source), normalizeName(main), `${name} drifted from the main distribution`);
 }
@@ -35,7 +37,7 @@ const themeKeys = [...main.slice(themeStart, themeEnd).matchAll(/^        '([^']
 assert.deepEqual(themeKeys, [
     'bauhaus', 'default', 'star-wars-hud', 'dracula', 'solarized-dark',
     'monokai', 'github-dark', 'cyberpunk', 'glass-morphism', 'future-tech',
-    'modern-dark', 'midnight-blue', 'synthwave-84', 'emerald-forest', 'macos-light'
+    'modern-dark', 'midnight-blue', 'synthwave-84', 'emerald-forest', 'anthropic', 'macos-light'
 ]);
 
 const preservedCapabilities = [
