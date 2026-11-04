@@ -11,4 +11,6 @@ marker = '\n// XHJ survey folder panel\n'
 for name in ['xhj_assistant.user.js', 'xhj_assistant_534783.user.js', 'xhj_assistant_563982.user.js', 'xhj_assistant_563997.user.js']:
     target = root / name
     original = target.read_text().split(marker)[0]
-    target.write_text(original + marker + '(function () {\n' + bundle + '\n})();\n')
+    original = original.split('\n// XHJ panorama fixed row alignment\n')[0]
+    alignment = (root / 'work/pano-row-alignment/fixed-rows.js').read_text()
+    target.write_text(original + '\n// XHJ panorama fixed row alignment\n' + alignment + marker + '(function () {\n' + bundle + '\n})();\n')

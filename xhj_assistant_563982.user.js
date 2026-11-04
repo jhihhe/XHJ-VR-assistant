@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手（563982）
 // @namespace    http://tampermonkey.net/
-// @version      6.2.2
+// @version      6.2.3
 // @description  象视平台助手：16套主题统一新拟物设计、字段列配色、批量同步、表格增强、上传计数与重试、缩放和本地验证码识别。
 // @author       @Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
@@ -3317,7 +3317,7 @@ ${getSoftUICss(vars)}
         // 创建主按钮
         const triggerButton = document.createElement('button');
         triggerButton.type = 'button';
-        triggerButton.title = '象视助手 v6.2.2 · 同步当前已接单页（最多90条）';
+        triggerButton.title = '象视助手 v6.2.3 · 同步当前已接单页（最多90条）';
         triggerButton.id = BUTTON_ID;
         triggerButton.textContent = '开始自动同步';
         triggerButton.style.cssText = `
@@ -3337,7 +3337,7 @@ ${getSoftUICss(vars)}
         // 创建设置按钮
         const settingsButton = document.createElement('button');
         settingsButton.type = 'button';
-        settingsButton.title = '象视助手 v6.2.2 · 加载已接单订单';
+        settingsButton.title = '象视助手 v6.2.3 · 加载已接单订单';
         settingsButton.id = SETTINGS_BUTTON_ID;
         settingsButton.textContent = '跳转到已接单';
         settingsButton.style.cssText = `
@@ -3409,7 +3409,7 @@ ${getSoftUICss(vars)}
             let table;
             while (!(table = getOrderTable()) || !Array.isArray(table.cache?.order)
                 || document.querySelector('.layui-table-view[lay-id="order"] .layui-table-init')) {
-                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.2.2 并刷新房勘列表');
+                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.2.3 并刷新房勘列表');
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
             const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
@@ -5262,6 +5262,44 @@ ${getSoftUICss(vars)}
     initSafariMobileAdaptation();
     initClickAnimation();
 
+})();
+
+// XHJ panorama fixed row alignment
+// Author: @Jhih he
+(function () {
+    if (!location.pathname.includes('/houseadmin/pano/image.html')) return;
+    let pending = false;
+    const observed = new WeakSet();
+    const resize = new ResizeObserver(schedule);
+    function schedule() {
+        if (pending) return;
+        pending = true;
+        requestAnimationFrame(() => { pending = false; sync(); });
+    }
+    function sync() {
+        document.querySelectorAll('.layui-table-view').forEach(view => {
+            const main = view.querySelector('.layui-table-main');
+            if (!main) return;
+            main.querySelectorAll('tr[data-index]').forEach(row => {
+                if (!observed.has(row)) { resize.observe(row); observed.add(row); }
+                const height = row.getBoundingClientRect().height;
+                if (!height) return;
+                view.querySelectorAll('.layui-table-fixed .layui-table-body tr[data-index]').forEach(copy => {
+                    if (copy.dataset.index !== row.dataset.index) return;
+                    const value = `${height}px`;
+                    if (copy.style.height !== value) copy.style.height = value;
+                    copy.querySelectorAll('td').forEach(cell => {
+                        cell.style.boxSizing = "border-box";
+                        if (cell.style.height !== value) cell.style.height = value;
+                    });
+                });
+            });
+        });
+    }
+    new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
+    window.addEventListener('resize', schedule);
+    document.addEventListener('load', schedule, true);
+    schedule();
 })();
 
 // XHJ survey folder panel
