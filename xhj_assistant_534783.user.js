@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手（534783）
 // @namespace    http://tampermonkey.net/
-// @version      6.2.3
+// @version      6.3.7
 // @description  象视平台助手：16套主题统一新拟物设计、字段列配色、批量同步、表格增强、上传计数与重试、缩放和本地验证码识别。
 // @author       @Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
@@ -3317,7 +3317,7 @@ ${getSoftUICss(vars)}
         // 创建主按钮
         const triggerButton = document.createElement('button');
         triggerButton.type = 'button';
-        triggerButton.title = '象视助手 v6.2.3 · 同步当前已接单页（最多90条）';
+        triggerButton.title = '象视助手 v6.3.7 · 同步当前已接单页（最多90条）';
         triggerButton.id = BUTTON_ID;
         triggerButton.textContent = '开始自动同步';
         triggerButton.style.cssText = `
@@ -3337,7 +3337,7 @@ ${getSoftUICss(vars)}
         // 创建设置按钮
         const settingsButton = document.createElement('button');
         settingsButton.type = 'button';
-        settingsButton.title = '象视助手 v6.2.3 · 加载已接单订单';
+        settingsButton.title = '象视助手 v6.3.7 · 加载已接单订单';
         settingsButton.id = SETTINGS_BUTTON_ID;
         settingsButton.textContent = '跳转到已接单';
         settingsButton.style.cssText = `
@@ -3409,7 +3409,7 @@ ${getSoftUICss(vars)}
             let table;
             while (!(table = getOrderTable()) || !Array.isArray(table.cache?.order)
                 || document.querySelector('.layui-table-view[lay-id="order"] .layui-table-init')) {
-                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.2.3 并刷新房勘列表');
+                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.3.7 并刷新房勘列表');
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
             const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
@@ -5954,6 +5954,494 @@ async function runSurveyUpload(plan, api, report = () => {}, concurrency = 8) {
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
     else mount();
+})();
+
+// Author: @Jhih he
+function panoramaDailyDirectory(date = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(date);
+    const part = type => parts.find(item => item.type === type).value;
+    return `/Users/mac/Pictures/工作/${part('year')}VR/${part('month')}月/${part('month')}${part('day')}`;
+}
+
+// Entries carry paths relative to one house folder, never the selected daily root.
+function planPanoramaFolder(name, entries) {
+    const ids = name.match(/HS\d{12}(?!\d)/gi) || [];
+    if (!ids.length) return null;
+    const errors = [];
+    if (ids.length !== 1) errors.push('房源编号不唯一');
+    const direction = name.trim().match(/(?:^|\s)(东|南|西|北)$/)?.[1] || null;
+    if (!direction) errors.push('无法识别朝向');
+    const floors = new Map([[1, []]]);
+    for (const entry of entries) {
+        const path = entry.relativePath || entry.name;
+        const parts = path.split('/');
+        if (parts.some(part => part.startsWith('.')) || !/\.jpe?g$/i.test(parts.at(-1))) continue;
+        if (parts.length > 2 || (parts.length === 2 && parts[0] !== '2')) {
+            errors.push(`不支持的图片子目录：${parts.slice(0, -1).join('/')}`);
+            continue;
+        }
+        const floor = parts.length === 1 ? 1 : 2;
+        if (!floors.has(floor)) floors.set(floor, []);
+        const file = entry.file || entry;
+        if (file.size > 50 * 1024 * 1024) errors.push(`图片超过50MB：${parts.at(-1)}`);
+        floors.get(floor).push({ file, relativePath: path, room: parts.at(-1).replace(/\.jpe?g$/i, '') });
+    }
+    if (!floors.get(1).length) errors.push('一层没有 JPG 全景图片');
+    const result = [...floors].sort(([a], [b]) => a - b).map(([floor, images]) => ({
+        floor, images: images.sort((a, b) => a.relativePath.localeCompare(b.relativePath, 'zh-CN', { numeric: true }))
+    }));
+    return { name, houseNumber: ids[0].toUpperCase(), direction, floors: result,
+        count: result.reduce((sum, floor) => sum + floor.images.length, 0), errors: [...new Set(errors)] };
+}
+
+
+// Author: @Jhih he
+function panoramaImageConcurrency(value) {
+    return [4, 8, 12, 16, 20].includes(Number(value)) ? Number(value) : 20;
+}
+function panoramaHouseConcurrency(value) {
+    const number = Number(value);
+    return Number.isInteger(number) && number >= 1 && number <= 5 ? number : 1;
+}
+// One pool is shared by all houses; a slot includes file upload, association and readback.
+function createPanoramaTaskPool(limit) {
+    let active = 0, stopped;
+    const queue = [];
+    function stop(error) {
+        if (stopped) return;
+        stopped = Object.assign(new Error('本批已因其他房源或图片任务失败停止，请先核对失败项'), {
+            needsLogin: Boolean(error.needsLogin), batchStopped: true
+        });
+        for (const task of queue.splice(0)) task.reject(stopped);
+    }
+    function drain() {
+        while (!stopped && active < limit && queue.length) {
+            const task = queue.shift(); active++;
+            Promise.resolve().then(task.operation).then(task.resolve, error => {
+                stop(error); task.reject(error);
+            }).finally(() => { active--; drain(); });
+        }
+    }
+    return {
+        run: operation => new Promise((resolve, reject) => {
+            if (stopped) { reject(stopped); return; }
+            queue.push({ operation, resolve, reject }); drain();
+        }),
+        stop
+    };
+}
+async function runPanoramaBatch(items, operation, { houses = 1, images = 20 } = {}) {
+    const housePool = createPanoramaTaskPool(panoramaHouseConcurrency(houses));
+    const imagePool = createPanoramaTaskPool(panoramaImageConcurrency(images));
+    const started = new Set();
+    const results = await Promise.allSettled(items.map(item => housePool.run(async () => {
+        started.add(item);
+        try { return await operation(item, imagePool.run); }
+        catch (error) { imagePool.stop(error); throw error; }
+    })));
+    return results.map((result, index) => ({ ...result, item: items[index], started: started.has(items[index]) }));
+}
+
+// Author: @Jhih he
+function panoramaPhotographerIDs(html) {
+    const select = html.match(/<select\b[^>]*\bid=["']uid["'][^>]*>([\s\S]*?)<\/select>/i)?.[1];
+    if (!select) throw new Error('无法读取摄影师选项，未完成跨摄影师查询');
+    return [...new Set([...select.matchAll(/<option\b[^>]*\bvalue=["'](\d+)["']/gi)].map(match => match[1]).filter(id => Number(id) > 0))];
+}
+function panoramaPhotographers(html) {
+    const source = html.match(/<select\b[^>]*\bid=["']uid["'][^>]*>([\s\S]*?)<\/select>/i)?.[1] || '';
+    const options = [...source.matchAll(/<option\b[^>]*\bvalue=["'](\d+)["'][^>]*>([^<]*)/gi)];
+    return panoramaPhotographerIDs(html).map(id => ({ id, name: options.find(option => option[1] === id)?.[2].trim() || `摄影师#${id}` }));
+}
+function createPanoramaAPI(request = fetch, firstPhotographer = null) {
+    async function response(url, options = {}) {
+        const result = await request(url, { credentials: url.startsWith('/') ? 'same-origin' : 'omit',
+            signal: AbortSignal.timeout(180000), ...options });
+        if (result.redirected && /\/login\//.test(result.url || '')) throw Object.assign(new Error('登录已失效，请重新登录象视'), { needsLogin: true });
+        if (!result.ok || result.redirected) throw new Error(`全景接口失败：HTTP ${result.status}`);
+        return result;
+    }
+    async function form(url, body) {
+        return (await response(url, { method: 'POST', headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest'
+        }, body: new URLSearchParams(body) })).json();
+    }
+    function success(result, stage) {
+        if (!(Number(result.code) > 0)) throw new Error(`${stage}失败：${String(result.msg || result.info || result.code).slice(0, 160)}`);
+        return result;
+    }
+    async function rows(url, body) {
+        const output = [], ids = new Set();
+        let expected;
+        for (let page = 1; ; page++) {
+            const result = await form(url, { ...body, page, limit: 90 });
+            const count = Number(result.count);
+            if (Number(result.code) !== 0 || !Array.isArray(result.data) || !Number.isInteger(count) || count < 0) throw new Error('全景清单响应无效');
+            if (expected !== undefined && count !== expected) throw new Error('全景清单正在变化，请重新查询');
+            expected = count;
+            for (const row of result.data) {
+                if (!row.id || ids.has(String(row.id))) throw new Error('全景分页缺少编号或重复');
+                ids.add(String(row.id)); output.push(row);
+            }
+            if (output.length === count) return output;
+            if (!result.data.length || output.length > count) throw new Error('全景清单分页不完整');
+        }
+    }
+    return {
+        photographers: async () => panoramaPhotographers(await (await response('/houseadmin/pano/index.html')).text()),
+        findOrders: async (number, progress = () => {}) => {
+            if (!/^HS\d{12}$/.test(number)) throw new Error('房源编号无效');
+            const found = new Map(), searched = new Set();
+            async function search(uid, name = '当前工号', index = 0, total = 0) {
+                uid = String(uid);
+                if (found.size || searched.has(uid)) return;
+                searched.add(uid);
+                for (const type of [1, 2]) {
+                    progress(`${index ? `跨摄影师 ${name}（${index}/${total}）` : name} · ${type === 1 ? '待处理' : '全部'}`);
+                    const results = await rows('/houseadmin/pano/index.html', { key: number, type, status: 0, uid, fb_uid: 0, sc_uid: 0, city: 0, startTime: '', endTime: '', startTimes: '', endTimes: '' });
+                    for (const row of results) if (row.house_nums === number) found.set(String(row.id), row);
+                }
+            }
+            await search(0);
+            if (firstPhotographer && /^\d+$/.test(firstPhotographer.id)) {
+                await search(firstPhotographer.id, `首查摄影师 ${firstPhotographer.name}`);
+            }
+            let cached;
+            const cacheKey = `xhj-panorama-photographer:${number}`;
+            try { cached = JSON.parse(localStorage.getItem(cacheKey) || 'null'); } catch (_) {}
+            if (cached && /^\d+$/.test(cached.id) && Number(cached.id) > 0) {
+                progress(`优先检索上次摄影师 ${cached.name || '#' + cached.id}`);
+                await search(cached.id, `上次摄影师 ${cached.name || '#' + cached.id}`);
+                if (found.size) return [...found.values()];
+            }
+            await search(0);
+            if (!found.size) {
+                const html = await (await response('/houseadmin/pano/index.html')).text();
+                const photographers = panoramaPhotographers(html).filter(person => !searched.has(person.id));
+                for (const [index, { id: uid, name: label }] of photographers.entries()) {
+                    await search(uid, label, index + 1, photographers.length);
+                    if (found.size) {
+                        try { localStorage.setItem(cacheKey, JSON.stringify({ id: uid, name: label })); } catch (_) {}
+                        break;
+                    }
+                }
+            }
+            return [...found.values()];
+        },
+        listImages: order => rows('/houseadmin/pano/image.html', { order_id: order.id }),
+        fingerprint: async file => [...new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))].map(value => value.toString(16).padStart(2, '0')).join(''),
+        validateImage: async file => {
+            if (!file || !/\.jpe?g$/i.test(file.name) || file.size <= 0 || file.size > 50 * 1024 * 1024) throw new Error(`全景图片无效或超过50MB：${file?.name || ''}`);
+            const bitmap = await createImageBitmap(file);
+            try { if (bitmap.width !== bitmap.height * 2) throw new Error(`全景图必须为2:1：${file.name}`); } finally { bitmap.close(); }
+        },
+        uploadFile: async file => {
+            const data = new FormData(); data.append('file', file, file.name);
+            const result = success(await (await response('/houseadmin/up_files/image_upload.html', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: data })).json(), '图片文件上传');
+            if (result.info !== file.name.replace(/\.jpe?g$/i, '') || typeof result.url !== 'string' || !/^\/uploads\/[a-zA-Z0-9/_.-]+$/.test(result.url)) throw new Error('全景文件上传响应不匹配');
+            return result.url;
+        },
+        addImage: async (order, image, url, floor) => success(await form(`/houseadmin/pano/add_image.html?order_id=${encodeURIComponent(order.id)}`, {
+            order_id: order.id, image_name: image.room, image_url: url, image_nums: '', image_area: '', storey: floor
+        }), '关联全景图片'),
+        retake: async order => {
+            if (Number(order.status) !== 5) throw new Error('当前全景状态不支持平台重拍入口');
+            const html = await (await response(`/houseadmin/pano/invalid.html?id=${encodeURIComponent(order.id)}`)).text();
+            const number = html.match(/const\s+house_nums\s*=\s*'([^']+)'/)?.[1];
+            const token = html.match(/xiangShiToken\s*=\s*'([^']+)'/)?.[1];
+            if (number !== order.house_nums || !token || !/title=["']重拍["']/.test(html)) throw new Error('重拍页面参数不匹配，未修改订单');
+            const removed = await (await response('https://api.xhj.com/api/xhj-bms/houseSurveyImg/xiangshi/removedVr', {
+                method: 'POST', headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+                body: JSON.stringify({ houseSourceNumber: number, xiangShiToken: token })
+            })).json();
+            if (Number(removed.code) !== 200) throw new Error('原VR下架失败，未提交重拍');
+            success(await form(`/houseadmin/pano/invalid.html?id=${encodeURIComponent(order.id)}`, { id: order.id, flag: 2 }), '重拍转换');
+        },
+        generateCoordinates: async order => success(await form('/houseadmin/pano/add_image_point', { order_id: order.id }), '生成全景坐标'),
+        saveDirection: async (order, direction) => {
+            if (!['东', '南', '西', '北'].includes(direction)) throw new Error('朝向无效');
+            return success(await form(`/houseadmin/pano/add_save.html?order_id=${encodeURIComponent(order.id)}`, {
+                order_id: order.id, toward: direction, hxt: 1, remarks: ''
+            }), '保存朝向');
+        },
+        readHistory: order => rows(`/houseadmin/pano/detail.html?id=${encodeURIComponent(order.id)}`, {})
+    };
+}
+
+// Author: @Jhih he
+function panoramaImageKey(floor, room) { return `${Number(floor)}\n${room}`; }
+function panoramaManifest(plan) {
+    return plan.floors.flatMap(floor => floor.images.map(image => ({ ...image, floor: floor.floor,
+        key: panoramaImageKey(floor.floor, image.room) })));
+}
+function verifyPanoramaImages(expected, actual, receipt) {
+    if (actual.length !== expected.length) throw new Error(`全景数量不符：本地${expected.length}张，服务器${actual.length}张`);
+    for (const image of expected) {
+        const matches = actual.filter(row => panoramaImageKey(row.storey, row.image_name) === image.key);
+        const recorded = receipt.images[image.key];
+        if (matches.length !== 1 || !recorded || String(matches[0].id) !== String(recorded.id) || matches[0].image_url !== recorded.url) throw new Error(`全景核对失败：${image.floor}层 ${image.room}`);
+    }
+}
+function verifyPanoramaCoordinates(images) {
+    const missing = images.filter(image => !image.point || image.point === '0' || (typeof image.point === 'string' && !image.point.trim()));
+    if (!images.length || missing.length) throw new Error(`全景坐标未齐：${missing.length}/${images.length}张未获取${missing.length ? '（' + missing.map(image => `${image.storey}层 ${image.image_name}`).join('、') + '）' : ''}，未保存朝向`);
+}
+async function ensurePanoramaCoordinates(order, api, expected, receipt) {
+    let images = await api.listImages(order);
+    verifyPanoramaImages(expected, images, receipt);
+    if (images.some(image => !image.point || image.point === '0' || (typeof image.point === 'string' && !image.point.trim()))) {
+        await api.generateCoordinates(order);
+        images = await api.listImages(order);
+        verifyPanoramaImages(expected, images, receipt);
+    }
+    verifyPanoramaCoordinates(images);
+}
+async function runPanoramaUpload(plan, api, { concurrency = 20, onProgress = () => {}, receipt, persist = () => {}, allowRetake = false, transfer = operation => operation() } = {}) {
+    let stage = '检查文件';
+    const manifest = panoramaManifest(plan);
+    const emit = (name, detail = '') => { stage = name; onProgress({ stage, detail }); };
+    try {
+        if (plan.errors.length) throw new Error(plan.errors.join('；'));
+        if (new Set(manifest.map(x => x.key)).size !== manifest.length) throw new Error('同一楼层存在重复房间名称');
+        // Validate the whole batch before changing any remote order.
+        for (const image of manifest) {
+            await api.validateImage(image.file);
+            image.digest = await api.fingerprint(image.file);
+        }
+        emit('查询全景订单');
+        const orders = await api.findOrders(plan.houseNumber, detail => onProgress({ stage: '查询全景订单', detail }));
+        if (orders.length !== 1) throw new Error(orders.length ? '对应多个全景订单，请核对' : '未找到全景订单（已跨摄影师查询）');
+        let order = orders[0];
+        if (Number(order.status) === 5) {
+            if (!allowRetake) throw Object.assign(new Error('需要重拍：将下架原VR和户型图后恢复未上传状态'), { requiresRetake: true });
+            emit('转为重拍'); await api.retake(order);
+            const updated = await api.findOrders(plan.houseNumber, detail => onProgress({ stage: '查询全景订单', detail }));
+            if (updated.length !== 1 || String(updated[0].id) !== String(order.id) || Number(updated[0].status) !== 1) throw new Error('重拍后未确认上传权限，已停止');
+            order = updated[0];
+            receipt = undefined;
+        }
+        if (![1, 2].includes(Number(order.status))) throw new Error(`全景状态${order.status}不可上传`);
+        if (!receipt || String(receipt.orderID) !== String(order.id)) receipt = { orderID: String(order.id), houseNumber: plan.houseNumber, images: {}, directionSubmitted: false };
+        if (receipt.saveAttempted) throw new Error('此前已尝试保存朝向，请打开订单核对，避免重复派单');
+        let actual = await api.listImages(order);
+        for (const row of actual) {
+            const key = panoramaImageKey(row.storey, row.image_name), record = receipt.images[key];
+            if (!manifest.some(image => image.key === key) || !record || String(record.id) !== String(row.id) || record.url !== row.image_url) throw new Error('订单已有未经本次核对的全景图片，请先打开订单检查，未重复上传');
+            if (record.digest !== manifest.find(image => image.key === key).digest) throw new Error('本地图片与已上传记录不同，请核对重拍，未跳过或覆盖图片');
+        }
+        // Keep only records which are still present; deleted photos can be uploaded again.
+        for (const key of Object.keys(receipt.images)) if (!actual.some(row => String(row.id) === String(receipt.images[key].id))) delete receipt.images[key];
+        persist(receipt);
+        let completed = actual.length;
+        for (const floor of plan.floors) {
+            emit('上传全景', `${floor.floor}层 · ${completed}/${manifest.length}`);
+            const pending = manifest.filter(image => image.floor === floor.floor && !receipt.images[image.key]);
+            let offset = 0;
+            const limit = [4, 8, 12, 16, 20].includes(Number(concurrency)) ? Number(concurrency) : 20;
+            while (offset < pending.length) {
+                const batch = pending.slice(offset, offset + limit);
+                const outcomes = await Promise.allSettled(batch.map(image => transfer(async () => {
+                    const url = await api.uploadFile(image.file);
+                    await api.addImage(order, image, url, floor.floor);
+                    const current = await api.listImages(order);
+                    const rows = current.filter(row => panoramaImageKey(row.storey, row.image_name) === image.key);
+                    if (rows.length !== 1) throw new Error(`关联后未确认唯一图片：${image.room}`);
+                    receipt.images[image.key] = { id: String(rows[0].id), url: rows[0].image_url, digest: image.digest, name: image.file.name, size: image.file.size, modified: image.file.lastModified };
+                    persist(receipt); completed++;
+                    onProgress({ stage: '上传全景', detail: `${floor.floor}层 · ${completed}/${manifest.length}` });
+                })));
+                const failure = outcomes.find(result => result.status === 'rejected');
+                if (failure) throw failure.reason;
+                offset += batch.length;
+            }
+        }
+        emit('核对全景图片'); actual = await api.listImages(order);
+        verifyPanoramaImages(manifest, actual, receipt);
+        emit('获取并核对全景坐标');
+        await ensurePanoramaCoordinates(order, api, manifest, receipt);
+        emit('图片及坐标已就绪 · 朝向未提交', `${manifest.length}张 · ${plan.floors.length}层`);
+        return { order, receipt };
+    } catch (error) {
+        throw Object.assign(new Error(`${stage}：${error.message}。已停止，不会自动提交朝向或重试。`), {
+            stage, needsLogin: Boolean(error.needsLogin), requiresRetake: Boolean(error.requiresRetake)
+        });
+    }
+}
+async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress = () => {}) {
+    progress('查询全景订单');
+    if (!receipt || receipt.directionSubmitted || receipt.saveAttempted) throw new Error('没有待提交记录，或已尝试提交；请核对订单，避免重复派单');
+    const orders = await api.findOrders(plan.houseNumber, progress);
+    if (orders.length !== 1 || String(orders[0].id) !== String(receipt.orderID) || ![1, 2].includes(Number(orders[0].status))) throw new Error('订单状态变化，未提交朝向');
+    const order = orders[0];
+    const manifest = panoramaManifest(plan);
+    for (const image of manifest) if (receipt.images[image.key]?.digest !== await api.fingerprint(image.file)) throw new Error('本地图片变化，未提交朝向');
+    verifyPanoramaImages(manifest, await api.listImages(order), receipt);
+    progress('获取并核对全部坐标');
+    await ensurePanoramaCoordinates(order, api, manifest, receipt);
+    const before = new Set((await api.readHistory(order)).map(row => String(row.id)));
+    // Mark intent first. A lost response must never trigger an automatic repeat.
+    progress('保存朝向 · 等待服务器');
+    receipt.saveAttempted = true; persist(receipt);
+    try {
+        await api.saveDirection(order, plan.direction);
+        receipt.directionSubmitted = true; persist(receipt);
+        const after = await api.readHistory(order);
+        if (!after.some(row => !before.has(String(row.id)) && String(row.title).includes('保存'))) throw new Error('接口已接受，但操作详情尚未确认新增保存记录');
+        receipt.saveVerified = true; persist(receipt);
+        return receipt;
+    } catch (error) {
+        throw Object.assign(new Error(`保存朝向结果待核实：${error.message}。请打开订单核对，不要重复提交。`), {
+            needsLogin: Boolean(error.needsLogin), stage: '保存朝向'
+        });
+    }
+}
+
+// Author: @Jhih he
+(function () {
+    if (location.pathname !== '/houseadmin/pano/index.html') return;
+    function mount() {
+        const host = document.querySelector('.demoTable');
+        if (!host || document.getElementById('xhj-panorama-folders')) return;
+        const panel = document.createElement('details'); panel.id = 'xhj-panorama-folders'; panel.open = true;
+        panel.dataset.panoramaVersion = '0.2.4';
+        const style = document.createElement('style');
+        style.textContent = `
+        #xhj-panorama-folders{box-sizing:border-box;flex-basis:100%;width:100%;min-width:0;margin:16px 0;padding:12px 18px;border-radius:20px;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,#283342)!important;box-shadow:var(--xhj-soft-out,0 3px 12px #0001);color-scheme:var(--xhj-scheme,light);font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+        #xhj-panorama-folders *{box-sizing:border-box;font-family:inherit!important;-webkit-text-fill-color:currentColor!important;text-shadow:none!important}
+        #xhj-panorama-folders summary{display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:16px;padding:4px 0;color:var(--xhj-accent-text,inherit)!important}
+        #xhj-panorama-folders summary span{margin-left:auto;font-size:12px;font-weight:400}
+        #xhj-panorama-folders .pano-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+        #xhj-panorama-folders .pano-actions{display:flex;gap:10px;margin-left:auto;flex-wrap:wrap}
+        #xhj-panorama-folders .pano-source{margin-right:auto;display:flex;align-items:center;gap:10px}
+        #xhj-panorama-folders .pano-source span{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        #xhj-panorama-folders button,#xhj-panorama-folders select{height:38px;min-width:64px;padding:0 14px;border:0;border-radius:12px;color:var(--xhj-accent-text,#23678c)!important;background:var(--xhj-surface,#eef0f3)!important;box-shadow:var(--xhj-soft-out,0 2px 8px #0002);font:inherit;cursor:pointer}
+        #xhj-panorama-folders button:disabled{opacity:.5;cursor:not-allowed}
+        #xhj-panorama-folders .pano-scroll{overflow:auto;max-height:540px}
+        #xhj-panorama-folders table{table-layout:fixed;width:100%;min-width:900px;border-collapse:collapse;font-size:13px;line-height:1.5}
+        #xhj-panorama-folders input[type=checkbox]{display:inline-block!important;appearance:auto!important;width:16px;height:16px;margin:0;vertical-align:middle;accent-color:var(--xhj-accent-text,#3671a6)}
+        #xhj-panorama-folders th,#xhj-panorama-folders td{height:40px;padding:6px;text-align:center!important;vertical-align:middle!important;overflow-wrap:anywhere;border-bottom:1px solid var(--xhj-border,#8883);background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,inherit)!important}
+        #xhj-panorama-folders th{position:sticky;top:0;z-index:1;font-size:12px;color:var(--xhj-muted,inherit)!important}
+        #xhj-panorama-folders td:nth-child(4){color:light-dark(#376b25,#b8e6a1)!important}
+        #xhj-panorama-folders td:nth-child(3){color:light-dark(#903552,#f8b6cb)!important}
+        #xhj-panorama-folders td:nth-child(5){color:light-dark(#673b88,#e1bdff)!important}
+        #xhj-panorama-folders td:nth-child(6){color:light-dark(#8a4b08,#ffce92)!important}
+        #xhj-panorama-folders td:nth-child(7){color:light-dark(#006b64,#a5e2dc)!important}
+        #xhj-panorama-folders td:nth-child(8){color:light-dark(#6c5900,#e9d68f)!important}
+        #xhj-panorama-folders :is(span,label,p,output){color:var(--xhj-text,#283342)!important;background:transparent!important}
+        #xhj-panorama-folders output{cursor:pointer;display:block}
+        #xhj-panorama-folders output[data-tone=success]{color:light-dark(#16733b,#75df91)!important}
+        #xhj-panorama-folders output[data-tone=error]{color:light-dark(#b32828,#ff9292)!important}
+        #xhj-panorama-folders output[data-tone=warning]{color:light-dark(#885800,#f2ca70)!important}
+        #xhj-panorama-folders p{margin:8px 0 0;font-size:12px;color:var(--xhj-muted,inherit)}
+        #xhj-panorama-folders dialog{max-width:min(650px,90vw);border:1px solid var(--xhj-border,#8884);border-radius:16px;padding:24px;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,#283342)}
+        #xhj-panorama-folders dialog::backdrop{background:#0005}
+        #xhj-panorama-folders pre{white-space:pre-wrap;font:inherit;line-height:1.8}
+        `;
+        panel.append(style);
+        const summary = document.createElement('summary'); summary.textContent = '上传售房全景';
+        const login = document.createElement('span'); login.textContent = '正在验证登录…'; summary.append(login); panel.append(summary);
+        createSurveyBrowserAPI().sessionUsername().then(name => { login.textContent = `工号 ${name} · 已登录`; }).catch(() => { login.textContent = '登录未确认 · 请检查象视会话'; });
+        const input = document.createElement('input'); input.type = 'file'; input.multiple = true; input.hidden = true; input.setAttribute('webkitdirectory',''); input.setAttribute('aria-label','选择全景每日文件夹');
+        const toolbar = document.createElement('div'); toolbar.className = 'pano-tools';
+        function button(text, action) { const el = document.createElement('button'); el.type='button';el.textContent=text;el.addEventListener('click',action);return el; }
+        const choose = button('选择文件夹',()=>{input.value='';input.click();});
+        const directory = document.createElement('span');let hasDirectory=false;
+        const updateDate = () => { choose.title=`今日全景目录：${panoramaDailyDirectory()}（浏览器需手动选择）`;if (!hasDirectory) directory.textContent=panoramaDailyDirectory().split('/').pop(); };
+        updateDate();setInterval(updateDate,60000);
+        const source = document.createElement('div');source.className='pano-source';source.append(choose,directory);
+        const selectAll = button('全选',()=>checks().forEach(box=>{box.checked=true;}));
+        const selectNone = button('取消全选',()=>checks().forEach(box=>{box.checked=false;}));
+        const concurrency = document.createElement('select');concurrency.setAttribute('lay-ignore','');concurrency.setAttribute('aria-label','全景图片并发数');
+        for(const value of surveyConcurrencyOptions){const option=document.createElement('option');option.value=value;option.textContent=value;concurrency.append(option);}
+        const houseConcurrency=document.createElement('select');houseConcurrency.setAttribute('lay-ignore','');houseConcurrency.setAttribute('aria-label','同时上传房源');
+        for(let value=1;value<=5;value++){const option=document.createElement('option');option.value=value;option.textContent=`${value}套`;houseConcurrency.append(option);}
+        concurrency.value='20';houseConcurrency.value='1';
+        try{
+            if(localStorage.getItem('xhj-panorama-defaults')!=='20-global'){
+                localStorage.setItem('xhj-panorama-concurrency','20');localStorage.setItem('xhj-panorama-houses','1');localStorage.setItem('xhj-panorama-defaults','20-global');
+            }
+            concurrency.value=String(panoramaImageConcurrency(localStorage.getItem('xhj-panorama-concurrency')));
+            houseConcurrency.value=String(panoramaHouseConcurrency(localStorage.getItem('xhj-panorama-houses')));
+        }catch(_){}
+        concurrency.addEventListener('change',()=>{try{localStorage.setItem('xhj-panorama-concurrency',concurrency.value);}catch(_){}});
+        houseConcurrency.addEventListener('change',()=>{try{localStorage.setItem('xhj-panorama-houses',houseConcurrency.value);}catch(_){}});
+        const firstPhotographer=document.createElement('select');firstPhotographer.setAttribute('lay-ignore','');firstPhotographer.setAttribute('aria-label','跨摄影师首查');firstPhotographer.style.maxWidth='180px';
+        const addPhotographer=(id,name)=>{const option=document.createElement('option');option.value=id;option.textContent=name;firstPhotographer.append(option);};
+        addPhotographer('','自动（上次匹配优先）');
+        const photographerSetting=document.createElement('label');photographerSetting.textContent='跨摄影师首查 ';photographerSetting.append(firstPhotographer);
+        const api=()=>createPanoramaAPI(fetch,firstPhotographer.value===''?null:{id:firstPhotographer.value,name:firstPhotographer.selectedOptions[0].textContent});
+        createPanoramaAPI().photographers().then(people=>{
+            for(const person of people)addPhotographer(person.id,person.name);
+            try{const saved=localStorage.getItem('xhj-panorama-first-photographer');if([...firstPhotographer.options].some(option=>option.value===saved))firstPhotographer.value=saved;}catch(_){}
+        }).catch(error=>{firstPhotographer.title=`摄影师列表未加载：${error.message}；自动查询仍可用`;});
+        firstPhotographer.addEventListener('change',()=>{try{localStorage.setItem('xhj-panorama-first-photographer',firstPhotographer.value);}catch(_){}});
+        const setting=document.createElement('label');setting.textContent='图片并发 ';setting.title='所有房源共享此上限，最高20张';setting.append(concurrency);
+        const housesSetting=document.createElement('label');housesSetting.textContent='同时房源 ';housesSetting.append(houseConcurrency);
+        const rows=document.createElement('div');rows.className='pano-scroll';const plans=new Map();
+        const notice=document.createElement('p');notice.textContent='默认同时1套，图片并发20张；多套共享图片上限。保存朝向单独提交并派单。';
+        const dialog=document.createElement('dialog');dialog.setAttribute('aria-label','全景状态详情');const detail=document.createElement('pre');dialog.append(detail,button('关闭',()=>dialog.close()));
+        function output(box,text,reason=''){const el=box.closest('tr').querySelector('output');el.textContent=text;el.dataset.detail=reason||text;el.dataset.tone=/失败|无效/.test(text)?'error':/未提交|待核实|重拍/.test(text)?'warning':/可上传|已完成/.test(text)?'success':'';}
+        function checks(){return [...rows.querySelectorAll('input[type=checkbox]:not(:disabled)')];}
+        function selected(){return [...rows.querySelectorAll('input[type=checkbox]:checked')].filter(box=>!plans.get(box).errors.length);}
+        function key(plan){return `xhj-panorama-receipt:${plan.houseNumber}`;}
+        function load(plan){try{return JSON.parse(localStorage.getItem(key(plan))||'null');}catch(_){return null;}}
+        function persist(plan,receipt){localStorage.setItem(key(plan),JSON.stringify(receipt));}
+        const query=button('查询所选订单',()=>perform(async()=>{const boxes=selected();for(const box of boxes)output(box,'排队等待');let completed=0;for(const box of boxes){const plan=plans.get(box);notice.textContent=`查询进度 ${completed}/${boxes.length} · 当前 ${plan.houseNumber}`;try{const orders=await api().findOrders(plan.houseNumber,text=>output(box,text));output(box,orders.length!==1?'无效 · 订单不唯一':Number(orders[0].status)===5?'重拍后可上传':[1,2].includes(Number(orders[0].status))?'全景可上传':'无效 · 当前状态不可上传');}catch(e){failed(box,e);}completed++;notice.textContent=`查询完成 ${completed}/${boxes.length}`;}}));
+        const start=button('开始上传',()=>perform(async()=>{
+            const boxes=selected();if(!boxes.length)return;
+            const retakes=[];
+            for(const box of boxes){
+                try{const orders=await api().findOrders(plans.get(box).houseNumber,text=>output(box,text));if(orders.length===1&&Number(orders[0].status)===5)retakes.push(box);}
+                catch(error){failed(box,error);return;}
+            }
+            if(retakes.length&&!window.confirm(`${retakes.map(box=>plans.get(box).houseNumber).join('、')}\n重拍会下架原全景及户型图，恢复未上传状态。确认按当前所选文件夹重新上传？`))return;
+            const outcomes=await runPanoramaBatch(boxes,async(box,transfer)=>{
+                const plan=plans.get(box);
+                return runPanoramaUpload(plan,api(),{
+                    concurrency:Number(concurrency.value),transfer,receipt:load(plan),persist:r=>persist(plan,r),allowRetake:retakes.includes(box),
+                    onProgress:e=>output(box,e.detail?`${e.stage} ${e.detail}`:e.stage,e.detail)
+                });
+            },{houses:Number(houseConcurrency.value),images:Number(concurrency.value)});
+            for(const result of outcomes){
+                const box=result.item,plan=plans.get(box);
+                if(result.status==='fulfilled'){
+                    output(box,'图片及坐标已就绪 · 朝向未提交',`${plan.count}张，${plan.floors.map(f=>`${f.floor}层${f.images.length}张`).join('；')}。未分配设计师。`);box.checked=false;
+                }else if(result.started){failed(box,result.reason);}
+                else output(box,'未开始 · 本批已停止',result.reason.message);
+            }
+        }));
+        const save=button('保存所选朝向',()=>{
+            const boxes=selected();if(!boxes.length)return;
+            if(!window.confirm(`以下房源图片和全部坐标核对通过后，将保存朝向并分配设计师制作户型图：\n${boxes.map(box=>`${plans.get(box).houseNumber} · ${plans.get(box).direction}`).join('\n')}\n确认提交？`))return;
+            perform(async()=>{for(const box of boxes){const plan=plans.get(box);try{await runPanoramaSave(plan,api(),load(plan),r=>persist(plan,r),text=>output(box,text));output(box,'已完成 · 保存记录已核实');box.checked=false;}catch(e){failed(box,e);break;}}});
+        });
+        const controls=[choose,selectAll,selectNone,concurrency,houseConcurrency,firstPhotographer,query,start,save];let busy=false;
+        function failed(box,e){output(box,e.stage?'上传未完成':'操作失败',e.message);if(e.needsLogin)login.textContent='登录已失效 · 请重新登录';}
+        async function perform(action){if(busy)return;busy=true;controls.forEach(el=>{el.disabled=true;});input.disabled=true;const boxes=checks();boxes.forEach(el=>{el.disabled=true;});try{await action();}finally{controls.forEach(el=>{el.disabled=false;});input.disabled=false;boxes.forEach(el=>{el.disabled=false;});busy=false;}}
+        const actions=document.createElement('div');actions.className='pano-actions';actions.append(query,start,save);
+        toolbar.append(source,selectAll,selectNone,photographerSetting,housesSetting,setting,actions);panel.append(input,toolbar,rows,notice,dialog);host.append(panel);
+        input.addEventListener('change',()=>{
+            rows.replaceChildren();plans.clear();hasDirectory=input.files.length>0;const groups=new Map();
+            for(const file of input.files){const parts=file.webkitRelativePath.split('/');const index=parts.findIndex(part=>/HS\d{12}(?!\d)/i.test(part));if(index<0||index===parts.length-1)continue;const name=parts[index];if(!groups.has(name))groups.set(name,[]);groups.get(name).push({file,relativePath:parts.slice(index+1).join('/')});}
+            const rootName=input.files[0]?.webkitRelativePath.split('/')[0]||'';
+            directory.textContent=/HS\d{12}(?!\d)/i.test(rootName)?'单个房源文件夹':rootName||'未选择';
+            const recognized=[...groups].map(([name,entries])=>planPanoramaFolder(name,entries)).filter(Boolean);
+            const table=document.createElement('table'),head=table.createTHead().insertRow();
+            for(const title of ['选择','序号','姓名','房源编号','门店','小区 / 其他信息','楼栋房号','朝向','楼层 / 图片','状态']){const cell=document.createElement('th');cell.textContent=title;head.append(cell);}
+            const colgroup=document.createElement('colgroup');for(const width of [4,4,7,15,13,17,9,4,12,15]){const col=document.createElement('col');col.style.width=`${width}%`;colgroup.append(col);}table.prepend(colgroup);const body=table.createTBody();rows.append(table);
+            for(const plan of recognized.sort((a,b)=>a.name.localeCompare(b.name,'zh-CN',{numeric:true}))){
+                if(recognized.filter(p=>p.houseNumber===plan.houseNumber).length>1)plan.errors.push('同日房源编号重复');
+                const row=body.insertRow(),box=document.createElement('input');box.type='checkbox';box.checked=!plan.errors.length;box.disabled=!!plan.errors.length;box.setAttribute('aria-label',`选择 ${plan.houseNumber}`);row.insertCell().append(box);plans.set(box,plan);
+                const fields=surveyFolderFields(plan.name,plan.houseNumber,plan.direction);
+                for(const value of [fields.sequence,fields.person,plan.houseNumber,fields.store,fields.property,fields.unit,plan.direction,plan.floors.map(f=>`${f.floor}层 ${f.images.length}张`).join(' / ')])row.insertCell().textContent=value||'—';
+                const state=document.createElement('output');state.tabIndex=0;state.setAttribute('role','button');const show=()=>{detail.textContent=`${plan.houseNumber}\n${state.dataset.detail}`;dialog.showModal();};state.addEventListener('click',show);state.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}});row.insertCell().append(state);output(box,plan.errors.length?'无效':'尚未查询',plan.errors.join('；'));
+            }
+            notice.textContent=`共${recognized.length}个房源 · 按楼层上传；“保存所选朝向”会派单，请核对后单独提交。`;
+        });
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
 
 })();

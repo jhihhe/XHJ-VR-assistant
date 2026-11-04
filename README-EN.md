@@ -1,3 +1,5 @@
+> **Latest userscript: 6.3.7 (2026-11-04).** Adds sale-panorama folder uploads, sequential floors, platform retakes, coordinate verification, and separately confirmed direction submission. All order searches check the current account before the selected cross-photographer priority. Supports 1–5 properties sharing a default image concurrency of 20. See the [panorama guide](docs/panorama-upload.md) and [current changelog](CHANGELOG.md). Earlier release notes below remain historical.
+
 # 🌌 Xiangshi Platform Assistant · XHJ VR Assistant
 
 ## 2026-11-03 · v6.2.2
