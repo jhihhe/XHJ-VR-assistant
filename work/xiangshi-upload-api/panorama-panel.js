@@ -5,7 +5,7 @@
         const host = document.querySelector('.demoTable');
         if (!host || document.getElementById('xhj-panorama-folders')) return;
         const panel = document.createElement('details'); panel.id = 'xhj-panorama-folders'; panel.open = true;
-        panel.dataset.panoramaVersion = '0.2.4';
+        panel.dataset.panoramaVersion = '0.3.0';
         const style = document.createElement('style');
         style.textContent = `
         #xhj-panorama-folders{box-sizing:border-box;flex-basis:100%;width:100%;min-width:0;margin:16px 0;padding:12px 18px;border-radius:20px;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,#283342)!important;box-shadow:var(--xhj-soft-out,0 3px 12px #0001);color-scheme:var(--xhj-scheme,light);font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
@@ -78,9 +78,9 @@
         }).catch(error=>{firstPhotographer.title=`摄影师列表未加载：${error.message}；自动查询仍可用`;});
         firstPhotographer.addEventListener('change',()=>{try{localStorage.setItem('xhj-panorama-first-photographer',firstPhotographer.value);}catch(_){}});
         const setting=document.createElement('label');setting.textContent='图片并发 ';setting.title='所有房源共享此上限，最高20张';setting.append(concurrency);
-        const housesSetting=document.createElement('label');housesSetting.textContent='同时房源 ';housesSetting.append(houseConcurrency);
+        const housesSetting=document.createElement('label');housesSetting.textContent='同时房源 ';housesSetting.title='仅限制上传图片的房源数，坐标处理不占名额';housesSetting.append(houseConcurrency);
         const rows=document.createElement('div');rows.className='pano-scroll';const plans=new Map();
-        const notice=document.createElement('p');notice.textContent='默认同时1套，图片并发20张；多套共享图片上限。保存朝向单独提交并派单。';
+        const notice=document.createElement('p');notice.textContent='默认同时上传1套，图片并发20张；坐标处理不占上传名额。保存朝向单独提交并派单。';
         const dialog=document.createElement('dialog');dialog.setAttribute('aria-label','全景状态详情');const detail=document.createElement('pre');dialog.append(detail,button('关闭',()=>dialog.close()));
         function output(box,text,reason=''){const el=box.closest('tr').querySelector('output');el.textContent=text;el.dataset.detail=reason||text;el.dataset.tone=/失败|无效/.test(text)?'error':/未提交|待核实|重拍/.test(text)?'warning':/可上传|已完成/.test(text)?'success':'';}
         function checks(){return [...rows.querySelectorAll('input[type=checkbox]:not(:disabled)')];}
@@ -88,7 +88,9 @@
         function key(plan){return `xhj-panorama-receipt:${plan.houseNumber}`;}
         function load(plan){try{return JSON.parse(localStorage.getItem(key(plan))||'null');}catch(_){return null;}}
         function persist(plan,receipt){localStorage.setItem(key(plan),JSON.stringify(receipt));}
-        const query=button('查询所选订单',()=>perform(async()=>{const boxes=selected();for(const box of boxes)output(box,'排队等待');let completed=0;for(const box of boxes){const plan=plans.get(box);notice.textContent=`查询进度 ${completed}/${boxes.length} · 当前 ${plan.houseNumber}`;try{const orders=await api().findOrders(plan.houseNumber,text=>output(box,text));output(box,orders.length!==1?'无效 · 订单不唯一':Number(orders[0].status)===5?'重拍后可上传':[1,2].includes(Number(orders[0].status))?'全景可上传':'无效 · 当前状态不可上传');}catch(e){failed(box,e);}completed++;notice.textContent=`查询完成 ${completed}/${boxes.length}`;}}));
+        const query=button('查询所选订单',()=>perform(async()=>{const boxes=selected();for(const box of boxes)output(box,'排队等待');let completed=0;for(const box of boxes){const plan=plans.get(box);notice.textContent=`查询进度 ${completed}/${boxes.length} · 当前 ${plan.houseNumber}`;try{const orders=await api().findOrders(plan.houseNumber,text=>output(box,text),()=>coordinatesStopped);output(box,orders.length!==1?'无效 · 订单不唯一':Number(orders[0].status)===5?'重拍后可上传':[1,2].includes(Number(orders[0].status))?'全景可上传':'无效 · 当前状态不可上传');}catch(e){failed(box,e);}completed++;notice.textContent=`查询完成 ${completed}/${boxes.length}`;}}));
+        let coordinatesStopped=false, coordinateJobs=0;
+        const stopCoordinates=button('停止坐标补取',()=>{coordinatesStopped=true;stopCoordinates.disabled=true;stopCoordinates.textContent='正在停止坐标补取';});stopCoordinates.disabled=true;stopCoordinates.hidden=true;
         const start=button('开始上传',()=>perform(async()=>{
             const boxes=selected();if(!boxes.length)return;
             const retakes=[];
@@ -100,10 +102,14 @@
             const outcomes=await runPanoramaBatch(boxes,async(box,transfer)=>{
                 const plan=plans.get(box);
                 return runPanoramaUpload(plan,api(),{
-                    concurrency:Number(concurrency.value),transfer,receipt:load(plan),persist:r=>persist(plan,r),allowRetake:retakes.includes(box),
+                    concurrency:Number(concurrency.value),transfer,deferCoordinates:true,receipt:load(plan),persist:r=>persist(plan,r),allowRetake:retakes.includes(box),
                     onProgress:e=>output(box,e.detail?`${e.stage} ${e.detail}`:e.stage,e.detail)
                 });
-            },{houses:Number(houseConcurrency.value),images:Number(concurrency.value)});
+            },{houses:Number(houseConcurrency.value),images:Number(concurrency.value),finish:async(box,result)=>{
+                coordinateJobs++;stopCoordinates.hidden=false;stopCoordinates.disabled=coordinatesStopped;
+                try{return await finishPanoramaUpload(plans.get(box),api(),result,{shouldStop:()=>coordinatesStopped,onProgress:e=>output(box,e.detail?`${e.stage} ${e.detail}`:e.stage,e.detail)});}
+                finally{coordinateJobs--;stopCoordinates.hidden=!coordinateJobs;stopCoordinates.disabled=coordinatesStopped||!coordinateJobs;}
+            }});
             for(const result of outcomes){
                 const box=result.item,plan=plans.get(box);
                 if(result.status==='fulfilled'){
@@ -115,12 +121,12 @@
         const save=button('保存所选朝向',()=>{
             const boxes=selected();if(!boxes.length)return;
             if(!window.confirm(`以下房源图片和全部坐标核对通过后，将保存朝向并分配设计师制作户型图：\n${boxes.map(box=>`${plans.get(box).houseNumber} · ${plans.get(box).direction}`).join('\n')}\n确认提交？`))return;
-            perform(async()=>{for(const box of boxes){const plan=plans.get(box);try{await runPanoramaSave(plan,api(),load(plan),r=>persist(plan,r),text=>output(box,text));output(box,'已完成 · 保存记录已核实');box.checked=false;}catch(e){failed(box,e);break;}}});
+            perform(async()=>{for(const box of boxes){const plan=plans.get(box);coordinateJobs++;stopCoordinates.hidden=false;stopCoordinates.disabled=coordinatesStopped;try{await runPanoramaSave(plan,api(),load(plan),r=>persist(plan,r),text=>output(box,text),()=>coordinatesStopped);output(box,'已完成 · 保存记录已核实');box.checked=false;}catch(e){failed(box,e);break;}finally{coordinateJobs--;stopCoordinates.hidden=!coordinateJobs;stopCoordinates.disabled=true;}}});
         });
         const controls=[choose,selectAll,selectNone,concurrency,houseConcurrency,firstPhotographer,query,start,save];let busy=false;
-        function failed(box,e){output(box,e.stage?'上传未完成':'操作失败',e.message);if(e.needsLogin)login.textContent='登录已失效 · 请重新登录';}
-        async function perform(action){if(busy)return;busy=true;controls.forEach(el=>{el.disabled=true;});input.disabled=true;const boxes=checks();boxes.forEach(el=>{el.disabled=true;});try{await action();}finally{controls.forEach(el=>{el.disabled=false;});input.disabled=false;boxes.forEach(el=>{el.disabled=false;});busy=false;}}
-        const actions=document.createElement('div');actions.className='pano-actions';actions.append(query,start,save);
+        function failed(box,e){output(box,e.stage?.includes('坐标')?'图片已上传 · 坐标未齐':e.stage?'上传未完成':'操作失败',e.message);if(e.needsLogin)login.textContent='登录已失效 · 请重新登录';}
+        async function perform(action){if(busy)return;busy=true;coordinatesStopped=false;stopCoordinates.textContent='停止坐标补取';controls.forEach(el=>{el.disabled=true;});input.disabled=true;const boxes=checks();boxes.forEach(el=>{el.disabled=true;});try{await action();}finally{controls.forEach(el=>{el.disabled=false;});input.disabled=false;boxes.forEach(el=>{el.disabled=false;});busy=false;stopCoordinates.disabled=true;}}
+        const actions=document.createElement('div');actions.className='pano-actions';actions.append(query,start,save,stopCoordinates);
         toolbar.append(source,selectAll,selectNone,photographerSetting,housesSetting,setting,actions);panel.append(input,toolbar,rows,notice,dialog);host.append(panel);
         input.addEventListener('change',()=>{
             rows.replaceChildren();plans.clear();hasDirectory=input.files.length>0;const groups=new Map();

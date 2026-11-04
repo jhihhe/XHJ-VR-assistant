@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { runPanoramaUpload, runPanoramaSave } = require('../work/xiangshi-upload-api/panorama-runner');
+const { runPanoramaUpload, runPanoramaSave, ensurePanoramaCoordinates } = require('../work/xiangshi-upload-api/panorama-runner');
 const { createPanoramaAPI, panoramaPhotographerIDs } = require('../work/xiangshi-upload-api/panorama-api');
 function fixture() {
     let rows = [], calls = [], counter = 0, status = 1;
@@ -8,18 +8,35 @@ function fixture() {
         findOrders: async()=>[{id:1,status,house_nums:plan.houseNumber}], listImages:async()=>rows.map(x=>({...x})),
         uploadFile:async file=>{calls.push(file.name);return '/uploads/image.JPG';},
         addImage:async(order,image,url,floor)=>{rows.push({id:++counter,image_name:image.room,storey:floor,image_url:`https://example.test/${counter}.jpg`});},
+        generateImageCoordinates:async image=>{rows.find(row=>row.id===image.id).point='fixture-coordinate';},
         generateCoordinates:async()=>{for (const row of rows) row.point='fixture-coordinate';},
         retake:async()=>{rows=[];status=1;calls.push('retake');}, saveDirection:async()=>{throw Error('must not save');} };
-    return { plan,api,calls,setStatus:s=>status=s,addRow:r=>rows.push(r) };
+    return { plan,api,calls,rows:()=>rows,setStatus:s=>status=s,addRow:r=>rows.push(r) };
 }
 (async()=>{
-    const missing=fixture(); let missingReceipt;
-    missing.api.generateCoordinates=async()=>{};
-    await assert.rejects(runPanoramaUpload(missing.plan,missing.api,{persist:r=>missingReceipt=structuredClone(r)}),/坐标未齐/);
+    const missing=fixture(); let missingReceipt, stoppedSingles=0;
+    missing.api.generateCoordinates=async()=>{};missing.api.generateImageCoordinates=async()=>{stoppedSingles++;};
+    await assert.rejects(runPanoramaUpload(missing.plan,missing.api,{persist:r=>missingReceipt=structuredClone(r),shouldStopCoordinates:()=>stoppedSingles>=2}),/坐标未齐/);
     missing.plan.direction='北'; let forbiddenSaves=0;
     missing.api.saveDirection=async()=>{forbiddenSaves++;};
-    await assert.rejects(runPanoramaSave(missing.plan,missing.api,missingReceipt),/坐标未齐/);
+    await assert.rejects(runPanoramaSave(missing.plan,missing.api,missingReceipt,()=>{},()=>{},()=>stoppedSingles>=2),/坐标未齐/);
     assert.equal(forbiddenSaves,0); assert.equal(missingReceipt.saveAttempted,undefined);
+    const partial=fixture();let singleIDs=[];
+    partial.api.generateCoordinates=async()=>{partial.rows()[0].point='bulk-ready';};
+    partial.api.generateImageCoordinates=async image=>{singleIDs.push(image.id);partial.rows().find(row=>row.id===image.id).point='single-ready';};
+    await runPanoramaUpload(partial.plan,partial.api);
+    assert.deepEqual(singleIDs,[2],'only still-missing image gets individual coordinates');
+    const bulkTimedOut=fixture();let fallbackSingles=0;
+    bulkTimedOut.api.generateCoordinates=async()=>{throw Error('batch timeout');};
+    bulkTimedOut.api.generateImageCoordinates=async image=>{fallbackSingles++;bulkTimedOut.rows().find(row=>row.id===image.id).point='ready';};
+    await runPanoramaUpload(bulkTimedOut.plan,bulkTimedOut.api);
+    assert.equal(fallbackSingles,2,'batch failure must fall back to each missing image');
+    const retry=fixture();retry.api.generateCoordinates=async()=>{};
+    const uploaded=await runPanoramaUpload(retry.plan,retry.api,{deferCoordinates:true});
+    let attempts=0;
+    retry.api.generateImageCoordinates=async image=>{if(++attempts>2)retry.rows().find(row=>row.id===image.id).point='eventually-ready';};
+    await ensurePanoramaCoordinates(uploaded.order,retry.api,uploaded.manifest,uploaded.receipt,{pause:async()=>{}});
+    assert.equal(attempts,4,'repeat missing images until all are ready');
     let f=fixture(), receipt;
     await runPanoramaUpload(f.plan,f.api,{persist:r=>receipt=structuredClone(r)});
     assert.deepEqual(f.calls,['room1.JPG','room2.JPG']);

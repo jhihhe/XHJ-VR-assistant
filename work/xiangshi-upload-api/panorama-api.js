@@ -17,10 +17,10 @@ function createPanoramaAPI(request = fetch, firstPhotographer = null) {
         if (!result.ok || result.redirected) throw new Error(`全景接口失败：HTTP ${result.status}`);
         return result;
     }
-    async function form(url, body) {
+    async function form(url, body, options = {}) {
         return (await response(url, { method: 'POST', headers: {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest'
-        }, body: new URLSearchParams(body) })).json();
+        }, body: new URLSearchParams(body), ...options })).json();
     }
     function success(result, stage) {
         if (!(Number(result.code) > 0)) throw new Error(`${stage}失败：${String(result.msg || result.info || result.code).slice(0, 160)}`);
@@ -113,7 +113,8 @@ function createPanoramaAPI(request = fetch, firstPhotographer = null) {
             if (Number(removed.code) !== 200) throw new Error('原VR下架失败，未提交重拍');
             success(await form(`/houseadmin/pano/invalid.html?id=${encodeURIComponent(order.id)}`, { id: order.id, flag: 2 }), '重拍转换');
         },
-        generateCoordinates: async order => success(await form('/houseadmin/pano/add_image_point', { order_id: order.id }), '生成全景坐标'),
+        generateCoordinates: async order => success(await form('/houseadmin/pano/add_image_point', { order_id: order.id }, { signal: AbortSignal.timeout(60000) }), '生成全景坐标'),
+        generateImageCoordinates: async image => success(await form('/houseadmin/pano/add_image_points', { id: image.id }, { signal: AbortSignal.timeout(60000) }), '获取单张全景坐标'),
         saveDirection: async (order, direction) => {
             if (!['东', '南', '西', '北'].includes(direction)) throw new Error('朝向无效');
             return success(await form(`/houseadmin/pano/add_save.html?order_id=${encodeURIComponent(order.id)}`, {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手（563997）
 // @namespace    http://tampermonkey.net/
-// @version      6.3.7
+// @version      6.3.8
 // @description  象视平台助手：16套主题统一新拟物设计、字段列配色、批量同步、表格增强、上传计数与重试、缩放和本地验证码识别。
 // @author       @Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
@@ -3317,7 +3317,7 @@ ${getSoftUICss(vars)}
         // 创建主按钮
         const triggerButton = document.createElement('button');
         triggerButton.type = 'button';
-        triggerButton.title = '象视助手 v6.3.7 · 同步当前已接单页（最多90条）';
+        triggerButton.title = '象视助手 v6.3.8 · 同步当前已接单页（最多90条）';
         triggerButton.id = BUTTON_ID;
         triggerButton.textContent = '开始自动同步';
         triggerButton.style.cssText = `
@@ -3337,7 +3337,7 @@ ${getSoftUICss(vars)}
         // 创建设置按钮
         const settingsButton = document.createElement('button');
         settingsButton.type = 'button';
-        settingsButton.title = '象视助手 v6.3.7 · 加载已接单订单';
+        settingsButton.title = '象视助手 v6.3.8 · 加载已接单订单';
         settingsButton.id = SETTINGS_BUTTON_ID;
         settingsButton.textContent = '跳转到已接单';
         settingsButton.style.cssText = `
@@ -3409,7 +3409,7 @@ ${getSoftUICss(vars)}
             let table;
             while (!(table = getOrderTable()) || !Array.isArray(table.cache?.order)
                 || document.querySelector('.layui-table-view[lay-id="order"] .layui-table-init')) {
-                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.3.7 并刷新房勘列表');
+                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.3.8 并刷新房勘列表');
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
             const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
@@ -6032,15 +6032,19 @@ function createPanoramaTaskPool(limit) {
         stop
     };
 }
-async function runPanoramaBatch(items, operation, { houses = 1, images = 20 } = {}) {
+async function runPanoramaBatch(items, operation, { houses = 1, images = 20, finish = async (_, value) => value } = {}) {
     const housePool = createPanoramaTaskPool(panoramaHouseConcurrency(houses));
     const imagePool = createPanoramaTaskPool(panoramaImageConcurrency(images));
     const started = new Set();
-    const results = await Promise.allSettled(items.map(item => housePool.run(async () => {
-        started.add(item);
-        try { return await operation(item, imagePool.run); }
-        catch (error) { imagePool.stop(error); throw error; }
-    })));
+    const results = await Promise.allSettled(items.map(async item => {
+        const uploaded = await housePool.run(async () => {
+            started.add(item);
+            try { return await operation(item, imagePool.run); }
+            catch (error) { imagePool.stop(error); throw error; }
+        });
+        // Coordinate work has no house/upload slot and cannot stop unrelated uploads.
+        return finish(item, uploaded);
+    }));
     return results.map((result, index) => ({ ...result, item: items[index], started: started.has(items[index]) }));
 }
 
@@ -6063,10 +6067,10 @@ function createPanoramaAPI(request = fetch, firstPhotographer = null) {
         if (!result.ok || result.redirected) throw new Error(`全景接口失败：HTTP ${result.status}`);
         return result;
     }
-    async function form(url, body) {
+    async function form(url, body, options = {}) {
         return (await response(url, { method: 'POST', headers: {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest'
-        }, body: new URLSearchParams(body) })).json();
+        }, body: new URLSearchParams(body), ...options })).json();
     }
     function success(result, stage) {
         if (!(Number(result.code) > 0)) throw new Error(`${stage}失败：${String(result.msg || result.info || result.code).slice(0, 160)}`);
@@ -6159,7 +6163,8 @@ function createPanoramaAPI(request = fetch, firstPhotographer = null) {
             if (Number(removed.code) !== 200) throw new Error('原VR下架失败，未提交重拍');
             success(await form(`/houseadmin/pano/invalid.html?id=${encodeURIComponent(order.id)}`, { id: order.id, flag: 2 }), '重拍转换');
         },
-        generateCoordinates: async order => success(await form('/houseadmin/pano/add_image_point', { order_id: order.id }), '生成全景坐标'),
+        generateCoordinates: async order => success(await form('/houseadmin/pano/add_image_point', { order_id: order.id }, { signal: AbortSignal.timeout(60000) }), '生成全景坐标'),
+        generateImageCoordinates: async image => success(await form('/houseadmin/pano/add_image_points', { id: image.id }, { signal: AbortSignal.timeout(60000) }), '获取单张全景坐标'),
         saveDirection: async (order, direction) => {
             if (!['东', '南', '西', '北'].includes(direction)) throw new Error('朝向无效');
             return success(await form(`/houseadmin/pano/add_save.html?order_id=${encodeURIComponent(order.id)}`, {
@@ -6188,17 +6193,43 @@ function verifyPanoramaCoordinates(images) {
     const missing = images.filter(image => !image.point || image.point === '0' || (typeof image.point === 'string' && !image.point.trim()));
     if (!images.length || missing.length) throw new Error(`全景坐标未齐：${missing.length}/${images.length}张未获取${missing.length ? '（' + missing.map(image => `${image.storey}层 ${image.image_name}`).join('、') + '）' : ''}，未保存朝向`);
 }
-async function ensurePanoramaCoordinates(order, api, expected, receipt) {
+async function ensurePanoramaCoordinates(order, api, expected, receipt, { onProgress = () => {}, shouldStop = () => false, pause = () => new Promise(resolve => setTimeout(resolve, 5000)) } = {}) {
     let images = await api.listImages(order);
-    verifyPanoramaImages(expected, images, receipt);
-    if (images.some(image => !image.point || image.point === '0' || (typeof image.point === 'string' && !image.point.trim()))) {
-        await api.generateCoordinates(order);
-        images = await api.listImages(order);
-        verifyPanoramaImages(expected, images, receipt);
+    const missing = () => images.filter(image => !image.point || image.point === '0' || (typeof image.point === 'string' && !image.point.trim()));
+    const check = () => { verifyPanoramaImages(expected, images, receipt); if (shouldStop() && missing().length) throw new Error(`坐标未齐：补取已停止，剩余${missing().length}/${images.length}张；图片已保留，可重新开始继续补取`); };
+    check();
+    if (missing().length) {
+        onProgress(`批量获取坐标 · ${images.length - missing().length}/${images.length}`);
+        try { await api.generateCoordinates(order); }
+        catch (error) { if (error.needsLogin) throw error; onProgress(`批量获取未完成，转单张补取：${error.message}`); }
+        images = await api.listImages(order); check();
+    }
+    let round = 0;
+    while (missing().length) {
+        check(); round++;
+        for (const image of missing()) {
+            check();
+            // Refresh after each request: bulk or another request may already have completed this image.
+            if (!missing().some(row => String(row.id) === String(image.id))) continue;
+            onProgress(`单张补取第${round}轮 · ${image.storey}层 ${image.image_name} · ${images.length - missing().length}/${images.length}`);
+            try { await api.generateImageCoordinates(image); }
+            catch (error) { if (error.needsLogin) throw error; onProgress(`单张补取未完成 · ${image.image_name}：${error.message}`); }
+            images = await api.listImages(order); check();
+        }
+        if (missing().length) { onProgress(`坐标未齐 ${images.length - missing().length}/${images.length} · 等待继续补取`); await pause(); images = await api.listImages(order); check(); }
     }
     verifyPanoramaCoordinates(images);
 }
-async function runPanoramaUpload(plan, api, { concurrency = 20, onProgress = () => {}, receipt, persist = () => {}, allowRetake = false, transfer = operation => operation() } = {}) {
+async function finishPanoramaUpload(plan, api, result, options = {}) {
+    const stage = '获取并核对全景坐标';
+    try {
+        await ensurePanoramaCoordinates(result.order, api, result.manifest, result.receipt, { ...options,
+            onProgress: detail => options.onProgress?.({ stage, detail }) });
+        options.onProgress?.({ stage: '图片及坐标已就绪 · 朝向未提交', detail: `${plan.count}张 · ${plan.floors.length}层` });
+        return result;
+    } catch (error) { throw Object.assign(new Error(`${stage}：${error.message}`), { stage, needsLogin: Boolean(error.needsLogin) }); }
+}
+async function runPanoramaUpload(plan, api, { concurrency = 20, onProgress = () => {}, receipt, persist = () => {}, allowRetake = false, transfer = operation => operation(), deferCoordinates = false, shouldStopCoordinates = () => false } = {}) {
     let stage = '检查文件';
     const manifest = panoramaManifest(plan);
     const emit = (name, detail = '') => { stage = name; onProgress({ stage, detail }); };
@@ -6259,17 +6290,17 @@ async function runPanoramaUpload(plan, api, { concurrency = 20, onProgress = () 
         }
         emit('核对全景图片'); actual = await api.listImages(order);
         verifyPanoramaImages(manifest, actual, receipt);
-        emit('获取并核对全景坐标');
-        await ensurePanoramaCoordinates(order, api, manifest, receipt);
-        emit('图片及坐标已就绪 · 朝向未提交', `${manifest.length}张 · ${plan.floors.length}层`);
-        return { order, receipt };
+        const result = { order, receipt, manifest };
+        if (deferCoordinates) { emit('图片已上传 · 等待坐标核对'); return result; }
+        stage = '获取并核对全景坐标';
+        return await finishPanoramaUpload(plan, api, result, { onProgress, shouldStop: shouldStopCoordinates });
     } catch (error) {
         throw Object.assign(new Error(`${stage}：${error.message}。已停止，不会自动提交朝向或重试。`), {
             stage, needsLogin: Boolean(error.needsLogin), requiresRetake: Boolean(error.requiresRetake)
         });
     }
 }
-async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress = () => {}) {
+async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress = () => {}, shouldStopCoordinates = () => false) {
     progress('查询全景订单');
     if (!receipt || receipt.directionSubmitted || receipt.saveAttempted) throw new Error('没有待提交记录，或已尝试提交；请核对订单，避免重复派单');
     const orders = await api.findOrders(plan.houseNumber, progress);
@@ -6279,7 +6310,8 @@ async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress 
     for (const image of manifest) if (receipt.images[image.key]?.digest !== await api.fingerprint(image.file)) throw new Error('本地图片变化，未提交朝向');
     verifyPanoramaImages(manifest, await api.listImages(order), receipt);
     progress('获取并核对全部坐标');
-    await ensurePanoramaCoordinates(order, api, manifest, receipt);
+    try { await ensurePanoramaCoordinates(order, api, manifest, receipt, { onProgress: progress, shouldStop: shouldStopCoordinates }); }
+    catch (error) { throw Object.assign(error, { stage: '获取并核对全景坐标' }); }
     const before = new Set((await api.readHistory(order)).map(row => String(row.id)));
     // Mark intent first. A lost response must never trigger an automatic repeat.
     progress('保存朝向 · 等待服务器');
@@ -6305,7 +6337,7 @@ async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress 
         const host = document.querySelector('.demoTable');
         if (!host || document.getElementById('xhj-panorama-folders')) return;
         const panel = document.createElement('details'); panel.id = 'xhj-panorama-folders'; panel.open = true;
-        panel.dataset.panoramaVersion = '0.2.4';
+        panel.dataset.panoramaVersion = '0.3.0';
         const style = document.createElement('style');
         style.textContent = `
         #xhj-panorama-folders{box-sizing:border-box;flex-basis:100%;width:100%;min-width:0;margin:16px 0;padding:12px 18px;border-radius:20px;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,#283342)!important;box-shadow:var(--xhj-soft-out,0 3px 12px #0001);color-scheme:var(--xhj-scheme,light);font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
@@ -6378,9 +6410,9 @@ async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress 
         }).catch(error=>{firstPhotographer.title=`摄影师列表未加载：${error.message}；自动查询仍可用`;});
         firstPhotographer.addEventListener('change',()=>{try{localStorage.setItem('xhj-panorama-first-photographer',firstPhotographer.value);}catch(_){}});
         const setting=document.createElement('label');setting.textContent='图片并发 ';setting.title='所有房源共享此上限，最高20张';setting.append(concurrency);
-        const housesSetting=document.createElement('label');housesSetting.textContent='同时房源 ';housesSetting.append(houseConcurrency);
+        const housesSetting=document.createElement('label');housesSetting.textContent='同时房源 ';housesSetting.title='仅限制上传图片的房源数，坐标处理不占名额';housesSetting.append(houseConcurrency);
         const rows=document.createElement('div');rows.className='pano-scroll';const plans=new Map();
-        const notice=document.createElement('p');notice.textContent='默认同时1套，图片并发20张；多套共享图片上限。保存朝向单独提交并派单。';
+        const notice=document.createElement('p');notice.textContent='默认同时上传1套，图片并发20张；坐标处理不占上传名额。保存朝向单独提交并派单。';
         const dialog=document.createElement('dialog');dialog.setAttribute('aria-label','全景状态详情');const detail=document.createElement('pre');dialog.append(detail,button('关闭',()=>dialog.close()));
         function output(box,text,reason=''){const el=box.closest('tr').querySelector('output');el.textContent=text;el.dataset.detail=reason||text;el.dataset.tone=/失败|无效/.test(text)?'error':/未提交|待核实|重拍/.test(text)?'warning':/可上传|已完成/.test(text)?'success':'';}
         function checks(){return [...rows.querySelectorAll('input[type=checkbox]:not(:disabled)')];}
@@ -6388,7 +6420,9 @@ async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress 
         function key(plan){return `xhj-panorama-receipt:${plan.houseNumber}`;}
         function load(plan){try{return JSON.parse(localStorage.getItem(key(plan))||'null');}catch(_){return null;}}
         function persist(plan,receipt){localStorage.setItem(key(plan),JSON.stringify(receipt));}
-        const query=button('查询所选订单',()=>perform(async()=>{const boxes=selected();for(const box of boxes)output(box,'排队等待');let completed=0;for(const box of boxes){const plan=plans.get(box);notice.textContent=`查询进度 ${completed}/${boxes.length} · 当前 ${plan.houseNumber}`;try{const orders=await api().findOrders(plan.houseNumber,text=>output(box,text));output(box,orders.length!==1?'无效 · 订单不唯一':Number(orders[0].status)===5?'重拍后可上传':[1,2].includes(Number(orders[0].status))?'全景可上传':'无效 · 当前状态不可上传');}catch(e){failed(box,e);}completed++;notice.textContent=`查询完成 ${completed}/${boxes.length}`;}}));
+        const query=button('查询所选订单',()=>perform(async()=>{const boxes=selected();for(const box of boxes)output(box,'排队等待');let completed=0;for(const box of boxes){const plan=plans.get(box);notice.textContent=`查询进度 ${completed}/${boxes.length} · 当前 ${plan.houseNumber}`;try{const orders=await api().findOrders(plan.houseNumber,text=>output(box,text),()=>coordinatesStopped);output(box,orders.length!==1?'无效 · 订单不唯一':Number(orders[0].status)===5?'重拍后可上传':[1,2].includes(Number(orders[0].status))?'全景可上传':'无效 · 当前状态不可上传');}catch(e){failed(box,e);}completed++;notice.textContent=`查询完成 ${completed}/${boxes.length}`;}}));
+        let coordinatesStopped=false, coordinateJobs=0;
+        const stopCoordinates=button('停止坐标补取',()=>{coordinatesStopped=true;stopCoordinates.disabled=true;stopCoordinates.textContent='正在停止坐标补取';});stopCoordinates.disabled=true;stopCoordinates.hidden=true;
         const start=button('开始上传',()=>perform(async()=>{
             const boxes=selected();if(!boxes.length)return;
             const retakes=[];
@@ -6400,10 +6434,14 @@ async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress 
             const outcomes=await runPanoramaBatch(boxes,async(box,transfer)=>{
                 const plan=plans.get(box);
                 return runPanoramaUpload(plan,api(),{
-                    concurrency:Number(concurrency.value),transfer,receipt:load(plan),persist:r=>persist(plan,r),allowRetake:retakes.includes(box),
+                    concurrency:Number(concurrency.value),transfer,deferCoordinates:true,receipt:load(plan),persist:r=>persist(plan,r),allowRetake:retakes.includes(box),
                     onProgress:e=>output(box,e.detail?`${e.stage} ${e.detail}`:e.stage,e.detail)
                 });
-            },{houses:Number(houseConcurrency.value),images:Number(concurrency.value)});
+            },{houses:Number(houseConcurrency.value),images:Number(concurrency.value),finish:async(box,result)=>{
+                coordinateJobs++;stopCoordinates.hidden=false;stopCoordinates.disabled=coordinatesStopped;
+                try{return await finishPanoramaUpload(plans.get(box),api(),result,{shouldStop:()=>coordinatesStopped,onProgress:e=>output(box,e.detail?`${e.stage} ${e.detail}`:e.stage,e.detail)});}
+                finally{coordinateJobs--;stopCoordinates.hidden=!coordinateJobs;stopCoordinates.disabled=coordinatesStopped||!coordinateJobs;}
+            }});
             for(const result of outcomes){
                 const box=result.item,plan=plans.get(box);
                 if(result.status==='fulfilled'){
@@ -6415,12 +6453,12 @@ async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress 
         const save=button('保存所选朝向',()=>{
             const boxes=selected();if(!boxes.length)return;
             if(!window.confirm(`以下房源图片和全部坐标核对通过后，将保存朝向并分配设计师制作户型图：\n${boxes.map(box=>`${plans.get(box).houseNumber} · ${plans.get(box).direction}`).join('\n')}\n确认提交？`))return;
-            perform(async()=>{for(const box of boxes){const plan=plans.get(box);try{await runPanoramaSave(plan,api(),load(plan),r=>persist(plan,r),text=>output(box,text));output(box,'已完成 · 保存记录已核实');box.checked=false;}catch(e){failed(box,e);break;}}});
+            perform(async()=>{for(const box of boxes){const plan=plans.get(box);coordinateJobs++;stopCoordinates.hidden=false;stopCoordinates.disabled=coordinatesStopped;try{await runPanoramaSave(plan,api(),load(plan),r=>persist(plan,r),text=>output(box,text),()=>coordinatesStopped);output(box,'已完成 · 保存记录已核实');box.checked=false;}catch(e){failed(box,e);break;}finally{coordinateJobs--;stopCoordinates.hidden=!coordinateJobs;stopCoordinates.disabled=true;}}});
         });
         const controls=[choose,selectAll,selectNone,concurrency,houseConcurrency,firstPhotographer,query,start,save];let busy=false;
-        function failed(box,e){output(box,e.stage?'上传未完成':'操作失败',e.message);if(e.needsLogin)login.textContent='登录已失效 · 请重新登录';}
-        async function perform(action){if(busy)return;busy=true;controls.forEach(el=>{el.disabled=true;});input.disabled=true;const boxes=checks();boxes.forEach(el=>{el.disabled=true;});try{await action();}finally{controls.forEach(el=>{el.disabled=false;});input.disabled=false;boxes.forEach(el=>{el.disabled=false;});busy=false;}}
-        const actions=document.createElement('div');actions.className='pano-actions';actions.append(query,start,save);
+        function failed(box,e){output(box,e.stage?.includes('坐标')?'图片已上传 · 坐标未齐':e.stage?'上传未完成':'操作失败',e.message);if(e.needsLogin)login.textContent='登录已失效 · 请重新登录';}
+        async function perform(action){if(busy)return;busy=true;coordinatesStopped=false;stopCoordinates.textContent='停止坐标补取';controls.forEach(el=>{el.disabled=true;});input.disabled=true;const boxes=checks();boxes.forEach(el=>{el.disabled=true;});try{await action();}finally{controls.forEach(el=>{el.disabled=false;});input.disabled=false;boxes.forEach(el=>{el.disabled=false;});busy=false;stopCoordinates.disabled=true;}}
+        const actions=document.createElement('div');actions.className='pano-actions';actions.append(query,start,save,stopCoordinates);
         toolbar.append(source,selectAll,selectNone,photographerSetting,housesSetting,setting,actions);panel.append(input,toolbar,rows,notice,dialog);host.append(panel);
         input.addEventListener('change',()=>{
             rows.replaceChildren();plans.clear();hasDirectory=input.files.length>0;const groups=new Map();

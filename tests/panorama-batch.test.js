@@ -28,5 +28,18 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 1));
     assert.equal(laterStarted,false);assert.equal(stopped[2].started,false);
     assert.equal(completed,3,'only already-active transfers may finish after the first error');
     assert.equal(activeImages,0);
+    let heldCoordinates=0, coordinatePeak=0, imageUploads=0, imageUploadPeak=0;
+    const releases=[];
+    const separated=runPanoramaBatch([1,2,3],async house=>{
+        imageUploads++;imageUploadPeak=Math.max(imageUploadPeak,imageUploads);await tick();imageUploads--;return house;
+    },{houses:1,images:20,finish:async(house,value)=>{
+        heldCoordinates++;coordinatePeak=Math.max(coordinatePeak,heldCoordinates);
+        await new Promise(resolve=>releases.push(resolve));heldCoordinates--;return value;
+    }});
+    while(releases.length<3)await tick();
+    assert.equal(imageUploadPeak,1);assert.equal(coordinatePeak,3,'coordinate work must not retain upload slots');
+    releases.forEach(resolve=>resolve());await separated;
+    const coordFailed=await runPanoramaBatch([1,2],async house=>house,{houses:1,finish:async(house,value)=>{if(house===1)throw Error('point failed');return value;}});
+    assert.equal(coordFailed[1].status,'fulfilled','coordinate error must not stop next house upload');
     console.log('panorama multi-house shared budget and failure stop passed');
 })().catch(error=>{console.error(error);process.exitCode=1;});

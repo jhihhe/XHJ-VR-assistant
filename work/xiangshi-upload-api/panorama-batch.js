@@ -33,15 +33,19 @@ function createPanoramaTaskPool(limit) {
         stop
     };
 }
-async function runPanoramaBatch(items, operation, { houses = 1, images = 20 } = {}) {
+async function runPanoramaBatch(items, operation, { houses = 1, images = 20, finish = async (_, value) => value } = {}) {
     const housePool = createPanoramaTaskPool(panoramaHouseConcurrency(houses));
     const imagePool = createPanoramaTaskPool(panoramaImageConcurrency(images));
     const started = new Set();
-    const results = await Promise.allSettled(items.map(item => housePool.run(async () => {
-        started.add(item);
-        try { return await operation(item, imagePool.run); }
-        catch (error) { imagePool.stop(error); throw error; }
-    })));
+    const results = await Promise.allSettled(items.map(async item => {
+        const uploaded = await housePool.run(async () => {
+            started.add(item);
+            try { return await operation(item, imagePool.run); }
+            catch (error) { imagePool.stop(error); throw error; }
+        });
+        // Coordinate work has no house/upload slot and cannot stop unrelated uploads.
+        return finish(item, uploaded);
+    }));
     return results.map((result, index) => ({ ...result, item: items[index], started: started.has(items[index]) }));
 }
 if (typeof module !== 'undefined') module.exports = { panoramaImageConcurrency, panoramaHouseConcurrency, createPanoramaTaskPool, runPanoramaBatch };

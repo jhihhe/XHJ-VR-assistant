@@ -16,17 +16,43 @@ function verifyPanoramaCoordinates(images) {
     const missing = images.filter(image => !image.point || image.point === '0' || (typeof image.point === 'string' && !image.point.trim()));
     if (!images.length || missing.length) throw new Error(`全景坐标未齐：${missing.length}/${images.length}张未获取${missing.length ? '（' + missing.map(image => `${image.storey}层 ${image.image_name}`).join('、') + '）' : ''}，未保存朝向`);
 }
-async function ensurePanoramaCoordinates(order, api, expected, receipt) {
+async function ensurePanoramaCoordinates(order, api, expected, receipt, { onProgress = () => {}, shouldStop = () => false, pause = () => new Promise(resolve => setTimeout(resolve, 5000)) } = {}) {
     let images = await api.listImages(order);
-    verifyPanoramaImages(expected, images, receipt);
-    if (images.some(image => !image.point || image.point === '0' || (typeof image.point === 'string' && !image.point.trim()))) {
-        await api.generateCoordinates(order);
-        images = await api.listImages(order);
-        verifyPanoramaImages(expected, images, receipt);
+    const missing = () => images.filter(image => !image.point || image.point === '0' || (typeof image.point === 'string' && !image.point.trim()));
+    const check = () => { verifyPanoramaImages(expected, images, receipt); if (shouldStop() && missing().length) throw new Error(`坐标未齐：补取已停止，剩余${missing().length}/${images.length}张；图片已保留，可重新开始继续补取`); };
+    check();
+    if (missing().length) {
+        onProgress(`批量获取坐标 · ${images.length - missing().length}/${images.length}`);
+        try { await api.generateCoordinates(order); }
+        catch (error) { if (error.needsLogin) throw error; onProgress(`批量获取未完成，转单张补取：${error.message}`); }
+        images = await api.listImages(order); check();
+    }
+    let round = 0;
+    while (missing().length) {
+        check(); round++;
+        for (const image of missing()) {
+            check();
+            // Refresh after each request: bulk or another request may already have completed this image.
+            if (!missing().some(row => String(row.id) === String(image.id))) continue;
+            onProgress(`单张补取第${round}轮 · ${image.storey}层 ${image.image_name} · ${images.length - missing().length}/${images.length}`);
+            try { await api.generateImageCoordinates(image); }
+            catch (error) { if (error.needsLogin) throw error; onProgress(`单张补取未完成 · ${image.image_name}：${error.message}`); }
+            images = await api.listImages(order); check();
+        }
+        if (missing().length) { onProgress(`坐标未齐 ${images.length - missing().length}/${images.length} · 等待继续补取`); await pause(); images = await api.listImages(order); check(); }
     }
     verifyPanoramaCoordinates(images);
 }
-async function runPanoramaUpload(plan, api, { concurrency = 20, onProgress = () => {}, receipt, persist = () => {}, allowRetake = false, transfer = operation => operation() } = {}) {
+async function finishPanoramaUpload(plan, api, result, options = {}) {
+    const stage = '获取并核对全景坐标';
+    try {
+        await ensurePanoramaCoordinates(result.order, api, result.manifest, result.receipt, { ...options,
+            onProgress: detail => options.onProgress?.({ stage, detail }) });
+        options.onProgress?.({ stage: '图片及坐标已就绪 · 朝向未提交', detail: `${plan.count}张 · ${plan.floors.length}层` });
+        return result;
+    } catch (error) { throw Object.assign(new Error(`${stage}：${error.message}`), { stage, needsLogin: Boolean(error.needsLogin) }); }
+}
+async function runPanoramaUpload(plan, api, { concurrency = 20, onProgress = () => {}, receipt, persist = () => {}, allowRetake = false, transfer = operation => operation(), deferCoordinates = false, shouldStopCoordinates = () => false } = {}) {
     let stage = '检查文件';
     const manifest = panoramaManifest(plan);
     const emit = (name, detail = '') => { stage = name; onProgress({ stage, detail }); };
@@ -87,17 +113,17 @@ async function runPanoramaUpload(plan, api, { concurrency = 20, onProgress = () 
         }
         emit('核对全景图片'); actual = await api.listImages(order);
         verifyPanoramaImages(manifest, actual, receipt);
-        emit('获取并核对全景坐标');
-        await ensurePanoramaCoordinates(order, api, manifest, receipt);
-        emit('图片及坐标已就绪 · 朝向未提交', `${manifest.length}张 · ${plan.floors.length}层`);
-        return { order, receipt };
+        const result = { order, receipt, manifest };
+        if (deferCoordinates) { emit('图片已上传 · 等待坐标核对'); return result; }
+        stage = '获取并核对全景坐标';
+        return await finishPanoramaUpload(plan, api, result, { onProgress, shouldStop: shouldStopCoordinates });
     } catch (error) {
         throw Object.assign(new Error(`${stage}：${error.message}。已停止，不会自动提交朝向或重试。`), {
             stage, needsLogin: Boolean(error.needsLogin), requiresRetake: Boolean(error.requiresRetake)
         });
     }
 }
-async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress = () => {}) {
+async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress = () => {}, shouldStopCoordinates = () => false) {
     progress('查询全景订单');
     if (!receipt || receipt.directionSubmitted || receipt.saveAttempted) throw new Error('没有待提交记录，或已尝试提交；请核对订单，避免重复派单');
     const orders = await api.findOrders(plan.houseNumber, progress);
@@ -107,7 +133,8 @@ async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress 
     for (const image of manifest) if (receipt.images[image.key]?.digest !== await api.fingerprint(image.file)) throw new Error('本地图片变化，未提交朝向');
     verifyPanoramaImages(manifest, await api.listImages(order), receipt);
     progress('获取并核对全部坐标');
-    await ensurePanoramaCoordinates(order, api, manifest, receipt);
+    try { await ensurePanoramaCoordinates(order, api, manifest, receipt, { onProgress: progress, shouldStop: shouldStopCoordinates }); }
+    catch (error) { throw Object.assign(error, { stage: '获取并核对全景坐标' }); }
     const before = new Set((await api.readHistory(order)).map(row => String(row.id)));
     // Mark intent first. A lost response must never trigger an automatic repeat.
     progress('保存朝向 · 等待服务器');
@@ -125,4 +152,4 @@ async function runPanoramaSave(plan, api, receipt, persist = () => {}, progress 
         });
     }
 }
-if (typeof module !== 'undefined') module.exports = { verifyPanoramaCoordinates, ensurePanoramaCoordinates, panoramaImageKey, panoramaManifest, verifyPanoramaImages, runPanoramaUpload, runPanoramaSave };
+if (typeof module !== 'undefined') module.exports = { finishPanoramaUpload, verifyPanoramaCoordinates, ensurePanoramaCoordinates, panoramaImageKey, panoramaManifest, verifyPanoramaImages, runPanoramaUpload, runPanoramaSave };
