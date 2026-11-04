@@ -152,6 +152,14 @@ node tests/userscript-static.test.js
 python3 work/xiangshi-upload-api/build_userscripts.py
 ```
 
+本机安装更新使用带 UTF-8 声明的入口，避免直接查看源码时中文乱码：
+
+```sh
+python3 work/xiangshi-upload-api/serve_userscripts.py
+```
+
+随后打开 `http://127.0.0.1:8768/xhj_assistant.user.js`。该服务仅监听本机；油猴安装确认需手动完成。
+
 模块源码位于 `work/xiangshi-upload-api/`；本机实站诊断资料和照片不属于发行内容。上述徽章是已记录的本地检查结果，不是持续集成的实时状态。
 
 </details>
