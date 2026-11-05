@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { loadSurveyContext } = require('../work/xiangshi-upload-api/order-context');
+const { loadSurveyContext, surveyImageSnapshot } = require('../work/xiangshi-upload-api/order-context');
 (async () => {
     const order = { id: 2, lpid: 3, saleOrRentid: 4, housetype: 1, housesourceid: 5, houseSourceNumber: 'HS000000000001' };
     const request = async (url, type) => type === 'text' ? 'fixture' : url.includes('/detail?') ? { code: 200, data: { hxType: 7 } } : { code: 200, data: [{ name: url.endsWith('1091') ? '客厅' : '北', id: 9 }] };
@@ -12,3 +12,6 @@ const { loadSurveyContext } = require('../work/xiangshi-upload-api/order-context
     await assert.rejects(loadSurveyContext({ ...order, lpid: null }, '北', request, () => ({})), /缺少字段/);
     console.log('survey order context passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
+
+assert.notEqual(surveyImageSnapshot({ images: [{ id: 1 }, { id: 2 }] }), surveyImageSnapshot({ images: [{ id: 2 }, { id: 1 }] }));
+assert.notEqual(surveyImageSnapshot({ imagepath: 'a', orientationId: 1 }), surveyImageSnapshot({ imagepath: 'a', orientationId: 2 }));

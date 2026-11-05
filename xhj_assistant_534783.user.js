@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         象视平台助手（534783）
 // @namespace    http://tampermonkey.net/
-// @version      6.3.8
+// @version      6.3.9
 // @description  象视平台助手：16套主题统一新拟物设计、字段列配色、批量同步、表格增强、上传计数与重试、缩放和本地验证码识别。
 // @author       @Jhih he
 // @homepageURL  https://github.com/jhihhe/XHJ-VR-assistant
@@ -3317,7 +3317,7 @@ ${getSoftUICss(vars)}
         // 创建主按钮
         const triggerButton = document.createElement('button');
         triggerButton.type = 'button';
-        triggerButton.title = '象视助手 v6.3.8 · 同步当前已接单页（最多90条）';
+        triggerButton.title = '象视助手 v6.3.9 · 同步当前已接单页（最多90条）';
         triggerButton.id = BUTTON_ID;
         triggerButton.textContent = '开始自动同步';
         triggerButton.style.cssText = `
@@ -3337,7 +3337,7 @@ ${getSoftUICss(vars)}
         // 创建设置按钮
         const settingsButton = document.createElement('button');
         settingsButton.type = 'button';
-        settingsButton.title = '象视助手 v6.3.8 · 加载已接单订单';
+        settingsButton.title = '象视助手 v6.3.9 · 加载已接单订单';
         settingsButton.id = SETTINGS_BUTTON_ID;
         settingsButton.textContent = '跳转到已接单';
         settingsButton.style.cssText = `
@@ -3409,7 +3409,7 @@ ${getSoftUICss(vars)}
             let table;
             while (!(table = getOrderTable()) || !Array.isArray(table.cache?.order)
                 || document.querySelector('.layui-table-view[lay-id="order"] .layui-table-init')) {
-                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.3.8 并刷新房勘列表');
+                if (Date.now() >= deadline) throw new Error('无法访问页面订单表格，请确认已安装 v6.3.9 并刷新房勘列表');
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
             const page = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
@@ -5472,6 +5472,17 @@ function prepareSurveySave(fields, images, surveyDate, hxType = null) {
 }
 
 
+// Author: @Jhih he
+// JSON object property order is not part of the image content. Array order remains significant.
+function surveyImageSnapshot(value) {
+    function canonical(item) {
+        if (Array.isArray(item)) return item.map(canonical);
+        if (item && typeof item === 'object') return Object.fromEntries(Object.keys(item).sort().map(key => [key, canonical(item[key])]));
+        return item;
+    }
+    return JSON.stringify(canonical(value ?? null));
+}
+
 async function loadSurveyContext(order, direction, request, parsePage) {
     const params = new URLSearchParams();
     const mapping = { id: 'surveyId', lpid: 'lpid', oid: 'id', saleOrRentid: 'saleOrRentid', housetype: 'housetype', housesourceid: 'housesourceid', houseSourceNumber: 'houseSourceNumber' };
@@ -5494,7 +5505,7 @@ async function loadSurveyContext(order, direction, request, parsePage) {
     if (directions.length !== 1 || directions[0].id == null) throw new Error('无法唯一匹配朝向');
     if (!roomsResult.data.some(item => item.name === '客厅' && item.id != null)) throw new Error('房间字典缺少客厅');
     return { ready: true, pageURL, fields, rooms: roomsResult.data, orientationId: directions[0].id, hxType: detail.data.hxType ?? null,
-        originalImages: JSON.stringify(detail.data.houseSurveyImgVO ?? null) };
+        originalImages: surveyImageSnapshot(detail.data.houseSurveyImgVO) };
 }
 
 
@@ -5531,7 +5542,17 @@ function createSurveyBrowserAPI(request = fetch) {
         uploadImage: file => uploadSurveyImage(file, request),
         prepareSave: async (order, context, images) => {
             const detail = await read(`https://api.xhj.com/api/xhj-bms/houseSurveyApply/xiangshi/detail?id=${encodeURIComponent(order.id)}`, 'json');
-            if (Number(detail.code) !== 200 || JSON.stringify(detail.data?.houseSurveyImgVO ?? null) !== context.originalImages) throw new Error('上传期间原订单图片变化，未保存新图，请核对订单');
+            if (Number(detail?.code) !== 200 || !detail.data || Array.isArray(detail.data)) {
+                throw new Error(`保存前读取订单详情失败：code=${String(detail?.code ?? '缺失')}；保存请求未发送，旧图未清除`);
+            }
+            const current = surveyImageSnapshot(detail.data.houseSurveyImgVO);
+            if (current !== context.originalImages) {
+                const before = JSON.parse(context.originalImages);
+                const after = JSON.parse(current);
+                const keys = [...new Set([...Object.keys(before || {}), ...Object.keys(after || {})])];
+                const changed = keys.filter(key => surveyImageSnapshot(before?.[key]) !== surveyImageSnapshot(after?.[key]));
+                throw new Error(`原订单数据与上传前不一致（变化字段：${changed.slice(0, 8).join('、') || '图片数据'}）；保存请求未发送，旧图未清除，请核对订单`);
+            }
             const now = new Date();
             const pad = value => String(value).padStart(2, '0');
             const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -5573,8 +5594,8 @@ function createSurveyBrowserAPI(request = fetch) {
 function surveyUploadFailure(stage, saved, error) {
     const reason = error?.message || String(error);
     const summary = saved ? (stage === '完成订单回写' ? '已保存 · 回写待核实' : '已保存 · 核对未通过')
-        : stage === '保存订单' ? '保存未确认' : '上传未完成';
-    const failure = new Error(`步骤：${stage}\n原因：${reason}\n${saved ? '服务器已确认图片保存成功，后续步骤未完成核实。' : '尚未取得图片保存成功的确认。'}\n已停止，不会自动重复提交。请先核对订单。`);
+        : stage === '保存订单' ? '保存未确认' : stage === '保存前核对' ? '未保存 · 核对失败' : '上传未完成';
+    const failure = new Error(`步骤：${stage}\n原因：${reason}\n${saved ? '服务器已确认图片保存成功，后续步骤未完成核实。' : stage === '保存前核对' ? '本次照片已传至文件服务器，但保存请求尚未发送，新图未关联到订单；旧图未清除。' : '尚未取得图片保存成功的确认。'}\n已停止，不会自动重复提交。请先核对订单。`);
     Object.assign(failure, { summary, stage, saved, needsLogin: !!error?.needsLogin });
     return failure;
 }
@@ -5661,7 +5682,7 @@ async function runSurveyUpload(plan, api, report = () => {}, concurrency = 8) {
         if (!host || document.getElementById('xhj-survey-folders')) return;
         const panel = document.createElement('details');
         panel.id = 'xhj-survey-folders';
-        panel.dataset.surveyVersion = '0.6.1';
+        panel.dataset.surveyVersion = '0.6.2';
         const style = document.createElement('style');
         style.textContent = `
             #xhj-survey-folders{box-sizing:border-box;width:100%;min-width:0;flex-basis:100%;margin:20px 0 0!important;padding:12px 18px;border-radius:20px;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,#283342)!important;box-shadow:var(--xhj-soft-out,0 3px 12px #0001);color-scheme:var(--xhj-scheme,light);font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif!important}

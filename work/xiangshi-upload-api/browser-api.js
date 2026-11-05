@@ -31,7 +31,17 @@ function createSurveyBrowserAPI(request = fetch) {
         uploadImage: file => uploadSurveyImage(file, request),
         prepareSave: async (order, context, images) => {
             const detail = await read(`https://api.xhj.com/api/xhj-bms/houseSurveyApply/xiangshi/detail?id=${encodeURIComponent(order.id)}`, 'json');
-            if (Number(detail.code) !== 200 || JSON.stringify(detail.data?.houseSurveyImgVO ?? null) !== context.originalImages) throw new Error('上传期间原订单图片变化，未保存新图，请核对订单');
+            if (Number(detail?.code) !== 200 || !detail.data || Array.isArray(detail.data)) {
+                throw new Error(`保存前读取订单详情失败：code=${String(detail?.code ?? '缺失')}；保存请求未发送，旧图未清除`);
+            }
+            const current = surveyImageSnapshot(detail.data.houseSurveyImgVO);
+            if (current !== context.originalImages) {
+                const before = JSON.parse(context.originalImages);
+                const after = JSON.parse(current);
+                const keys = [...new Set([...Object.keys(before || {}), ...Object.keys(after || {})])];
+                const changed = keys.filter(key => surveyImageSnapshot(before?.[key]) !== surveyImageSnapshot(after?.[key]));
+                throw new Error(`原订单数据与上传前不一致（变化字段：${changed.slice(0, 8).join('、') || '图片数据'}）；保存请求未发送，旧图未清除，请核对订单`);
+            }
             const now = new Date();
             const pad = value => String(value).padStart(2, '0');
             const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;

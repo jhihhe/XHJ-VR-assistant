@@ -2,8 +2,8 @@
 function surveyUploadFailure(stage, saved, error) {
     const reason = error?.message || String(error);
     const summary = saved ? (stage === '完成订单回写' ? '已保存 · 回写待核实' : '已保存 · 核对未通过')
-        : stage === '保存订单' ? '保存未确认' : '上传未完成';
-    const failure = new Error(`步骤：${stage}\n原因：${reason}\n${saved ? '服务器已确认图片保存成功，后续步骤未完成核实。' : '尚未取得图片保存成功的确认。'}\n已停止，不会自动重复提交。请先核对订单。`);
+        : stage === '保存订单' ? '保存未确认' : stage === '保存前核对' ? '未保存 · 核对失败' : '上传未完成';
+    const failure = new Error(`步骤：${stage}\n原因：${reason}\n${saved ? '服务器已确认图片保存成功，后续步骤未完成核实。' : stage === '保存前核对' ? '本次照片已传至文件服务器，但保存请求尚未发送，新图未关联到订单；旧图未清除。' : '尚未取得图片保存成功的确认。'}\n已停止，不会自动重复提交。请先核对订单。`);
     Object.assign(failure, { summary, stage, saved, needsLogin: !!error?.needsLogin });
     return failure;
 }

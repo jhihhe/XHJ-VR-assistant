@@ -14,6 +14,8 @@ const path = require('node:path');
     const calls = [];
     let saved;
     let wrongDirection = false;
+    let originalSurvey;
+    let detailReads = 0;
     const request = async (url, options = {}) => {
         calls.push([url, options.method || 'GET']);
         const ok = body => ({ ok: true, redirected: false, json: async () => body, text: async () => body });
@@ -25,7 +27,7 @@ const path = require('node:path');
             return ok({ data: { originalName: file.name, link: `https://example.test/${encodeURIComponent(file.name)}` } });
         }
         if (url.endsWith('/save')) { saved = JSON.parse(options.body); return ok({ code: 200 }); }
-        if (url.includes('/detail?') && !saved) return ok({ code: 200, data: { hxType: 7 } });
+        if (url.includes('/detail?') && !saved) return ok({ code: 200, data: { hxType: 7, houseSurveyImgVO: originalSurvey?.[++detailReads === 1 ? 0 : 1] } });
         if (url.includes('/detail?')) return ok({ code: 200, data: { houseSurveyImgVO: { inDoorImgVoList: saved.houseSurveyImages.map((image, index) => ({ orientationId: index > 0 ? (wrongDirection ? 9 : 0) : image.orientationId, hsImgList: [image] })) } } });
         throw Error(`Unexpected request ${url}`);
     };
@@ -58,7 +60,24 @@ const path = require('node:path');
         if (url.includes('/detail?') && ++reads === 2) return { ok: true, redirected: false, json: async () => ({ code: 200, data: { houseSurveyImgVO: { changed: true } } }) };
         return request(url, options);
     };
-    await assert.rejects(vm.runInContext(`runSurveyUpload(planFolder('HS000000000001 楼盘 北', files), createSurveyBrowserAPI(request))`, scope), /原订单图片变化/);
+    await assert.rejects(vm.runInContext(`runSurveyUpload(planFolder('HS000000000001 楼盘 北', files), createSurveyBrowserAPI(request))`, scope), /原订单数据与上传前不一致/);
     assert.equal(calls.filter(([url]) => url.endsWith('/save')).length, 0);
+    calls.length = 0;
+    reads = 0;
+    scope.request = async (url, options) => {
+        if (url.includes('/detail?') && ++reads === 2) return { ok: true, redirected: false, json: async () => ({ code: 401, msg: 'private message' }) };
+        return request(url, options);
+    };
+    await assert.rejects(vm.runInContext(`runSurveyUpload(planFolder('HS000000000001 楼盘 北', files), createSurveyBrowserAPI(request))`, scope), error => /code=401/.test(error.message) && !/原订单数据/.test(error.message) && /保存请求尚未发送/.test(error.message));
+    assert.equal(calls.filter(([url]) => url.endsWith('/save')).length, 0);
+    const original = { inDoorImgVoList: [{ orientationId: 2, hsImgList: [{ id: 1, imagepath: 'https://example.test/original' }] }], id: 7 };
+    const reordered = { id: 7, inDoorImgVoList: [{ hsImgList: [{ imagepath: 'https://example.test/original', id: 1 }], orientationId: 2 }] };
+    originalSurvey = [original, reordered];
+    detailReads = 0;
+    saved = undefined;
+    calls.length = 0;
+    scope.request = request;
+    await vm.runInContext(`runSurveyUpload(planFolder('HS000000000001 楼盘 北', files), createSurveyBrowserAPI(request))`, scope);
+    assert.equal(calls.filter(([url]) => url.endsWith('/save')).length, 1);
     console.log('survey browser API simulated workflow passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });

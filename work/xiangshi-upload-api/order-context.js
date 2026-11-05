@@ -1,3 +1,14 @@
+// Author: @Jhih he
+// JSON object property order is not part of the image content. Array order remains significant.
+function surveyImageSnapshot(value) {
+    function canonical(item) {
+        if (Array.isArray(item)) return item.map(canonical);
+        if (item && typeof item === 'object') return Object.fromEntries(Object.keys(item).sort().map(key => [key, canonical(item[key])]));
+        return item;
+    }
+    return JSON.stringify(canonical(value ?? null));
+}
+
 async function loadSurveyContext(order, direction, request, parsePage) {
     const params = new URLSearchParams();
     const mapping = { id: 'surveyId', lpid: 'lpid', oid: 'id', saleOrRentid: 'saleOrRentid', housetype: 'housetype', housesourceid: 'housesourceid', houseSourceNumber: 'houseSourceNumber' };
@@ -20,7 +31,7 @@ async function loadSurveyContext(order, direction, request, parsePage) {
     if (directions.length !== 1 || directions[0].id == null) throw new Error('无法唯一匹配朝向');
     if (!roomsResult.data.some(item => item.name === '客厅' && item.id != null)) throw new Error('房间字典缺少客厅');
     return { ready: true, pageURL, fields, rooms: roomsResult.data, orientationId: directions[0].id, hxType: detail.data.hxType ?? null,
-        originalImages: JSON.stringify(detail.data.houseSurveyImgVO ?? null) };
+        originalImages: surveyImageSnapshot(detail.data.houseSurveyImgVO) };
 }
 
-if (typeof module !== 'undefined') module.exports = { loadSurveyContext };
+if (typeof module !== 'undefined') module.exports = { loadSurveyContext, surveyImageSnapshot };

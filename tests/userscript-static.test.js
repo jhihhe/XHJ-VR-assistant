@@ -23,7 +23,7 @@ const main = scripts.get('xhj_assistant.user.js');
 const normalizeName = source => source.replace(/^\/\/ @name\s+.*$/m, '// @name         <distribution-name>');
 
 for (const [name, source] of scripts) {
-    assert.match(source, /^\/\/ @version\s+6\.3\.8$/m, `${name} must publish v6.3.8`);
+    assert.match(source, /^\/\/ @version\s+6\.3\.9$/m, `${name} must publish v6.3.9`);
     assert.match(source, /^\/\/ @grant\s+unsafeWindow$/m);
     assert.match(source, /^\/\/ @author\s+@Jhih he$/m);
     assert.match(source, new RegExp(`^// @name\\s+${expectedNames[name].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'm'));

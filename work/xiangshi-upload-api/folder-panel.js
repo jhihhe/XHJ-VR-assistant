@@ -6,7 +6,7 @@
         if (!host || document.getElementById('xhj-survey-folders')) return;
         const panel = document.createElement('details');
         panel.id = 'xhj-survey-folders';
-        panel.dataset.surveyVersion = '0.6.1';
+        panel.dataset.surveyVersion = '0.6.2';
         const style = document.createElement('style');
         style.textContent = `
             #xhj-survey-folders{box-sizing:border-box;width:100%;min-width:0;flex-basis:100%;margin:20px 0 0!important;padding:12px 18px;border-radius:20px;background:var(--xhj-surface,#eef0f3)!important;color:var(--xhj-text,#283342)!important;box-shadow:var(--xhj-soft-out,0 3px 12px #0001);color-scheme:var(--xhj-scheme,light);font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif!important}

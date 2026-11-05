@@ -22,3 +22,7 @@ assert.ok(!Object.hasOwn(receipt, 'xiangShiToken'));
 assert.ok(!Object.hasOwn(receipt, 'password'));
 delete global.localStorage;
 console.log('survey detailed outcomes and receipt privacy passed');
+
+const preSave = surveyUploadFailure('保存前核对', false, Error('fixture'));
+assert.equal(preSave.summary, '未保存 · 核对失败');
+assert.match(preSave.message, /保存请求尚未发送/);
